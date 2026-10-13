@@ -1,7 +1,7 @@
 {
   "name": "@tufaylahmed/pa-converter",
-  "version": "5.45.4",
-  "description": "PA-Converter — Dockerized Palo Alto Expedition for firewall config conversion (private testing package)",
+  "version": "5.45.5",
+  "description": "PA-Converter — Dockerized Palo Alto Expedition for firewall config conversion (macOS / Windows / Linux)",
   "license": "UNLICENSED",
   "bin": {
     "pa-converter": "bin/expedition.js",
@@ -12,6 +12,7 @@
     "databases",
     "app",
     "README.md",
+    "scripts",
     "docker/docker-compose.yml",
     "docker/initdb",
     "docker/web",

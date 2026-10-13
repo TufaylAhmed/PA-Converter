@@ -10,28 +10,51 @@ const ROOT = path.resolve(__dirname, '..');
 const COMPOSE_FILE = path.join(ROOT, 'docker', 'docker-compose.yml');
 const DEFAULT_PORT = process.env.EXPEDITION_PORT || '18443';
 const DEFAULT_HTTP_PORT = process.env.EXPEDITION_HTTP_PORT || '18080';
+const IS_WIN = process.platform === 'win32';
 
 function die(msg, code = 1) {
-  console.error(`expedition: ${msg}`);
+  console.error(`pa-converter: ${msg}`);
   process.exit(code);
 }
 
 function which(cmd) {
-  const r = spawnSync(process.platform === 'win32' ? 'where' : 'which', [cmd], {
+  const finder = IS_WIN ? 'where' : 'which';
+  const r = spawnSync(finder, [cmd], {
     encoding: 'utf8',
+    shell: IS_WIN,
+    windowsHide: true,
   });
   return r.status === 0;
 }
 
+function dockerCmd() {
+  return IS_WIN ? 'docker.exe' : 'docker';
+}
+
+function runDocker(args, opts = {}) {
+  const r = spawnSync(dockerCmd(), args, {
+    stdio: opts.capture ? 'pipe' : 'inherit',
+    env: opts.env || process.env,
+    encoding: opts.capture ? 'utf8' : undefined,
+    cwd: opts.cwd || ROOT,
+    shell: IS_WIN,
+    windowsHide: true,
+  });
+  return r;
+}
+
 function ensureDocker() {
+  const dockerHelp = IS_WIN
+    ? 'https://docs.docker.com/desktop/setup/install/windows-install/'
+    : 'https://docs.docker.com/desktop/';
   if (!which('docker')) {
-    die('Docker is required. Install Docker Desktop for macOS: https://docs.docker.com/desktop/');
+    die(`Docker is required. Install Docker Desktop: ${dockerHelp}`);
   }
-  const info = spawnSync('docker', ['info'], { encoding: 'utf8' });
+  const info = runDocker(['info'], { capture: true });
   if (info.status !== 0) {
     die('Docker is installed but not running. Start Docker Desktop and retry.');
   }
-  const compose = spawnSync('docker', ['compose', 'version'], { encoding: 'utf8' });
+  const compose = runDocker(['compose', 'version'], { capture: true });
   if (compose.status !== 0) {
     die('Docker Compose v2 is required (`docker compose`). Update Docker Desktop.');
   }
@@ -48,15 +71,18 @@ function composeEnv() {
     EXPEDITION_HTTP_PORT: DEFAULT_HTTP_PORT,
     EXPEDITION_IMAGE: process.env.EXPEDITION_IMAGE || '',
     COMPOSE_PROJECT_NAME: projectName(),
+    // Avoid CRLF surprises when Compose reads bind-mounted shell scripts on Windows
+    COMPOSE_CONVERT_WINDOWS_PATHS: '1',
   };
 }
 
 function compose(args, opts = {}) {
-  const full = ['compose', '-f', COMPOSE_FILE, ...args];
-  const r = spawnSync('docker', full, {
-    stdio: opts.capture ? 'pipe' : 'inherit',
+  // Forward compose file as a forward-slash path — Docker Engine accepts this on Windows
+  const composeFile = COMPOSE_FILE.split(path.sep).join('/');
+  const full = ['compose', '-f', composeFile, ...args];
+  const r = runDocker(full, {
+    capture: opts.capture,
     env: composeEnv(),
-    encoding: opts.capture ? 'utf8' : undefined,
     cwd: ROOT,
   });
   if (opts.allowFail) return r;
@@ -68,7 +94,7 @@ function compose(args, opts = {}) {
 
 function printBanner() {
   console.log(`
-  Expedition (private package) — macOS/Linux via Docker
+  PA-Converter (Expedition 5.45.4) — macOS / Windows / Linux via Docker
   UI:   https://localhost:${DEFAULT_PORT}
   HTTP: http://localhost:${DEFAULT_HTTP_PORT}
   Login (seed): admin / paloalto
@@ -80,7 +106,10 @@ function printBanner() {
 function cmdStart() {
   ensureDocker();
   if (!fs.existsSync(path.join(ROOT, 'app', 'index.html'))) {
-    die(`App tree missing at ${path.join(ROOT, 'app')}. Re-extract or rebuild the package.`);
+    die(`App tree missing at ${path.join(ROOT, 'app')}. Reinstall the package.`);
+  }
+  if (IS_WIN) {
+    console.log('Windows tip: first build can take several minutes; keep Docker Desktop running.');
   }
   console.log(`Starting Expedition on https://localhost:${DEFAULT_PORT} …`);
   compose(['up', '-d', '--build']);
@@ -88,8 +117,8 @@ function cmdStart() {
 Expedition is starting.
   Open:  https://localhost:${DEFAULT_PORT}
   Login: admin / paloalto
-  Logs:  expedition logs
-  Stop:  expedition stop
+  Logs:  npx @tufaylahmed/pa-converter logs
+  Stop:  npx @tufaylahmed/pa-converter stop
 
 Note: accept the self-signed TLS warning in your browser.
 `);
@@ -128,7 +157,7 @@ function cmdUrl() {
 
 function cmdHelp() {
   printBanner();
-  console.log(`Usage: expedition <command>
+  console.log(`Usage: pa-converter <command>   (alias: expedition)
 
   start      Build (if needed) and start the stack
   stop       Stop and remove containers (keeps DB volume)
@@ -142,8 +171,10 @@ function cmdHelp() {
 Env:
   EXPEDITION_PORT       HTTPS host port (default 18443)
   EXPEDITION_HTTP_PORT  HTTP host port (default 18080)
-  EXPEDITION_IMAGE      Optional prebuilt web image (skips local Dockerfile build context app/)
+  EXPEDITION_IMAGE      Optional prebuilt web image
   EXPEDITION_PROJECT    Compose project name (default panw-expedition)
+
+Host: ${os.platform()} ${os.arch()} | package root: ${ROOT}
 `);
 }
 
@@ -151,23 +182,15 @@ function cmdPublishHelp() {
   console.log(`
 Private publish (do NOT use public npmjs.org)
 
-1) Container image (recommended — app is large):
-   docker build -t <your-private-registry>/expedition-web:5.45.4 -f docker/web/Dockerfile .
-   docker push <your-private-registry>/expedition-web:5.45.4
+GitHub Packages:
+  npm login --registry=https://npm.pkg.github.com
+  npm publish --registry=https://npm.pkg.github.com
 
-   Consumers:
-   EXPEDITION_IMAGE=<your-private-registry>/expedition-web:5.45.4 expedition start
+Install / run:
+  npx @tufaylahmed/pa-converter@5.45.5 start
 
-2) npm package (GitHub Packages / Artifactory / Verdaccio):
-   # package.json already has "private": true and publishConfig for GitHub Packages
-   npm login --registry=https://npm.pkg.github.com
-   npm publish --registry=https://npm.pkg.github.com
-
-   Or point publishConfig.registry at your Artifactory npm repo.
-
-3) Install internally:
-   npm install -g @panw/expedition --registry=https://npm.pkg.github.com
-   expedition start
+Windows bootstrap:
+  powershell -ExecutionPolicy Bypass -File scripts/install-windows.ps1
 
 Host: ${os.platform()} ${os.arch()} | package root: ${ROOT}
 `);
@@ -189,6 +212,6 @@ const map = {
 };
 
 if (!map[cmd]) {
-  die(`unknown command '${cmd}'. Try: expedition help`);
+  die(`unknown command '${cmd}'. Try: pa-converter help`);
 }
 map[cmd]();

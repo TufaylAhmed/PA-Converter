@@ -4,10 +4,10 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.45.4-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.45.5-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![License](https://img.shields.io/badge/License-Private-red?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![Platform](https://img.shields.io/badge/macOS%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Platform](https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![Node](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 
 **Convert · Import · Optimize · ML-assist** firewall configurations with Expedition, packaged for modern Docker Desktop.
@@ -27,7 +27,7 @@
 
 ## ✨ Overview
 
-**PA-Converter** is a private, Dockerized packaging of **Palo Alto Networks Expedition 5.45.4** for macOS and Linux. It recovers the classic Expedition web UI and backend into a Compose stack so you can migrate and convert firewall configurations without a dedicated Ubuntu VM.
+**PA-Converter** is a private, Dockerized packaging of **Palo Alto Networks Expedition 5.45.4** for **macOS, Windows, and Linux**. It runs the Expedition web UI in Docker so you can migrate and convert firewall configurations without a dedicated Ubuntu VM.
 
 | Capability | Status |
 |:-----------|:------:|
@@ -38,6 +38,7 @@
 | 🐇 Background jobs (RabbitMQ + PanOrders) | ✅ |
 | 🧠 Machine Learning / Spark 2.4 | ✅ |
 | 🍎 Apple Silicon (ARM64) Docker | ✅ |
+| 🪟 Windows + Docker Desktop (WSL2) | ✅ |
 
 > ⚠️ **Internal / private use only.** This repository is **not** for public npm or public distribution of Expedition.
 
@@ -45,30 +46,82 @@
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Prerequisites (all platforms)
 
-- ✅ **macOS** or **Linux**
 - ✅ **Node.js 18+**
-- ✅ **[Docker Desktop](https://docs.docker.com/desktop/)** with Compose v2
-- ✅ GitHub Packages auth (private npm package — Expedition is **not** published to public npmjs)
+- ✅ **Docker Desktop** with Compose v2 ([macOS](https://docs.docker.com/desktop/) · [Windows](https://docs.docker.com/desktop/setup/install/windows-install/) · Linux)
+- ✅ GitHub Packages auth (private package — **not** on public npmjs)
+- 🪟 **Windows:** WSL2 backend enabled in Docker Desktop
 
 ### Auth (once)
 
-Add to `~/.npmrc` (use a PAT with `read:packages`):
+**macOS / Linux** — add to `~/.npmrc`:
 
 ```ini
 @tufaylahmed:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
 ```
 
-### Run with npx
+**Windows** — same content in `%USERPROFILE%\.npmrc`, or use the installer below (it writes this for you).
+
+PAT scopes: `read:packages` (and `repo` if needed for the private GitHub repo).
+
+---
+
+### 🍎 macOS — run with npx
 
 ```bash
-npx @tufaylahmed/pa-converter@5.45.4 start
+# 1) One-time auth (see ~/.npmrc above)
+
+# 2) Start Docker Desktop, then:
+npx @tufaylahmed/pa-converter@5.45.5 start
+
+# Day-to-day:
 npx @tufaylahmed/pa-converter status
 npx @tufaylahmed/pa-converter logs -f
 npx @tufaylahmed/pa-converter stop
 ```
+
+First `start` builds the web image (several minutes). Then open **https://localhost:18443** (accept the self-signed cert) → `admin` / `paloalto`.
+
+Optional global install:
+
+```bash
+npm install -g @tufaylahmed/pa-converter@5.45.5 --registry=https://npm.pkg.github.com
+pa-converter start
+```
+
+---
+
+### 🪟 Windows — installer (recommended) or npx
+
+**Option A — PowerShell installer** (checks Node/Docker, configures npm auth, installs globally):
+
+```powershell
+# From a git clone:
+git clone https://github.com/TufaylAhmed/PA-Converter.git
+cd PA-Converter
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Start
+```
+
+Or with a token in the environment:
+
+```powershell
+$env:GITHUB_TOKEN = "ghp_your_token"
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Start
+```
+
+**Option B — npx (same as macOS)** after `\.npmrc` is set:
+
+```powershell
+npx @tufaylahmed/pa-converter@5.45.5 start
+npx @tufaylahmed/pa-converter status
+npx @tufaylahmed/pa-converter stop
+```
+
+> There is no separate `.msi` yet — Docker Desktop is the heavy dependency, so the PowerShell bootstrap is the practical “installer.” A real MSI would still require Docker.
+
+---
 
 ### Run from git clone
 
@@ -78,7 +131,7 @@ cd PA-Converter
 git lfs pull             # optional offline Spark bundle for Docker build
 
 npm link                 # exposes `expedition` / `pa-converter` on your PATH
-expedition start         # builds image + starts stack (first run takes a few minutes)
+pa-converter start       # builds image + starts stack (first run takes a few minutes)
 ```
 
 Open the UI:
