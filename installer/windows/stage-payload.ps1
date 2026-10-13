@@ -5,7 +5,8 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
+  # installer/windows → repo root (contains app/, docker/, databases/)
+  [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
   [string]$OutZip = (Join-Path $PSScriptRoot "payload\engine.zip")
 )
 
