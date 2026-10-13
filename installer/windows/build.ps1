@@ -4,7 +4,7 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$Version = "5.46.4",
+  [string]$Version = "5.46.5",
   [string]$OutDir = (Join-Path $PSScriptRoot "dist")
 )
 

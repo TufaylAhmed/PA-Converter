@@ -16,37 +16,48 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 try {
   Import-Module (Join-Path $here "lib\PAConverter.psm1") -Force
 
-  # Portable ZIP: scripts sit next to engine.zip, but runtime home is ProgramData.
-  # Stage files there so elevated/reboots always find engine.zip.
+  # Portable ZIP: scripts sit next to engine.zip; runtime home is ProgramData.
+  function Get-PAFullPath([string]$p) {
+    return ([IO.Path]::GetFullPath($p)).TrimEnd('\', '/').ToLowerInvariant()
+  }
+  function Copy-PAIfDifferent([string]$Src, [string]$Dst) {
+    if (-not (Test-Path $Src)) { return }
+    $dstDir = Split-Path $Dst -Parent
+    if ($dstDir) { New-Item -ItemType Directory -Force -Path $dstDir | Out-Null }
+    if ((Get-PAFullPath $Src) -eq (Get-PAFullPath $Dst)) { return } # never copy onto itself
+    Copy-Item -LiteralPath $Src -Destination $Dst -Force
+  }
+
   $programDataRoot = Join-Path $env:ProgramData "PA-Converter"
   $localEngineZip = Join-Path $here "engine.zip"
+  $hereKey = Get-PAFullPath $here
+  $pdKey = Get-PAFullPath $programDataRoot
+
   if (-not $InstallRoot) {
     if (Test-Path $localEngineZip) {
-      Write-Host "Staging installer files to $programDataRoot ..."
-      New-Item -ItemType Directory -Force -Path $programDataRoot | Out-Null
-      New-Item -ItemType Directory -Force -Path (Join-Path $programDataRoot "lib") | Out-Null
-      New-Item -ItemType Directory -Force -Path (Join-Path $programDataRoot "logs") | Out-Null
+      if ($hereKey -ne $pdKey) {
+        Write-Host "Staging installer files to $programDataRoot ..."
+        New-Item -ItemType Directory -Force -Path $programDataRoot | Out-Null
+        New-Item -ItemType Directory -Force -Path (Join-Path $programDataRoot "lib") | Out-Null
+        New-Item -ItemType Directory -Force -Path (Join-Path $programDataRoot "logs") | Out-Null
 
-      Copy-Item -Force $localEngineZip (Join-Path $programDataRoot "engine.zip")
-      foreach ($name in @(
-          "Bootstrap-PAConverter.ps1", "SETUP.bat", "Install.cmd",
-          "Start-PAConverter.ps1", "Stop-PAConverter.ps1", "Status-PAConverter.ps1",
-          "Start-PAConverter.cmd", "Stop-PAConverter.cmd", "Status-PAConverter.cmd",
-          "Configure-PAConverter.cmd", "README.txt"
-        )) {
-        $src = Join-Path $here $name
-        if (Test-Path $src) { Copy-Item -Force $src (Join-Path $programDataRoot $name) }
-      }
-      $mod = Join-Path $here "lib\PAConverter.psm1"
-      if (Test-Path $mod) { Copy-Item -Force $mod (Join-Path $programDataRoot "lib\PAConverter.psm1") }
+        Copy-PAIfDifferent $localEngineZip (Join-Path $programDataRoot "engine.zip")
+        foreach ($name in @(
+            "Bootstrap-PAConverter.ps1", "SETUP.bat", "Install.cmd",
+            "Start-PAConverter.ps1", "Stop-PAConverter.ps1", "Status-PAConverter.ps1",
+            "Start-PAConverter.cmd", "Stop-PAConverter.cmd", "Status-PAConverter.cmd",
+            "Configure-PAConverter.cmd", "README.txt"
+          )) {
+          Copy-PAIfDifferent (Join-Path $here $name) (Join-Path $programDataRoot $name)
+        }
+        Copy-PAIfDifferent (Join-Path $here "lib\PAConverter.psm1") (Join-Path $programDataRoot "lib\PAConverter.psm1")
 
-      try {
-        New-Item -Path "HKLM:\Software\PA-Converter" -Force | Out-Null
-        Set-ItemProperty -Path "HKLM:\Software\PA-Converter" -Name "InstallDir" -Value $programDataRoot
-      } catch {}
+        try {
+          New-Item -Path "HKLM:\Software\PA-Converter" -Force | Out-Null
+          Set-ItemProperty -Path "HKLM:\Software\PA-Converter" -Name "InstallDir" -Value $programDataRoot
+        } catch {}
 
-      # Re-launch from ProgramData so module/script paths stay consistent after elevation
-      if ($here -ne $programDataRoot) {
+        # Re-launch from ProgramData so paths stay consistent after elevation
         $argList = @(
           "-NoProfile", "-ExecutionPolicy", "Bypass",
           "-File", "`"$(Join-Path $programDataRoot 'Bootstrap-PAConverter.ps1')`""
@@ -60,6 +71,7 @@ try {
         $p = Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Wait -PassThru -WorkingDirectory $programDataRoot
         exit $p.ExitCode
       }
+      # Already running from ProgramData — continue in place
       $InstallRoot = $programDataRoot
     } else {
       $InstallRoot = Get-PAInstallRoot

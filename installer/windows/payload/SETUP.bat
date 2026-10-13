@@ -18,7 +18,8 @@ if not exist "%~dp0engine.zip" (
   exit /b 1
 )
 
-echo Found engine.zip — starting setup (Administrator prompt next^)...
+echo Found engine.zip - starting setup...
+echo A Windows Administrator prompt will appear next.
 echo.
 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
