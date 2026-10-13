@@ -47,12 +47,21 @@ RUN printf '%s\n' \
 
 COPY app/ /var/www/html/
 
-# Spark 2.4.3 + connector JARs (from expeditionml-dependencies)
-COPY docker/spark/opt-Spark.tar.gz /tmp/opt-Spark.tar.gz
-RUN mkdir -p /opt \
- && tar -xzf /tmp/opt-Spark.tar.gz -C / \
- && rm -f /tmp/opt-Spark.tar.gz \
- && if [ ! -e /opt/Spark/spark ]; then ln -sfn spark-2.4.3-bin-hadoop2.7 /opt/Spark/spark; fi \
+# Spark 2.4.3 — prefer local Git-LFS bundle; otherwise download Apache archive (npm pack excludes the 235MB tarball)
+COPY docker/spark/ /tmp/spark-src/
+RUN mkdir -p /opt /opt/Spark \
+ && if [ -f /tmp/spark-src/opt-Spark.tar.gz ]; then \
+      tar -xzf /tmp/spark-src/opt-Spark.tar.gz -C / ; \
+    else \
+      curl -fsSL "https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz" \
+        -o /tmp/spark-2.4.3.tgz \
+      && tar -xzf /tmp/spark-2.4.3.tgz -C /opt/Spark \
+      && rm -f /tmp/spark-2.4.3.tgz ; \
+    fi \
+ && if [ ! -e /opt/Spark/spark ]; then \
+      ln -sfn /opt/Spark/spark-2.4.3-bin-hadoop2.7 /opt/Spark/spark 2>/dev/null \
+      || ln -sfn spark-2.4.3-bin-hadoop2.7 /opt/Spark/spark; \
+    fi \
  && mkdir -p /opt/Spark/extraLibraries \
  && cp -an /var/www/html/OS/spark/extraLibraries/. /opt/Spark/extraLibraries/ 2>/dev/null || true \
  && if [ -f /opt/Spark/defaults/spark-defaults.conf ] && [ ! -f /opt/Spark/spark-defaults.conf ]; then \
@@ -61,10 +70,12 @@ RUN mkdir -p /opt \
  && if [ -f /opt/Spark/defaults/log4j.properties ] && [ ! -f /opt/Spark/log4j.properties ]; then \
       cp /opt/Spark/defaults/log4j.properties /opt/Spark/log4j.properties; \
     fi \
- && ln -sfn /opt/Spark/spark-defaults.conf /opt/Spark/spark/conf/spark-defaults.conf \
- && ln -sfn /opt/Spark/log4j.properties /opt/Spark/spark/conf/log4j.properties \
+ && mkdir -p /opt/Spark/spark/conf \
+ && if [ -f /opt/Spark/spark-defaults.conf ]; then ln -sfn /opt/Spark/spark-defaults.conf /opt/Spark/spark/conf/spark-defaults.conf; fi \
+ && if [ -f /opt/Spark/log4j.properties ]; then ln -sfn /opt/Spark/log4j.properties /opt/Spark/spark/conf/log4j.properties; fi \
  && chmod -R a+rX /opt/Spark \
- && rm -f /opt/Spark/spark/jars/log4j-1.2.17.jar || true
+ && rm -f /opt/Spark/spark/jars/log4j-1.2.17.jar || true \
+ && rm -rf /tmp/spark-src
 
 # Best Practices Assessment + aliases expected by health checks (pip3.7 list | grep BPA)
 RUN pip3 install --no-cache-dir --upgrade 'pip<25' \

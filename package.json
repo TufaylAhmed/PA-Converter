@@ -1,18 +1,21 @@
 {
-  "name": "@panw/expedition",
+  "name": "@tufaylahmed/pa-converter",
   "version": "5.45.4",
-  "description": "Private internal Expedition runner for macOS/Linux via Docker (Palo Alto Networks)",
-  "private": true,
+  "description": "PA-Converter — Dockerized Palo Alto Expedition for firewall config conversion (private testing package)",
   "license": "UNLICENSED",
   "bin": {
+    "pa-converter": "bin/expedition.js",
     "expedition": "bin/expedition.js"
   },
   "files": [
     "bin",
-    "docker",
     "databases",
     "app",
-    "README.md"
+    "README.md",
+    "docker/docker-compose.yml",
+    "docker/initdb",
+    "docker/web",
+    "docker/spark/README.md"
   ],
   "engines": {
     "node": ">=18"
@@ -25,7 +28,6 @@
     "build": "node bin/expedition.js build"
   },
   "publishConfig": {
-    "access": "restricted",
     "registry": "https://npm.pkg.github.com"
   },
   "repository": {

@@ -5,6 +5,7 @@ tests/artifacts/
 *.log
 .env
 .npmrc
+!.npmrc.example
 *.swp
 .idea/
 .vscode/

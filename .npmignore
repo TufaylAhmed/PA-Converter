@@ -1,0 +1,7 @@
+# Keep npm package under GitHub Packages 256MB limit
+docker/spark/opt-Spark.tar.gz
+tests/
+*.log
+.DS_Store
+.git/
+.gitattributes

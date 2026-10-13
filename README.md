@@ -50,14 +50,34 @@
 - ✅ **macOS** or **Linux**
 - ✅ **Node.js 18+**
 - ✅ **[Docker Desktop](https://docs.docker.com/desktop/)** with Compose v2
+- ✅ GitHub Packages auth (private npm package — Expedition is **not** published to public npmjs)
 
-### Run
+### Auth (once)
+
+Add to `~/.npmrc` (use a PAT with `read:packages`):
+
+```ini
+@tufaylahmed:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
+```
+
+### Run with npx
+
+```bash
+npx @tufaylahmed/pa-converter@5.45.4 start
+npx @tufaylahmed/pa-converter status
+npx @tufaylahmed/pa-converter logs -f
+npx @tufaylahmed/pa-converter stop
+```
+
+### Run from git clone
 
 ```bash
 git clone git@github.com:TufaylAhmed/PA-Converter.git
 cd PA-Converter
+git lfs pull             # optional offline Spark bundle for Docker build
 
-npm link                 # exposes `expedition` on your PATH
+npm link                 # exposes `expedition` / `pa-converter` on your PATH
 expedition start         # builds image + starts stack (first run takes a few minutes)
 ```
 
