@@ -103,11 +103,118 @@ function Test-PAVirtualizationReady {
   return @{ Ok = $true; Detail = ($details -join "; ") }
 }
 
+function Show-PAVirtualizationHelp {
+  param([string]$Detail = "")
+  $root = Get-PAInstallRoot
+  $help = Join-Path $root "ENABLE-VIRTUALIZATION.txt"
+  if (-not (Test-Path $help)) {
+    $help = Join-Path $PSScriptRoot "..\ENABLE-VIRTUALIZATION.txt"
+  }
+
+  $msg = @"
+PA-Converter needs WSL2, and WSL2 needs CPU virtualization.
+
+Your PC is not ready yet (hypervisor not running).
+
+What to do:
+1) Reboot into BIOS/UEFI and ENABLE Virtualization
+   (names: VT-x, AMD-V, SVM, Hyper-V, Virtualization Technology)
+2) If Windows is inside Parallels/VMware: enable Nested Virtualization
+3) Boot Windows, open elevated PowerShell, run:
+     bcdedit /set hypervisorlaunchtype auto
+4) Reboot Windows again
+5) Run SETUP.bat again
+
+Verify with:
+  (Get-CimInstance Win32_ComputerSystem).HypervisorPresent
+(must be True)
+
+Opening help + Microsoft docs next...
+"@
+  if ($Detail) { $msg += "`r`n`r`nDetails:`r`n$Detail" }
+
+  Write-PALog $msg "ERROR"
+  try {
+    Add-Type -AssemblyName System.Windows.Forms -ErrorAction SilentlyContinue
+    [System.Windows.Forms.MessageBox]::Show(
+      $msg,
+      "Action required: enable virtualization",
+      [System.Windows.Forms.MessageBoxButtons]::OK,
+      [System.Windows.Forms.MessageBoxIcon]::Warning
+    ) | Out-Null
+  } catch {}
+
+  if (Test-Path $help) {
+    try { Start-Process notepad.exe $help } catch {}
+  }
+  try { Start-Process "https://aka.ms/enablevirtualization" } catch {}
+}
+
 function Assert-PAVirtualizationReady {
   $r = Test-PAVirtualizationReady
   Write-PALog $r.Detail
   if (-not $r.Ok) {
+    Show-PAVirtualizationHelp -Detail $r.Detail
     throw $r.Detail
+  }
+}
+
+function Show-PAPrerequisitesDialog {
+  <#
+    Shown at the start of setup so users know BIOS virt is required
+    before we spend time downloading Ubuntu images.
+  #>
+  $r = Test-PAVirtualizationReady
+  $status = if ($r.Ok) { "READY - hypervisor detected" } else { "NOT READY - enable virtualization first (see steps)" }
+
+  $msg = @"
+Before PA-Converter setup continues:
+
+Required:
+  - 64-bit Windows 10/11
+  - Administrator approval (UAC)
+  - Internet (first run only)
+  - CPU virtualization ON in BIOS/UEFI
+    (or Nested Virtualization if Windows is a VM)
+
+Current virtualization status:
+  $status
+
+If status is NOT READY:
+  1) Enable Virtualization in BIOS (VT-x / AMD-V / SVM)
+  2) Or enable Nested Virtualization in Parallels/VMware
+  3) Run:  bcdedit /set hypervisorlaunchtype auto
+  4) Reboot, then run SETUP.bat again
+
+Click OK to continue (Windows features will still be enabled).
+Setup will stop with clear instructions if the hypervisor is still missing after reboot.
+"@
+
+  Write-PALog "Prerequisite check: $status"
+  try {
+    Add-Type -AssemblyName System.Windows.Forms -ErrorAction SilentlyContinue
+    [System.Windows.Forms.MessageBox]::Show(
+      $msg,
+      "PA-Converter prerequisites",
+      [System.Windows.Forms.MessageBoxButtons]::OK,
+      $(if ($r.Ok) {
+          [System.Windows.Forms.MessageBoxIcon]::Information
+        } else {
+          [System.Windows.Forms.MessageBoxIcon]::Warning
+        })
+    ) | Out-Null
+  } catch {
+    Write-Host $msg
+  }
+
+  if (-not $r.Ok) {
+    $help = Join-Path (Get-PAInstallRoot) "ENABLE-VIRTUALIZATION.txt"
+    if (-not (Test-Path $help)) {
+      # During first run InstallRoot may not have the file yet — try script dir
+      $alt = Join-Path $PSScriptRoot "..\ENABLE-VIRTUALIZATION.txt"
+      if (Test-Path $alt) { $help = $alt }
+    }
+    if (Test-Path $help) { try { Start-Process notepad.exe $help } catch {} }
   }
 }
 

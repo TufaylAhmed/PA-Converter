@@ -114,6 +114,11 @@ try {
 
   Expand-PAEngine -InstallRoot $InstallRoot
 
+  # Tell the user about BIOS virtualization BEFORE long downloads
+  if (-not $AfterReboot) {
+    Show-PAPrerequisitesDialog
+  }
+
   $state = Get-PAState
 
   if ($state.Phase -eq "init" -or $state.Phase -eq "post-reboot" -or -not $AfterReboot) {
@@ -129,8 +134,11 @@ try {
       Write-Host "A one-time reboot is required to finish enabling WSL." -ForegroundColor Yellow
       Add-Type -AssemblyName System.Windows.Forms
       $r = [System.Windows.Forms.MessageBox]::Show(
-        "WSL needs a reboot to finish enabling.`r`n`r`nReboot now? Setup will continue automatically after login.",
-        "PA-Converter",
+        "Windows needs a reboot to finish enabling WSL / Virtual Machine Platform.`r`n`r`n" +
+        "AFTER reboot, if setup fails, enable CPU Virtualization in BIOS (VT-x / AMD-V / SVM),`r`n" +
+        "or Nested Virtualization if this Windows is a VM. See ENABLE-VIRTUALIZATION.txt.`r`n`r`n" +
+        "Reboot now? Setup will continue automatically after login.",
+        "PA-Converter - reboot required",
         [System.Windows.Forms.MessageBoxButtons]::YesNo,
         [System.Windows.Forms.MessageBoxIcon]::Warning
       )
@@ -146,7 +154,7 @@ try {
     throw "wsl.exe not found after enabling features. Reboot Windows, then run SETUP.bat again."
   }
 
-  # Hard stop with a clear message if BIOS/nested virt is off (HCS_E_HYPERV_NOT_INSTALLED)
+  # Hard stop with popup + notepad help + Microsoft docs if BIOS virt still off
   Assert-PAVirtualizationReady
 
   $state.Phase = "distro"
