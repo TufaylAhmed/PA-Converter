@@ -1,5 +1,4 @@
 @echo off
 cd /d "%~dp0"
-call "%~dp0pa-converter.cmd" start
-echo.
-pause
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-PAConverter.ps1"
+if errorlevel 1 pause

@@ -7,13 +7,16 @@ on:
       - "v*"
     paths:
       - "installer/windows/**"
+      - "app/**"
+      - "docker/**"
+      - "databases/**"
+      - "bin/**"
       - ".github/workflows/build-windows-msi.yml"
   release:
     types: [published]
 
 permissions:
   contents: write
-  packages: read
 
 jobs:
   msi:
@@ -31,7 +34,7 @@ jobs:
         id: ver
         shell: pwsh
         run: |
-          $v = "5.45.6"
+          $v = "5.46.0"
           if ($env:GITHUB_REF_TYPE -eq "tag") {
             $v = $env:GITHUB_REF_NAME.TrimStart("v")
           }
@@ -60,5 +63,16 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: installer/windows/dist/*.msi
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
+          name: PA-Converter ${{ steps.ver.outputs.version }}
+          body: |
+            ## Self-contained Windows installer
+            1. Run `PA-Converter-${{ steps.ver.outputs.version }}.msi`
+            2. Allow UAC / finish setup (enables WSL; may reboot once)
+            3. Open https://localhost:18443 → `admin` / `paloalto`
+
+            No Docker Desktop, Node.js, or GitHub token required.
+          draft: false
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

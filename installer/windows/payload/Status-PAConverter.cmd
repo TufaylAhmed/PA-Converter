@@ -1,5 +1,4 @@
 @echo off
 cd /d "%~dp0"
-call "%~dp0pa-converter.cmd" status
-echo.
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Status-PAConverter.ps1"
 pause

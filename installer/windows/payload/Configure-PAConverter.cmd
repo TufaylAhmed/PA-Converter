@@ -1,3 +1,3 @@
 @echo off
 cd /d "%~dp0"
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Configure-PAConverter.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Bootstrap-PAConverter.ps1"

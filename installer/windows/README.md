@@ -1,34 +1,46 @@
-# Windows MSI installer
+# Windows self-contained MSI
 
-Builds **`PA-Converter-<version>.msi`** with [WiX Toolset v4](https://wixtoolset.org/).
+End users install **`PA-Converter-<version>.msi`** only.
 
-The MSI installs launchers + Start Menu shortcuts under `Program Files\PA-Converter`.  
-It does **not** embed Expedition itself (that still comes from the private npm package via Docker). After install, users run **Configure PA-Converter** once (GitHub PAT → `npm install -g`).
+No Docker Desktop, no Node.js, no GitHub Personal Access Token.
 
-## Requirements to *build* the MSI
+## What the MSI does
 
-- Windows (or GitHub Actions `windows-latest`)
-- [.NET 8 SDK](https://dotnet.microsoft.com/download)
-- WiX CLI: `dotnet tool install --global wix --version 4.0.5`
+1. Copies launchers + `engine.zip` (Expedition app + Compose) to  
+   `%ProgramData%\PA-Converter\`
+2. On Finish / **Finish setup**, elevated Bootstrap:
+   - Enables **WSL2** + Virtual Machine Platform (may reboot once)
+   - Imports a private Ubuntu distro named `PA-Converter`
+   - Installs **Docker Engine** (open source) *inside* that distro
+   - Builds and starts the Expedition stack
+3. Start Menu → **Start PA-Converter** opens https://localhost:18443  
+   (`admin` / `paloalto`)
 
-## Build locally
+## Build (CI / Windows)
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.45.6
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.0
 ```
 
-Output: `installer\windows\dist\PA-Converter-5.45.6.msi`
+Produces `dist\PA-Converter-5.46.0.msi`.
 
-## Install on a PC
+## User prerequisites (automatic where possible)
 
-1. Install [Node.js 18+](https://nodejs.org/) and [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/) (WSL2).
-2. Double-click the MSI (or `msiexec /i PA-Converter-5.45.6.msi`).
-3. Leave **Configure GitHub auth…** checked on the finish page (or use Start Menu → **1. Configure PA-Converter**).
-4. Start Menu → **2. Start PA-Converter**.
-5. Open https://localhost:18443 → `admin` / `paloalto`.
+| Need | Handled by installer? |
+|------|------------------------|
+| WSL2 features | Yes (may ask for one reboot) |
+| Ubuntu rootfs | Yes (downloaded on first setup) |
+| Docker Engine | Yes (apt inside WSL) |
+| Expedition app | Yes (embedded `engine.zip`) |
+| BIOS virtualization | Must be enabled by IT/user once |
+| Internet (first setup) | Required for rootfs/packages/build |
 
-## CI
+## Uninstall
 
-Workflow: `.github/workflows/build-windows-msi.yml`  
-Produces an artifact (and attaches to a GitHub Release on tags `v*`).
+Remove the product from **Apps & features**, then optionally:
+
+```powershell
+wsl --unregister PA-Converter
+Remove-Item -Recurse -Force "$env:ProgramData\PA-Converter"
+```

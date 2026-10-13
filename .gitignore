@@ -11,5 +11,7 @@ tests/artifacts/
 .vscode/
 installer/windows/dist/
 installer/windows/.wixext/
+installer/windows/payload/engine.zip
+installer/windows/payload/_engine_stage/
 *.msi
 *.wixpdb

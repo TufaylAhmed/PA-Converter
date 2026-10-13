@@ -3,16 +3,18 @@
 \f0\fs20
 PA-Converter Software License\par
 \par
-Copyright (c) Palo Alto Networks / packaging by Tufail Ahmed Sheikh.\par
+This Windows installer provisions a private WSL2 environment and runs Palo Alto
+Networks Expedition for INTERNAL evaluation and testing only.\par
 \par
-This installer and the Expedition application it launches are for INTERNAL
-evaluation and testing only. Redistribution of Expedition binaries or
-source outside authorized Palo Alto Networks channels is prohibited.\par
+Redistribution of Expedition outside authorized Palo Alto Networks channels is
+prohibited.\par
 \par
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.\par
 \par
-By installing you acknowledge that:\par
-1. Docker Desktop and Node.js are separate products with their own licenses.\par
-2. The npm package @tufaylahmed/pa-converter is private and requires GitHub auth.\par
+First-time setup will:\par
+- Enable Windows Subsystem for Linux (may require a reboot)\par
+- Download an Ubuntu rootfs and Docker Engine packages\par
+- Build and start the Expedition containers\par
 \par
+By installing you agree to proceed with those automated steps.\par
 }

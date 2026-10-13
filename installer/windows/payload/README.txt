@@ -1,25 +1,24 @@
-PA-Converter for Windows
-========================
+PA-Converter for Windows (self-contained)
+========================================
+
+Install the MSI, then use Start Menu → PA-Converter:
+
+  1. Configure / Finish setup   (first run only — enables WSL, downloads Ubuntu
+                                 rootfs + Docker packages, builds Expedition)
+  2. Start PA-Converter
+  3. Browser: https://localhost:18443
+     Login:   admin / paloalto
+
+You do NOT need to install Docker Desktop, Node.js, or a GitHub token.
 
 Requirements
 ------------
-1. Node.js 18+     https://nodejs.org/
-2. Docker Desktop  https://docs.docker.com/desktop/setup/install/windows-install/
-   (enable the WSL2 backend and start Docker before using PA-Converter)
-3. GitHub PAT with read:packages (for the private @tufaylahmed/pa-converter package)
+- Windows 10 version 2004+ or Windows 11 (64-bit)
+- Virtualization enabled in BIOS/UEFI
+- Administrator approval (UAC) on first setup
+- Internet on first setup (Ubuntu rootfs + Docker packages + image build)
+- One reboot may be required the first time WSL is enabled
 
-First run
----------
-1. Start Menu → PA-Converter → Configure PA-Converter
-2. Paste your GitHub token when prompted
-3. Start Menu → PA-Converter → Start PA-Converter
-4. Open https://localhost:18443
-   Login: admin / paloalto
+Stop / Status shortcuts are in the same Start Menu folder.
 
-CLI
----
-  pa-converter start | stop | status | logs | build
-
-Support
--------
-https://github.com/TufaylAhmed/PA-Converter
+Logs: %ProgramData%\PA-Converter\logs\setup.log

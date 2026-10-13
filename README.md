@@ -4,7 +4,7 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.45.6-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.46.0-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![License](https://img.shields.io/badge/License-Private-red?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Platform](https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
@@ -93,39 +93,28 @@ pa-converter start
 
 ---
 
-### 🪟 Windows — `.msi` installer (recommended)
+### 🪟 Windows — self-contained `.msi` (recommended)
 
-1. Install [Node.js 18+](https://nodejs.org/) and [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/) (WSL2).
-2. Download **`PA-Converter-5.45.6.msi`** from [GitHub Releases](https://github.com/TufaylAhmed/PA-Converter/releases) (or build it — see `installer/windows/README.md`).
-3. Run the MSI → leave **Configure GitHub auth…** checked on Finish (paste a PAT with `read:packages`).
-4. Start Menu → **PA-Converter** → **2. Start PA-Converter**.
-5. Open https://localhost:18443 → `admin` / `paloalto`.
+**End users only need the MSI** — no Docker Desktop, Node.js, or GitHub token.
 
-Build the MSI on Windows (or CI):
+1. Download **`PA-Converter-5.46.0.msi`** from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
+2. Run the MSI (allow UAC). Leave **Finish setup** checked.
+3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
+4. Wait for first-time provisioning (downloads Ubuntu/Docker packages and builds images).
+5. Open **https://localhost:18443** → `admin` / `paloalto`.
+
+Later: Start Menu → **PA-Converter** → **Start / Stop / Status**.
+
+> Needs 64-bit Windows 10/11, BIOS virtualization, and internet on **first** setup only.
+
+Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.45.6
-# → dist\PA-Converter-5.45.6.msi
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.0
 ```
 
-**PowerShell bootstrap** (no MSI):
-
-```powershell
-git clone https://github.com/TufaylAhmed/PA-Converter.git
-cd PA-Converter
-powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Start
-```
-
-**npx** (after `%USERPROFILE%\.npmrc` is set):
-
-```powershell
-npx @tufaylahmed/pa-converter@5.45.6 start
-npx @tufaylahmed/pa-converter status
-npx @tufaylahmed/pa-converter stop
-```
-
-> The MSI is a thin launcher layer. Docker Desktop is still required for the Expedition stack.
+**macOS/Linux developers** can still use `npx` (see above) with Docker Desktop.
 
 ---
 
