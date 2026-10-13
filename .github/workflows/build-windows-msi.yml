@@ -34,7 +34,7 @@ jobs:
         id: ver
         shell: pwsh
         run: |
-          $v = "5.46.1"
+          $v = "5.46.2"
           if ($env:GITHUB_REF_TYPE -eq "tag") {
             $v = $env:GITHUB_REF_NAME.TrimStart("v")
           }
@@ -75,17 +75,17 @@ jobs:
             **You must be logged into GitHub** to download (private repo). Expected MSI size is ~50MB+.
             If the file is only a few KB, the download failed (HTML error page) — re-download while signed in.
 
-            ### Option A — MSI
-            1. Download `PA-Converter-${{ steps.ver.outputs.version }}.msi`
-            2. Right-click → **Properties** → check **Unblock** if shown → OK
-            3. Double-click (or: `msiexec /i PA-Converter-${{ steps.ver.outputs.version }}.msi`)
-            4. Allow UAC; leave Finish setup checked (may reboot once for WSL)
+            ### Recommended — Portable ZIP
+            1. Download `PA-Converter-${{ steps.ver.outputs.version }}-portable.zip` (~50MB+) while logged into GitHub
+            2. **Extract** the ZIP to a folder (do not run from inside the zip)
+            3. Right-click `SETUP.bat` → **Run as administrator**
+            4. If Windows asks to reboot for WSL, reboot once — setup continues
+            5. Open https://localhost:18443 → `admin` / `paloalto`
 
-            ### Option B — Portable ZIP (if MSI will not open)
-            1. Download `PA-Converter-${{ steps.ver.outputs.version }}-portable.zip`
-            2. Extract → right-click `Install.cmd` → **Run as administrator**
+            On failure, open `%ProgramData%\PA-Converter\logs\setup.log`
 
-            Then open https://localhost:18443 → `admin` / `paloalto`
+            ### MSI (optional)
+            `PA-Converter-${{ steps.ver.outputs.version }}.msi` — Unblock in Properties if needed, then install.
 
             No Docker Desktop, Node.js, or GitHub token required on the PC.
           draft: false

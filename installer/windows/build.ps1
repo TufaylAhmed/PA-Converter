@@ -4,7 +4,7 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$Version = "5.46.1",
+  [string]$Version = "5.46.2",
   [string]$OutDir = (Join-Path $PSScriptRoot "dist")
 )
 
@@ -65,6 +65,7 @@ New-Item -ItemType Directory -Force -Path $zipStage | Out-Null
 $payload = Join-Path $PSScriptRoot "payload"
 foreach ($name in @(
     "engine.zip",
+    "SETUP.bat",
     "Install.cmd",
     "Bootstrap-PAConverter.ps1",
     "Start-PAConverter.ps1", "Stop-PAConverter.ps1", "Status-PAConverter.ps1",

@@ -1,24 +1,21 @@
-PA-Converter for Windows (self-contained)
-========================================
+PA-Converter for Windows
+========================
 
-Install the MSI, then use Start Menu → PA-Converter:
+IMPORTANT: Extract the ZIP first. Do not run files from inside the .zip window.
 
-  1. Configure / Finish setup   (first run only — enables WSL, downloads Ubuntu
-                                 rootfs + Docker packages, builds Expedition)
-  2. Start PA-Converter
-  3. Browser: https://localhost:18443
-     Login:   admin / paloalto
+1. Right-click SETUP.bat  ->  Run as administrator
+   (or double-click Install.cmd)
 
-You do NOT need to install Docker Desktop, Node.js, or a GitHub token.
+2. Allow UAC. Wait for setup.
+   - May reboot once to enable WSL
+   - First run needs internet (Ubuntu image + Docker packages)
 
-Requirements
-------------
-- Windows 10 version 2004+ or Windows 11 (64-bit)
-- Virtualization enabled in BIOS/UEFI
-- Administrator approval (UAC) on first setup
-- Internet on first setup (Ubuntu rootfs + Docker packages + image build)
-- One reboot may be required the first time WSL is enabled
+3. Browser: https://localhost:18443
+   Login:   admin / paloalto
 
-Stop / Status shortcuts are in the same Start Menu folder.
+If something fails, open:
+  %ProgramData%\PA-Converter\logs\setup.log
+  %ProgramData%\PA-Converter\logs\transcript.txt
 
-Logs: %ProgramData%\PA-Converter\logs\setup.log
+Requirements: 64-bit Windows 10/11, virtualization ON in BIOS, internet on first setup.
+No Docker Desktop / Node / GitHub token needed.
