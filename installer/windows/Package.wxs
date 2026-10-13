@@ -8,7 +8,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
   <?define ProductName = "PA-Converter" ?>
-  <?define ProductVersion = "5.46.5" ?>
+  <?define ProductVersion = "5.46.6" ?>
   <?define Manufacturer = "Tufail Ahmed Sheikh" ?>
   <?define UpgradeCode = "8F3E2A1B-4C5D-6E7F-8091-A2B3C4D5E6F7" ?>
 
@@ -107,6 +107,9 @@
       </Component>
       <Component Id="Cmp_Readme" Guid="C1D2E3F4-A5B6-7890-CDEF-123456789010">
         <File Id="ReadmeTxt" Source="payload\README.txt" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_VirtTxt" Guid="C1D2E3F4-A5B6-7890-CDEF-123456789014">
+        <File Id="VirtTxt" Source="payload\ENABLE-VIRTUALIZATION.txt" KeyPath="yes" />
       </Component>
       <Component Id="Cmp_Module" Guid="C1D2E3F4-A5B6-7890-CDEF-123456789011" Directory="LibDir">
         <File Id="PAModule" Source="payload\lib\PAConverter.psm1" KeyPath="yes" />

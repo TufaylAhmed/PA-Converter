@@ -34,7 +34,7 @@ jobs:
         id: ver
         shell: pwsh
         run: |
-          $v = "5.46.5"
+          $v = "5.46.6"
           if ($env:GITHUB_REF_TYPE -eq "tag") {
             $v = $env:GITHUB_REF_NAME.TrimStart("v")
           }

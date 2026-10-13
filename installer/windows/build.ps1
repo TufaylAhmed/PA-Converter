@@ -4,7 +4,7 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$Version = "5.46.5",
+  [string]$Version = "5.46.6",
   [string]$OutDir = (Join-Path $PSScriptRoot "dist")
 )
 
@@ -70,7 +70,7 @@ foreach ($name in @(
     "Bootstrap-PAConverter.ps1",
     "Start-PAConverter.ps1", "Stop-PAConverter.ps1", "Status-PAConverter.ps1",
     "Start-PAConverter.cmd", "Stop-PAConverter.cmd", "Status-PAConverter.cmd",
-    "Configure-PAConverter.cmd", "README.txt"
+    "Configure-PAConverter.cmd", "README.txt", "ENABLE-VIRTUALIZATION.txt"
   )) {
   Copy-Item (Join-Path $payload $name) $zipStage -Force
 }

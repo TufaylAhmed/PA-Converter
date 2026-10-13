@@ -1,0 +1,35 @@
+PA-Converter needs WSL2, and WSL2 needs CPU virtualization.
+
+Your log showed:
+  HCS_E_HYPERV_NOT_INSTALLED
+  "WSL2 is unable to start since virtualization is not enabled"
+
+The installer already enabled the Windows "Virtual Machine Platform" feature.
+What is still missing is the HYPERVISOR itself.
+
+Do this:
+
+A) Physical PC / Windows-on-ARM laptop
+   1. Reboot into BIOS/UEFI (Del / F2 / F10 — vendor specific)
+   2. Enable: Virtualization / Intel VT-x / AMD-V / SVM / Hyper-V
+   3. Save, boot Windows
+   4. Elevated PowerShell:
+        bcdedit /set hypervisorlaunchtype auto
+   5. Reboot again
+   6. Run SETUP.bat
+
+B) Windows inside Parallels / VMware / another VM
+   Enable Nested Virtualization for that VM, then reboot the guest and run SETUP.bat.
+   Without nested virt, WSL2 cannot start — there is no software workaround.
+
+C) Verify
+   In PowerShell:
+     systeminfo | findstr /i "Hyper-V"
+   You want a hypervisor to be detected.
+   Or:
+     (Get-CimInstance Win32_ComputerSystem).HypervisorPresent
+   Should return True.
+
+Docs: https://aka.ms/enablevirtualization
+
+Then re-run SETUP.bat from PA-Converter 5.46.6+.

@@ -46,7 +46,7 @@ try {
             "Bootstrap-PAConverter.ps1", "SETUP.bat", "Install.cmd",
             "Start-PAConverter.ps1", "Stop-PAConverter.ps1", "Status-PAConverter.ps1",
             "Start-PAConverter.cmd", "Stop-PAConverter.cmd", "Status-PAConverter.cmd",
-            "Configure-PAConverter.cmd", "README.txt"
+            "Configure-PAConverter.cmd", "README.txt", "ENABLE-VIRTUALIZATION.txt"
           )) {
           Copy-PAIfDifferent (Join-Path $here $name) (Join-Path $programDataRoot $name)
         }
@@ -145,6 +145,9 @@ try {
   if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) {
     throw "wsl.exe not found after enabling features. Reboot Windows, then run SETUP.bat again."
   }
+
+  # Hard stop with a clear message if BIOS/nested virt is off (HCS_E_HYPERV_NOT_INSTALLED)
+  Assert-PAVirtualizationReady
 
   $state.Phase = "distro"
   $state.RebootPending = $false

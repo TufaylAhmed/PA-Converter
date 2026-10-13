@@ -21,12 +21,93 @@ function Get-PALogPath {
 
 function Write-PALog {
   param([string]$Message, [string]$Level = "INFO")
+  # Normalize UTF-16 junk from wsl.exe ("W S L 2" / null pads) into readable text
+  if ($null -eq $Message) { $Message = "" }
+  $Message = [string]$Message
+  $Message = $Message -replace "`0", ""
+  if ($Message -match '(\w ){3,}\w') {
+    $Message = [regex]::Replace($Message, '(?<=\S) (?=\S)', '')
+  }
+  $Message = $Message.Trim()
+  if (-not $Message) { return }
   $line = "{0:u} [{1}] {2}" -f (Get-Date), $Level, $Message
   Add-Content -Path (Get-PALogPath) -Value $line -Encoding utf8
   switch ($Level) {
     "ERROR" { Write-Host $Message -ForegroundColor Red }
     "WARN"  { Write-Host $Message -ForegroundColor Yellow }
     default { Write-Host $Message }
+  }
+}
+
+function Test-PAVirtualizationReady {
+  <#
+    Returns @{ Ok=bool; Detail=string }
+    WSL2 requires a running hypervisor (BIOS virt + VirtualMachinePlatform).
+  #>
+  $details = New-Object System.Collections.Generic.List[string]
+
+  try {
+    $cs = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+    $details.Add("HypervisorPresent=$($cs.HypervisorPresent)")
+    if (-not $cs.HypervisorPresent) {
+      return @{
+        Ok = $false
+        Detail = "Windows does not see a hypervisor. CPU virtualization is OFF in firmware (BIOS/UEFI), or you are inside a VM without nested virtualization.`n`n" +
+                 "Fix:`n" +
+                 "1) Reboot into BIOS/UEFI and enable: Virtualization / SVM / VT-x / Hyper-V`n" +
+                 "2) If Windows is inside Parallels/VMware/Hyper-V: enable Nested Virtualization for this VM`n" +
+                 "3) In elevated PowerShell run:  bcdedit /set hypervisorlaunchtype auto`n" +
+                 "4) Reboot Windows, then run SETUP.bat again`n`n" +
+                 "Docs: https://aka.ms/enablevirtualization`n`n" +
+                 ($details -join "; ")
+      }
+    }
+  } catch {
+    $details.Add("Win32_ComputerSystem check failed: $_")
+  }
+
+  try {
+    $feat = Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -ErrorAction SilentlyContinue
+    if ($feat -and $feat.State -ne "Enabled") {
+      return @{
+        Ok = $false
+        Detail = "Windows feature 'VirtualMachinePlatform' is not enabled (state=$($feat.State)). Re-run SETUP.bat as Administrator, reboot when asked, then retry."
+      }
+    }
+    if ($feat) { $details.Add("VirtualMachinePlatform=$($feat.State)") }
+  } catch {
+    $details.Add("Feature check failed: $_")
+  }
+
+  # Probe WSL status (decode UTF-16)
+  $prev = [Console]::OutputEncoding
+  try {
+    [Console]::OutputEncoding = [System.Text.Encoding]::Unicode
+    $st = & wsl.exe --status 2>&1 | Out-String
+  } finally {
+    [Console]::OutputEncoding = $prev
+  }
+  $st = ($st -replace "`0", "")
+  if ($st -match '(\w ){3,}\w') { $st = [regex]::Replace($st, '(?<=\S) (?=\S)', '') }
+  $details.Add("wsl --status: $($st.Trim())")
+
+  if ($st -match 'virtualization is not enabled|HYPERV_NOT_INSTALLED|HCS_E_HYPERV') {
+    return @{
+      Ok = $false
+      Detail = "WSL reports virtualization is not enabled on this machine.`n`n" +
+               "Enable CPU virtualization in BIOS/UEFI (or nested virt if this is a VM), reboot, then run SETUP.bat again.`n" +
+               "https://aka.ms/enablevirtualization"
+    }
+  }
+
+  return @{ Ok = $true; Detail = ($details -join "; ") }
+}
+
+function Assert-PAVirtualizationReady {
+  $r = Test-PAVirtualizationReady
+  Write-PALog $r.Detail
+  if (-not $r.Ok) {
+    throw $r.Detail
   }
 }
 
