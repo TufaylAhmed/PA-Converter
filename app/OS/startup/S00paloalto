@@ -1,0 +1,6 @@
+#!/bin/bash
+#/bin/cp /var/www/html/OS/startup/issue.template /etc/issue.template
+#awk -v \
+#        r="$(ip -o addr | grep -v '127' | awk '/inet [1-9]+/ { print $2 " " $4 }')" \
+#        '{ gsub(/%INTERFACES%/,r) }1' \
+#        /etc/issue.template > /etc/issue

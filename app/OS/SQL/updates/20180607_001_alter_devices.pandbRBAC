@@ -1,0 +1,12 @@
+SELECT IFNULL(column_name, '') INTO @colName
+FROM information_schema.columns
+WHERE table_name = 'devices'
+AND column_name = 'avoidToday';
+
+DELIMITER //
+IF @colName = '' THEN
+    ALTER TABLE `devices`
+    ADD COLUMN `avoidToday` TINYINT NOT NULL DEFAULT 0 AFTER `csv_path`,
+    ADD COLUMN `afterProcess` VARCHAR(45) NOT NULL DEFAULT 'Nothing' AFTER `avoidToday`;
+END IF //
+DELIMITER ;

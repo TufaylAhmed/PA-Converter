@@ -1,0 +1,6 @@
+------------------------------------------------------------------
+title=RULES.TSV - access rules tab separated
+separator=<SPACE>
+------------------------------------------------------------------
+Number<TAB>From<TAB>To<TAB>Service<TAB>Action<TAB>Track<TAB>Time<TAB>Install on<TAB>Comment
+<<<<<rules>>>>><<<rule>>><TAB><<<from>>><TAB><<<to>>><TAB><<<service>>><TAB><<<action>>><TAB><<<track>>><TAB><<<time>>><TAB><<<installon>>><TAB><<<comment>>>

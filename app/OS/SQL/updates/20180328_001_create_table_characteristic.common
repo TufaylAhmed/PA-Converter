@@ -1,0 +1,39 @@
+-- DROP TABLE IF EXISTS `characteristic`;
+CREATE TABLE IF NOT EXISTS  `characteristic` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  `version` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `characteristic`
+--
+
+LOCK TABLES `characteristic` WRITE;
+/*!40000 ALTER TABLE `characteristic` DISABLE KEYS */;
+INSERT INTO characteristic VALUES
+('1', 'Evasive', '7'),
+('2', 'Excessive Bandwidth', '7'),
+('3', 'Prone to Misuse', '7'),
+('4', 'Transfers Files', '7'),
+('5', 'Tunnels Others Apps', '7'),
+('6', 'Used by Malware', '7'),
+('7', 'Vulnerability', '7'),
+('8', 'Widely used', '7'),
+('9', 'Data Breaches', '8.1'),
+('10', 'FEDRAMP', '8.1'),
+('11', 'HIPAA', '8.1'),
+('12', 'IP Based Restrictions', '8.1'),
+('13', 'No Certifications', '8.1'),
+('14', 'PCI', '8.1'),
+('15', 'Poor Financial Viability', '8.1'),
+('16', 'Poor Terms Of Service', '8.1'),
+('17', 'SaaS', '8.1'),
+('18', 'SOC I', '8.1'),
+('19', 'SOC II', '8.1'),
+('20', 'SSAE16', '8.1'),
+('21', 'TRUSTe', '8.1');
+/*!40000 ALTER TABLE `characteristic` ENABLE KEYS */;
+UNLOCK TABLES;

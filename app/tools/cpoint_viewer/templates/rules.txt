@@ -1,0 +1,21 @@
+------------------------------------------------------------------
+title=RULES.TXT - just the access rules
+separator=<NEWLINE><TAB><TAB>    
+------------------------------------------------------------------
+
+=========================================================
+Access Rules
+=========================================================
+
+<<<<<rules>>>>>Rule <<<rule>>>
+<<<<<rules>>>>>        From:       <<<from>>>
+<<<<<rules>>>>>        To:         <<<to>>>
+<<<<<rules>>>>>        Service:    <<<service>>>
+<<<<<rules>>>>>        Action:     <<<action>>>
+<<<<<rules>>>>>        Track:      <<<track>>>
+<<<<<rules>>>>>        Time:       <<<time>>>
+<<<<<rules>>>>>        Install on: <<<installon>>>
+<<<<<rules>>>>>        Comment:    <<<comment>>>
+<<<<<rules>>>>>
+
+

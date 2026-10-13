@@ -1,0 +1,26 @@
+ALTER TABLE `decryption_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;
+
+ALTER TABLE `qos_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;
+
+ALTER TABLE `pbf_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;
+
+ALTER TABLE `tunnel_inspect_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;
+
+ALTER TABLE `authentication_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;
+
+ALTER TABLE `dos_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;
+
+ALTER TABLE `appoverride_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;
+
+ALTER TABLE `nat_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;
+
+ALTER TABLE `security_rules`
+ADD COLUMN `group_tag_id` int(11) NOT NULL AFTER `uuid`;

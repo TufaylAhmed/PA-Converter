@@ -1,0 +1,3 @@
+ALTER TABLE `ML_NewRules`
+ADD COLUMN `Source_Zone` MEDIUMTEXT NULL AFTER `sourceUser`,
+ADD COLUMN `Destination_Zone` MEDIUMTEXT NULL AFTER `destinationUser`;

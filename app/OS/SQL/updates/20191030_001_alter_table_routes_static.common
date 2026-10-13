@@ -1,0 +1,5 @@
+ALTER TABLE `routes_static`
+ADD COLUMN `destination_member_lid` int(20) NOT NULL AFTER `destination`;
+
+ALTER TABLE `routes_static`
+ADD COLUMN `nexthop_value_member_lid` int(20) NOT NULL AFTER `nexthop_value`;

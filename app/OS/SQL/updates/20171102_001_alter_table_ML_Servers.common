@@ -1,0 +1,4 @@
+ALTER TABLE `ML_Servers`
+ADD INDEX `timestamp` (`timestamp` ASC),
+ADD INDEX `applicationIndex` (`application` ASC),
+ADD INDEX `serverApplication` (`serverAddress` ASC, `application` ASC);

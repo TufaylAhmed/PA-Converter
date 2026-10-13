@@ -1,0 +1,11 @@
+SELECT IFNULL(column_name, '') INTO @colName
+FROM information_schema.columns
+WHERE table_name = 'tasks'
+AND column_name = 'pid';
+
+DELIMITER //
+IF @colName = '' THEN
+    ALTER TABLE `tasks`
+    ADD COLUMN `pid` INT(11) NULL AFTER `retry`;
+END IF //
+DELIMITER ;

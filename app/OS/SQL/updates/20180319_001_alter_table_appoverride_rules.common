@@ -1,0 +1,2 @@
+ALTER TABLE `appoverride_rules`
+ADD COLUMN `target_negate` varchar(3) NOT NULL DEFAULT 'no' AFTER `negate_destination`;

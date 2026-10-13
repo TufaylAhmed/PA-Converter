@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<head>
+<title>Page not found | 404 Error </title>
+<meta charset="UTF-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<style type="text/css">body{margin:0;padding:0;border:0;}
+*{
+	margin:0;
+	padding:0;
+	border:0;
+    }
+    table{
+	height:100%;
+	position:absolute;
+    }
+</style>
+</head>
+<body style="font-family:verdana;margin-left: 0px;margin-top: 0px;margin-right: 0px;margin-bottom: 0px;height: 100%;">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+	<td height=50 style="background-color:#f5f5f5;border:1px solid #cccccc;" align=middle><font color=#3173b1><b>Sorry, The page doesn't exist.</b></b></font></td>
+</tr>
+<tr>
+	<td align=middle valign=bottom style="font-size:100px; height:40%" ><font color=#0099cf><b>404</b></font></td>
+</tr>
+<tr>
+	<td align=middle valign=center style="height:60%;font-size:100px;background-repeat:no-repeat;background-position: top center;" background="resources/images/backgrounds/logo-blue-medium.png" ></td>
+</tr>
+<tr>
+	<td height=50 style="background-color:#f5f5f5;border:1px solid #cccccc;" align=middle><font color=#3173b1><b></b></font></td>
+</tr>
+</body>
+</html>

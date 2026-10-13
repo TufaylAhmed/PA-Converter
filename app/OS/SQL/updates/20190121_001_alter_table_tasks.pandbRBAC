@@ -1,0 +1,2 @@
+ALTER TABLE `pandbRBAC`.`tasks`
+CHANGE COLUMN `statusMessage` `statusMessage` TEXT NOT NULL DEFAULT '' ;

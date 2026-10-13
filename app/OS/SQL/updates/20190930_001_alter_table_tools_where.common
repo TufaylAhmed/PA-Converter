@@ -1,0 +1,74 @@
+DROP TABLE IF EXISTS `tools_where`;
+CREATE TABLE `tools_where` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `table_name` VARCHAR(45) NOT NULL,
+  `type` VARCHAR(45) NOT NULL,
+  `image` VARCHAR(255) NOT NULL,
+  `tools_where_columns_id` VARCHAR(255) NOT NULL,
+  `tools_advanced_columns_id` VARCHAR(255) NOT NULL,
+  `tools_operator_id` VARCHAR(255) NOT NULL,
+  `order_by` FLOAT(3) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `tools_where`
+--
+
+LOCK TABLES `tools_where` WRITE;
+/*!40000 ALTER TABLE `tools_where` DISABLE KEYS */;
+INSERT INTO tools_where VALUES
+('1', 'All', 'all', '', '', '1,73,74,78,79,84', '1,2,3,7,8', '1,2,3,4,5,6,7,8,12,13', '1'),
+('2', 'Security Policies', 'security_rules', '', '/resources/images/icons/security.gif', '1,2,3,66,5,6,7,8,9,10,11,12,13,14,15,81,82,74,84,86,87,88,89,90,91,92,93,94,95,96,106,107,109,110,112,113,115,116,117,126,127,128,129', '1,10,11,3', '1,2,3,4,5,6,7,8,12,13', '2'),
+('3', 'Nat Policies', 'nat_rules', '', '/resources/images/icons/nat.gif', '1,2,3,67,68,69,70,71,72,131,15,19,20,21,81,82,74,84,96,109,110,112,115,117,119,120,121,122,123,124,127', '1,10,11,3', '1,2,3,4,5,6,7,8,12,13', '3'),
+('4', 'Application Override Policies', 'appoverride_rules', '', '/resources/images/rules/application-override.png', '1,3,15,97,98,99,100,101,102,103,104,82,105,108,84,109,110,112,125', '1,10,11,3', '1,2,3,4,5,6,7,8,12,13','4'),
+('5', 'Address', 'address', '', '/resources/images/rules/address.gif', '1,4,15,24,25,85,73,74,75,76,111,78,79,83,114,115,118,84,130', '1,2,3,4,5,7,8,12,13', '1,3,4,6,12,13','5'),
+('6', 'Address Groups', 'address_groups_id', '', '/resources/images/rules/address_group.gif', '1,4,15,26,73,74,75,76,111,77,78,79,80,114,115,118,84', '1,2,3,4,5,6,7,8', '1,3,4,6,9,10,11,12,13', '6'),
+('7', 'Services', 'services', '', '/resources/images/rules/service.gif', '1,4,15,23,27,73,74,75,76,111,78,79,114,115,118,84', '1,2,3,4,5,7,8,12,13', '1,3,4,6,12,13', '7'),
+('8', 'Services Groups', 'services_groups_id', '', '/resources/images/rules/service_group.gif', '1,4,15,26,73,74,75,76,111,77,78,79,80,114,115,118,84', '1,2,3,4,5,6,7,8', '1,3,4,6,9,10,11,12,13', '8'),
+('9', 'Applications', 'applications', '', '/resources/images/rules/application.gif', '1,15,28,29,30,31,32,74,111,78,79,115,118,84', '1,3,4,7,8', '1,3,4,6,12,13', '9'),
+('10', 'Applications Filters', 'applications_filters', '', '/resources/images/rules/applications_filters.png', '1,28,29,30,31,32,74,78,79,84,111,118', '1,3,4,7,8', '1,3,4,6,12,13', '10'),
+('11', 'Applications Groups', 'applications_groups_id', '', '/resources/images/rules/applications_groups.gif', '1,26,74,75,76,77,78,79,80,84,111,115,118', '1,3,4,6,7,8', '1,3,4,6,9,10,11,12,13', '11'),
+('12', 'Default Applications', 'default_applications', '', '/resources/images/rules/application.gif', '1,26,74,75,76,77,78,79,84,111', '1,3,4,6,7,8', '1,3,4,6,9,10,11,12,13', '11.1'),
+('13', 'Users', 'userid_group', '', '', '1,74,78,79,84', '1,3,7,8', '1,3,4,6,12,13', '20'),
+('14', 'Users Groups', 'userid_group_members', '', '', '1,26,74,80,84', '1,3,9,7,8', '1,3,4,6,12,13', '21'),
+('15', 'Regions', 'regions', '', '/resources/images/rules/regions.png', '1,41,42,43,73,74,75,76,78,79,84', '1,2,3,4,5,7,8', '1,3,4,6,12,13', '22'),
+('16', 'Tags', 'tag', '', '/resources/images/tags/tags_color3.png', '1,44,74,78,79,84', '1,3,7,8', '1,3,4,6,12,13', '23'),
+('18', 'Interfaces', 'interfaces', '', '/resources/images/icons/interfaces.png', '1,49,57,50,51,52,74,84', '1,2,3,7,8', '1,3,4,6,12,13', '27'),
+('19', 'Zones', 'zones', '', '/resources/images/rules/zone.gif', '1,49,53,73,74,84', '1,3,7,8', '1,3,4,6,12,13', '28'),
+('20', 'Virtual Routers', 'virtual_routers', '', '/resources/images/icons/virtual-routers.png', '1,53,74,84', '1,3,7,8', '1,3,4,6,12,13', '29'),
+('21', 'Virtual Wires', 'virtual_wires', '', '/resources/images/icons/virtual-wires.png', '1,54,55,74,84', '1,3,7,8', '1,3,4,6,12,13', '30'),
+('22', 'VLANs', 'vlans', '', '/resources/images/icons/vlans.png', '1,53,56,74,84', '1,3,7,8', '1,3,4,6,12,13', '31'),
+('23', 'IPSec Tunnels', 'ipsec_tunnel', '', '/resources/images/icons/ipsec-tunnels.png', '1,49,53,73,74,84', '1,3,7,8', '1,3,4,6,12,13', '32'),
+('24', 'IKE Crypto', 'ike_crypto_profiles', '', '/resources/images/icons/ipsec-crypto.png', '1,53,74,84', '1,3,7,8', '1,3,4,6,12,13', '33'),
+('25', 'IKE Gateways', 'ike_gateways_profiles', '', '/resources/images/icons/ike-gateways.png', '1,54,55,74,84', '1,3,7,8', '1,3,4,6,12,13', '34'),
+('26', 'IPSec Crypto', 'ipsec_crypto_profiles', '', '/resources/images/icons/ipsec-crypto.png', '1,53,56,74,84', '1,3,7,8', '1,3,4,6,12,13', '35'),
+('27', 'GlobalProtect IPSec Crypto', 'global_protect_app_ipsec_crypto_profiles', '', '/resources/images/icons/ipsec-crypto.png', '1,49,53,74,84', '1,3,7,8', '1,3,4,6,12,13', '36'),
+('28', 'Monitor', 'monitor_profile', '', '/resources/images/icons/monitor.png', '1,53,74,84', '1,3,7,8', '1,3,4,6,12,13', '37'),
+('29', 'Interface MGMT', 'interface_management_profile', '', '/resources/images/icons/interface-mgmt.png', '1,53,74,84', '1,3,7,8', '1,3,4,6,12,13', '38'),
+('30', 'Virtual Systems', 'virtual_systems', '', '/resources/images/icons/device.png', '1,53,74,84', '1,3,7,8', '1,3,4,6,12,13', '39'),
+('31', 'Response Pages', 'response_pages', '', '/resources/images/icons/response-pages.png', '1,53,74,84', '1,3,7,8', '1,3,4,6,12,13', '40'),
+('33', 'Antivirus', 'profiles', 'virus', '/resources/images/rules/virus.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '12'),
+('34', 'Spyware', 'profiles', 'spyware', '/resources/images/rules/spyware.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '13'),
+('35', 'Vulnerability', 'profiles', 'vulnerability', '/resources/images/rules/vulnerability.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '14'),
+('36', 'Url-Filtering', 'profiles', 'url-filtering', '/resources/images/rules/url_filter.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '15'),
+('37', 'File Blocking', 'profiles', 'file-blocking', '/resources/images/rules/fileblocking.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '16'),
+('38', 'WildFire', 'profiles', 'wildfire-analysis', '/resources/images/rules/wildfire_analysis.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '17'),
+('39', 'Data Filtering', 'profiles', 'data-filtering', '/resources/images/rules/dlp_data_filter.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '18'),
+('40', 'Groups', 'profiles_groups', '', '/resources/images/rules/profile_group.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '19'),
+('41', 'Log Forward', 'log_settings', 'profiles', '/resources/images/rules/log-forwarding.png', '1,74,84', '1,3', '1,3,4,6,12,13', '24'),
+('42', 'External-List', 'external_list', '', '/resources/images/rules/external_list.png', '1,74,84', '1,3', '1,3,4,6,12,13', '25'),
+('43', 'Schedules', 'schedules', '', '/resources/images/rules/external_list.png', '1,74,84', '1,3', '1,3,4,6,12,13', '26'),
+('44', 'SNMPTrap', 'log_settings', 'snmptrap', '/resources/images/rules/email.png', '1,74,84', '1,3', '1,3,4,6,12,13', '41'),
+('45', 'Syslog', 'log_settings', 'syslog', '/resources/images/rules/email.png', '1,74,84', '1,3', '1,3,4,6,12,13', '42'),
+('46', 'Email', 'log_settings', 'email', '/resources/images/rules/email.png', '1,74,84', '1,3', '1,3,4,6,12,13', '43'),
+('47', 'Netflow', 'server_profile', 'netflow', '/resources/images/rules/email.png', '1,74,84', '1,3', '1,3,4,6,12,13', '44'),
+('48', 'RADIUS', 'server_profile', 'radius', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '45'),
+('49', 'LDAP', 'server_profile', 'ldap', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '46'),
+('50', 'Kerberos', 'server_profile', 'kerberos', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '47'),
+('51', 'TACACS+', 'server_profile', 'tacplus', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '48'),
+('52', 'DNS', 'server_profile', 'dns', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '49'),
+('53', 'Custom Url Category', 'profiles', 'custom-url-category', '/resources/images/rules/url_filter.gif', '1,74,84', '1,3', '1,3,4,6,12,13', '15.1');
+/*!40000 ALTER TABLE `tools_where` ENABLE KEYS */;
+UNLOCK TABLES;

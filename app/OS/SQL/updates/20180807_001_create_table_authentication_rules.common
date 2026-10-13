@@ -1,0 +1,194 @@
+/* Authentication Rules */
+-- DROP TABLE IF EXISTS `authentication_rules`;
+CREATE TABLE `authentication_rules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `position` int(11) NOT NULL,
+  `name_ext` varchar(63) NOT NULL,
+  `name` varchar(63) NOT NULL,
+  `negate_source` int(1) DEFAULT '0',
+  `negate_destination` int(1) DEFAULT '0',
+  `description` varchar(1024) NOT NULL,
+  `disabled` int(1) DEFAULT '0',
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `type` varchar(255) DEFAULT '',
+  `authentication_enforcement` varchar(255) DEFAULT '',
+  `log_authentication_timeout` varchar(255) DEFAULT '',
+  `timeout` varchar(255) DEFAULT '60',
+  `log_forwarding` varchar(45) NOT NULL,
+  `lid` int(11) NOT NULL,
+  `source` int(11) NOT NULL,
+  `target` text NOT NULL,
+  `target_negate` varchar(3) NOT NULL DEFAULT 'no',
+  `checkit` int(1) DEFAULT '0',
+  `migrate` int(1) DEFAULT '1',
+  `counter` int(45) NOT NULL,
+  `preorpost` int(1) NOT NULL DEFAULT '0',
+  `devicegroup` varchar(255) NOT NULL DEFAULT 'default',
+  `blocked` int(1) NOT NULL DEFAULT '0',
+  `invalid` int(1) NOT NULL DEFAULT '0',
+  `modified` int(1) NOT NULL DEFAULT '1',
+  `dummy` int(1) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`lid`),
+  KEY `index3` (`position`),
+  KEY `index4` (`vsys`),
+  KEY `index5` (`source`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_from`;
+CREATE TABLE `authentication_rules_from` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `devicegroup` varchar(255) DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index3` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_to`;
+CREATE TABLE `authentication_rules_to` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `devicegroup` varchar(255) DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index3` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_srv`;
+CREATE TABLE `authentication_rules_srv` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `member_lid` int(11) NOT NULL,
+  `table_name` varchar(45) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `counter` int(45) NOT NULL,
+  `devicegroup` varchar(255) DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index3` (`member_lid`,`table_name`),
+  KEY `index5` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_src`;
+CREATE TABLE `authentication_rules_src` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `member_lid` int(11) NOT NULL,
+  `table_name` varchar(45) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `counter` int(45) NOT NULL,
+  `devicegroup` varchar(255) DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index3` (`member_lid`,`table_name`),
+  KEY `index5` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_dst`;
+CREATE TABLE `authentication_rules_dst` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `member_lid` int(11) NOT NULL,
+  `table_name` varchar(45) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `counter` int(45) NOT NULL,
+  `devicegroup` varchar(255) DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index3` (`member_lid`,`table_name`),
+  KEY `index4` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_usr`;
+CREATE TABLE `authentication_rules_usr` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `name` varchar(1023) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `devicegroup` varchar(255) DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index3` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_tag`;
+CREATE TABLE `authentication_rules_tag` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `member_lid` int(20) NOT NULL,
+  `table_name` varchar(255) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `devicegroup` varchar(255) DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index3` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_categories`;
+CREATE TABLE `authentication_rules_categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `devicegroup` varchar(255) DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index3` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_target`;
+CREATE TABLE `authentication_rules_target` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `source` int(11) DEFAULT NULL,
+  `vsys` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `device_vsys` varchar(255) DEFAULT NULL,
+  `rule_lid` int(11) DEFAULT NULL,
+  `xml` text,
+  `devicegroup` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `index1` (`rule_lid`,`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- DROP TABLE IF EXISTS `authentication_rules_hip`;
+CREATE TABLE `authentication_rules_hip` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `member_lid` int(20) NOT NULL,
+  `table_name` varchar(255) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `vsys` varchar(31) DEFAULT 'vsys1',
+  `devicegroup` varchar(255) DEFAULT 'default',
+  `name` varchar(45) NOT NULL,
+  `counter` int(45) NOT NULL,
+  `from_log` varchar(10) DEFAULT 'false',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index4` (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/* End Authentication Rules */

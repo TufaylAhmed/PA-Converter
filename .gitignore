@@ -1,0 +1,10 @@
+node_modules/
+tests/node_modules/
+tests/artifacts/
+.DS_Store
+*.log
+.env
+.npmrc
+*.swp
+.idea/
+.vscode/

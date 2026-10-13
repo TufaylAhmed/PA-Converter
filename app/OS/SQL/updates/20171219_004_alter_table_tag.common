@@ -1,0 +1,2 @@
+ALTER TABLE `tag`
+ADD COLUMN `used` int(1) NOT NULL DEFAULT '0' AFTER `merge_as_primary`;

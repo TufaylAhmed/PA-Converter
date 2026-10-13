@@ -1,0 +1,107 @@
+------------------------------------------------------------------
+title=BASECONFIG.TEX - main configuration in a LaTeX/PDF file
+separator= \\
+------------------------------------------------------------------
+\documentclass [german,11pt]{article}
+\usepackage {umlaut}
+\usepackage {babel}
+\usepackage {din-a4l}
+
+\usepackage {portland}
+\usepackage {longtable}
+
+\parindent 0mm
+\parskip 0.3em
+
+\begin{document}
+\landscape
+\pagestyle{headings}
+\thispagestyle{empty}
+\renewcommand{\arraystretch}{1.1}
+
+\title{FireWall-1 Rule Base and Object Definitions\\<<<<configset>>>>}
+\author{<<<<fwrules>>>>}
+\date{<<<<date>>>>} 
+
+\maketitle
+
+\tableofcontents
+
+%=========================================================
+\section{Firewall Policy}
+%=========================================================
+<<<<<rules>>>>>\begin{tabular}{lllllll}
+<<<<<rules>>>>>    \begin{minipage}[t]{0.19\linewidth}\textbf{Rule <<<rule>>>}\end{minipage} & \multicolumn{6}{l}{\begin{minipage}{0.84\linewidth}<<<comment>>>\end{minipage}}\\
+<<<<<rules>>>>>    \hline
+<<<<<rules>>>>>    From	& To & Services & Action & Track & Time & Install On\\
+<<<<<rules>>>>>    \begin{minipage}[t]{0.19\linewidth} <<<from>>> \end{minipage} & %
+<<<<<rules>>>>>    \begin{minipage}[t]{0.19\linewidth} <<<to>>> \end{minipage} & %
+<<<<<rules>>>>>    \begin{minipage}[t]{0.19\linewidth} <<<service>>> \end{minipage} & %
+<<<<<rules>>>>>    \begin{minipage}[t]{0.07\linewidth} <<<action>>> \end{minipage} & %
+<<<<<rules>>>>>    \begin{minipage}[t]{0.06\linewidth} <<<track>>>\mbox{\hspace{1pt}} \end{minipage} & %
+<<<<<rules>>>>>    \begin{minipage}[t]{0.07\linewidth} <<<time>>> \end{minipage} & %
+<<<<<rules>>>>>    \begin{minipage}[t]{0.1\linewidth} <<<installon>>> \end{minipage} \\
+<<<<<rules>>>>>    & & \\
+<<<<<rules>>>>>    & & \\
+<<<<<rules>>>>>\end{tabular}
+<<<<<rules>>>>>
+
+
+%=========================================================
+\section{NAT Rules}
+%=========================================================
+<<<<<nat>>>>>\begin{tabular}{lllllll}
+<<<<<nat>>>>>    \begin{minipage}[t]{0.14\linewidth}\textbf{Rule <<<rule>>> <<<disabled>>>}\end{minipage} & \multicolumn{6}{l}{\begin{minipage}{0.84\linewidth}<<<comment>>>\end{minipage}}\\
+<<<<<nat>>>>>    \hline
+<<<<<nat>>>>>    From	& To & Services & transl. From	& transl. To & transl. Services & Install On\\
+<<<<<nat>>>>>    \begin{minipage}[t]{0.14\linewidth} <<<from>>> \end{minipage} & %
+<<<<<nat>>>>>    \begin{minipage}[t]{0.14\linewidth} <<<to>>> \end{minipage} & %
+<<<<<nat>>>>>    \begin{minipage}[t]{0.14\linewidth} <<<service>>> \end{minipage} & %
+<<<<<nat>>>>>    \begin{minipage}[t]{0.14\linewidth} <<<tfrom>>> \end{minipage} & %
+<<<<<nat>>>>>    \begin{minipage}[t]{0.14\linewidth} <<<tto>>> \end{minipage} & %
+<<<<<nat>>>>>    \begin{minipage}[t]{0.14\linewidth} <<<tservice>>> \end{minipage} & %
+<<<<<nat>>>>>    \begin{minipage}[t]{0.14\linewidth} <<<installon>>> \end{minipage} \\
+<<<<<nat>>>>>    & & \\
+<<<<<nat>>>>>    & & \\
+<<<<<nat>>>>>\end{tabular}
+<<<<<nat>>>>>
+
+
+%=========================================================
+\section{Network Objects}
+%=========================================================
+\begin{longtable}{llllll}
+Name & Type & IP-Address / Netmask & NAT-Address / -Type & Members & Comment \\
+\hline
+\hline
+<<<<<objects>>>>><<<name>>> & %
+<<<<<objects>>>>>   \begin{minipage}[t]{0.16\linewidth} <<<type>>> \\ (<<<location>>> / <<<fw1>>>) \end{minipage} & %
+<<<<<objects>>>>>   \begin{minipage}[t]{0.16\linewidth} <<<ipaddress>>>\mbox{ } \\ <<<netmask>>>\mbox{ } \end{minipage} & %
+<<<<<objects>>>>>   \begin{minipage}[t]{0.16\linewidth} <<<nataddress>>> <<<nattype>>> \end{minipage} & %
+<<<<<objects>>>>>   \begin{minipage}[t]{0.16\linewidth} <<<members>>> \end{minipage} & %
+<<<<<objects>>>>>   \begin{minipage}[t]{0.16\linewidth} <<<comment>>> \end{minipage} \\
+<<<<<objects>>>>>\hline
+\end{longtable}
+
+
+%=========================================================
+\section{Services}
+%=========================================================
+\begin{longtable}{llllllll}
+Name & Type & Dst. Port & Src. Port & pre-Match & Prolog & Members & Comment \\
+\hline
+\hline
+<<<<<services>>>>><<<name>>> & %
+<<<<<services>>>>>   <<<type>>> & %
+<<<<<services>>>>>   <<<port>>> & %
+<<<<<services>>>>>   <<<sportfrom>>> -- <<<sportto>>> & %
+<<<<<services>>>>>   <<<match>>> & %
+<<<<<services>>>>>   <<<prolog>>> & %
+<<<<<services>>>>>   \begin{minipage}[t]{0.125\linewidth} <<<members>>> \end{minipage} & %
+<<<<<services>>>>>   \begin{minipage}[t]{0.125\linewidth} <<<comment>>> \end{minipage} \\
+<<<<<services>>>>>\hline
+\end{longtable}
+
+
+
+\end{document}

@@ -1,0 +1,4 @@
+INSERT INTO `tools_where_columns` (`id`, `name`, `column_or_table_name`, `filter_type`, `recursive`, `order_by`) VALUES ('130', '(Predefined) Convertible to IP Object', 'getAddressNotInGroups', '', 'false', '58.1');
+UPDATE `tools_where` SET `tools_where_columns_id` = '1,4,15,24,25,85,73,74,75,76,111,78,79,83,114,115,118,84,130' WHERE (`id` = '5');
+
+

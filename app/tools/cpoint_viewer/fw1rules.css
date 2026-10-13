@@ -1,0 +1,37 @@
+body {
+	font-family: Lucida,Verdana,Helvetica,Arial;
+	font-size: 7pt;
+	background-color: white;
+}
+
+table {
+	font-family: Lucida,Verdana,Helvetica,Arial;
+	font-size: 7pt;
+	background-color: #eeeeee;
+}
+
+tr {
+	vertical-align: top;
+}
+
+th {
+	background-color: #0000ff;
+	color: white;
+	font-weight: bold;
+}
+
+td.normal {
+	background-color: blue;
+	text-align: center;
+	vertical-align: middle;
+	color: white;
+	font-weight: bold;
+}
+
+td.disabled {
+	background-color: red;
+	text-align: center;
+	vertical-align: middle;
+	color: white;
+	font-weight: bold;
+}

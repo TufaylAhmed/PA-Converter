@@ -1,0 +1,21 @@
+DROP TABLE IF EXISTS `gre_tunnel`;
+CREATE TABLE `gre_tunnel` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  `name_ext` VARCHAR(100),
+  `vsys` VARCHAR(31) NOT NULL,
+  `source` INT(11) NOT NULL,
+  `template` INT(11) NOT NULL,
+  `local_address_ip` VARCHAR(40) NOT NULL,
+  `interface` VARCHAR(45) NOT NULL,
+  `peer_ip_address` VARCHAR(40) NOT NULL,
+  `keep_alive` VARCHAR(3) NOT NULL,
+  `keep_alive_interval` INT(3) DEFAULT '10',
+  `keep_alive_retry` INT(3) DEFAULT '3',
+  `keep_alive_hold_timer` INT(3) DEFAULT '5',
+  `tunnel_interface` VARCHAR(100) NOT NULL,
+  `copy_tos` VARCHAR(30) NOT NULL,
+  `dummy` int(1)  DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

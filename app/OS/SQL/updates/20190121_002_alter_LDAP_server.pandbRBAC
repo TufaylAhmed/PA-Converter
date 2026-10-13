@@ -1,0 +1,11 @@
+SELECT IFNULL(column_name, '') INTO @colName
+FROM information_schema.columns
+WHERE table_name = 'remote_LDAP_server'
+AND column_name = 'account_prefix';
+
+DELIMITER //
+IF @colName = '' THEN
+    ALTER TABLE `pandbRBAC`.`remote_LDAP_server`
+    ADD COLUMN `account_prefix` VARCHAR(255) NULL AFTER `account_suffix`;
+END IF //
+DELIMITER ;

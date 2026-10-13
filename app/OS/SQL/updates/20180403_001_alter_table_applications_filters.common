@@ -1,0 +1,7 @@
+ALTER TABLE `applications_filters`
+ADD COLUMN `saas_certifications` VARCHAR(1024) NOT NULL AFTER `pervasive_use`,
+ADD COLUMN `saas_risk` VARCHAR(1024) NOT NULL AFTER `saas_certifications`;
+
+ALTER TABLE applications_filters MODIFY COLUMN category VARCHAR(1024) NOT NULL;
+ALTER TABLE applications_filters MODIFY COLUMN subcategory VARCHAR(1024) NOT NULL;
+ALTER TABLE applications_filters MODIFY COLUMN technology VARCHAR(1024) NOT NULL;

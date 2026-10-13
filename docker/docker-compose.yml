@@ -1,0 +1,64 @@
+name: panw-expedition
+
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: paloalto
+      MYSQL_ROOT_HOST: "%"
+    command:
+      - --character-set-server=utf8
+      - --collation-server=utf8_general_ci
+      - --max-allowed-packet=64M
+      - --sql-mode=
+      - --skip-log-bin
+      - --bind-address=0.0.0.0
+    volumes:
+      - expedition-db:/var/lib/mysql
+      - ../databases:/docker-entrypoint-initdb.d/sql:ro
+      - ./initdb/00-create-dbs.sh:/docker-entrypoint-initdb.d/00-create-dbs.sh:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    hostname: rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  web:
+    image: ${EXPEDITION_IMAGE:-panw/expedition-web:5.45.4}
+    build:
+      context: ..
+      dockerfile: docker/web/Dockerfile
+    ports:
+      - "${EXPEDITION_HTTP_PORT:-18080}:80"
+      - "${EXPEDITION_PORT:-18443}:443"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: paloalto
+      RABBITMQ_HOST: rabbitmq
+    volumes:
+      - ../app:/var/www/html
+      - expedition-userspace:/home/userSpace
+      - expedition-data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  expedition-db:
+  expedition-userspace:
+  expedition-data:

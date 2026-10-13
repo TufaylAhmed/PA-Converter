@@ -1,0 +1,14 @@
+CREATE TABLE `splunk_files` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `device_serial` varchar(255) NOT NULL,
+  `log_name` varchar(255) NOT NULL,
+  `date` datetime DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `query_string` text,
+  `status` varchar(45) DEFAULT NULL,
+  `path` varchar(512) NOT NULL DEFAULT '/tmp',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+

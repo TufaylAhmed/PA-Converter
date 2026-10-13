@@ -1,0 +1,23 @@
+#################################################################
+# Log everything to a per FW/serial_number daily logfile        #
+#################################################################
+
+$ModLoad imtcp
+$ModLoad imudp
+
+### Listeners
+$InputTCPServerRun 514
+$UDPServerRun 514
+
+$FileOwner www-data
+$FileGroup expedition
+$DirCreateMode 0755
+
+# specify senders you permit to access
+$AllowedSender TCP, 127.0.0.1, 10.11.29.0/24, 172.16.26.0/24, *.paloaltonetworks.com
+$AllowedSender UDP, 127.0.0.1, 10.11.29.0/24, 172.16.26.0/24, *.paloaltonetworks.com
+
+set $!SERIAL = field($msg,",",2);
+$template DynaTrafficLog,"/PALogs/%FROMHOST-IP%/%$!SERIAL%/%$!SERIAL%_%HOSTNAME%_traffic_%$YEAR%_%$MONTH%_%$DAY%_last_calendar_day.csv"
+:msg, contains, ",TRAFFIC," -?DynaTrafficLog
+#*.* -?DynaTrafficLog

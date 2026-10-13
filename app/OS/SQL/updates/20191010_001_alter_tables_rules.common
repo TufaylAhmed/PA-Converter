@@ -1,0 +1,26 @@
+ALTER TABLE `decryption_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;
+
+ALTER TABLE `qos_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;
+
+ALTER TABLE `pbf_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;
+
+ALTER TABLE `tunnel_inspect_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;
+
+ALTER TABLE `authentication_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;
+
+ALTER TABLE `dos_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;
+
+ALTER TABLE `appoverride_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;
+
+ALTER TABLE `nat_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;
+
+ALTER TABLE `security_rules`
+ADD COLUMN `uuid` varchar(255) DEFAULT '' AFTER `dummy`;

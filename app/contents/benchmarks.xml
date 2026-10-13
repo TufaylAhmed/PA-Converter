@@ -1,0 +1,370 @@
+<configuration version="1.0" name="benchmark" date="2016-11-14 00:00:00">
+    <entry name="Device Setup">
+        <description>The General settings section includes banner and logging requirement settings.</description>
+        <color>#5e91a9</color>
+        <icon>fa-cog</icon>
+        <checks>
+            <check name="GeneralSettings1">
+                <enabled>yes</enabled>
+                <topic>General Settings</topic>
+                <title>Ensure 'Login Banner' is set</title>
+                <description>Configure a login banner, ideally approved by the organization's legal team. This banner
+                    should, at minimum, prohibit unauthorized access, provide notice of logging or monitoring,
+                    and avoid using the word "welcome" or similar words of invitation.</description>
+                <rationale>Through a properly stated login banner, the risk of unintentional access to the device by
+                    unauthorized users is reduced. Should legal action take place against a person accessing the
+                    device without authorization, the login banner greatly diminishes a defendant's claim of
+                    ignorance.
+                </rationale>
+                <audit><![CDATA[Navigate to Device > Setup > Management > General Settings.
+                    Verify Login Banner is set appropriately.
+                    or
+                    Execute the following CLI command to verify a login banner is configured:
+                    configure // To get into configure prompt.
+                    username@hostname#show deviceconfig system | match login-banner
+               ]]></audit>
+                <remediation>
+                    <![CDATA[
+                    Navigate to Device > Setup > Management > General Settings.
+                    Set Login Banner as appropriate.
+                    or
+                    To remediate this setting using the CLI, execute the following command:
+                    username@hostname#set deviceconfig system login-banner <value>
+                    ]]>
+                </remediation>
+                <default_value>Not configured</default_value>
+                <reference><![CDATA[<ol><li>How to Configure the Device Login Banner <a href=https://live.paloaltonetworks.com/docs/DOC-7964 target=_blank>https://live.paloaltonetworks.com/docs/DOC-7964</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+                <tests>
+                    <test name="login_banner">This system is for the use of authorized users only. Individuals using this computer system withoutauthority, or in excess of their authority, are subjectto having all of their activities on this systemmonitored and recorded by system personnel. In thecourse of monitoring individuals improperly using thissystem, or in the course of system maintenance, theactivities of authorized users may also be monitored. Anyone using this system expressly consents to suchmonitoring and is advised that if such monitoringreveals possible evidence of criminal activity, systempersonnel may provide the evidence of such monitoringto law enforcement officials.</test>
+                </tests>
+            </check>
+            <check name="GeneralSettings2">
+                <enabled>yes</enabled>
+                <topic>General Settings</topic>
+                <title>Ensure 'Enable Log on High DP Load' is enabled</title>
+                <description>Enable the option 'Enable Log on High DP Load' feature. When this option is selected, a system log entry is created when the device's packet processing load reaches 100% utilization.</description>
+                <rationale>When the device's packet processing load reaches 100%, a degradation in the availability of services accessed through the device can occur. Logging this event can help with troubleshooting system performance.</rationale>
+                <audit><![CDATA[
+                Navigate to Device > Setup > Management > Logging and Reporting Settings.
+                    Verify Enable Log on High DP Load is checked.
+                    or
+                    Execute the following CLI command to verify DP load log settings: username@hostname#show deviceconfig setting | match enable-log-high-dp-load
+                    ]]></audit>
+                <remediation><![CDATA[Navigate to Device > Setup > Management > Logging and Reporting Settings.
+                    Set the Enable Log on High DP Load box to checked.
+                    or
+                    To remediate this setting using the CLI, execute the following command: username@hostname#set deviceconfig setting management enable-log-high-dp-load yes]]></remediation>
+                <default_value>Not enabled</default_value>
+                <reference><![CDATA[<ol><li>How to Configure the Device Login Banner <a href=https://live.paloaltonetworks.com/docs/DOC-4075 target=_blank>https://live.paloaltonetworks.com/docs/DOC-4075</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="MinimumPasswordRequirements1">
+                <enabled>yes</enabled>
+                <topic>General Settings</topic>
+                <title>Ensure 'Minimum Password Complexity' is enabled and configured</title>
+                <description>This checks all new passwords to ensure that they meet basic requirements for strong passwords.</description>
+                <rationale>Password complexity recommendations are derived from the USGCB (United States Government Configuration Baseline), Common Weakness Enumeration, and benchmarks published by the CIS (Center for Internet Security).</rationale>
+                <audit><![CDATA[
+                    Navigate to Device > Setup > Management > Minimum Password Complexity.
+                    Verify Enabled is checked
+                    Minimum length 12
+                    Password history Count 24
+                    Minimum Uppercase letters 1
+                    Minimum Lowercase letters 1
+                    Minimum Numeric letters 1
+                    Minimal special characters 1
+                    Block Username inclusion enabled
+                    New Password differs by characters 3
+                    or
+                    Execute the following CLI command: username@hostname#show mgt-config password-complexity
+                ]]></audit>
+                <remediation><![CDATA[
+                    Navigate to Device > Setup > Management > Minimum Password Complexity.
+                    Set Enabled to be checked
+                    Minimum length 12
+                    Password history Count 24
+                    Minimum Uppercase letters 1
+                    Minimum Lowercase letters 1
+                    Minimum Numeric letters 1
+                    Minimal special characters 1
+                    Block Username inclusion enabled
+                    New Password differs by characters 3
+                ]]></remediation>
+                <default_value>Not enabled</default_value>
+                <reference><![CDATA[
+                    <ol><li>How to Configure Minimum Password Complexity for User Accounts <a href=https://live.paloaltonetworks.com/docs/DOC-8018 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8018</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+                <tests>
+                    <test name="minimum-length">12</test>
+                    <test name="password-history-count">24</test>
+                    <test name="minimum-uppercase-letters">1</test>
+                    <test name="minimum-lowercase-letters">1</test>
+                    <test name="minimum-numeric-letters">1</test>
+                    <test name="minimum-special-characters">1</test>
+                    <test name="block-username-inclusion">yes</test>
+                    <test name="new-password-differs-by-characters">3</test>
+                    <test name="expiration-period">90</test>
+                </tests>
+            </check>
+        </checks>
+    </entry>
+    <entry name="User Identification">
+        <description>The User Identification section covers requirements for IP address mapping and User-ID functionality.</description>
+        <color>#7986CB</color>
+        <icon>fa-user</icon>
+    </entry>
+    <entry name="High Availability">
+        <description>The High Availability section includes requirements for High Availability peer synchronization and monitoring.</description>
+        <color>#9575CD</color>
+        <icon>fa-balance-scale</icon>
+    </entry>
+    <entry name="Wildfire">
+        <description>WildFire is a cloud-based virtual malware detection, analysis, and blocking service that is native to Palo Alto next generation firewalls. The service detects and blocks targeted and unknown malware, exploits, and outbound command and control activity by observing malicious behavior in real time, rather than using pre-existing signatures. Post-analysis, WildFire generates protections that are shared globally in about 15 minutes.
+            The WildFire section covers requirements related to WildFire file size upload limits, file blocking profiles, decrypted content forwarding, session information settings, malicious file alerts, and update downloads.</description>
+        <color>#FF9800</color>
+        <icon>fa-cloud</icon>
+        <checks>
+            <check name="Wildfire1">
+                <enabled>yes</enabled>
+                <topic>Wildfire</topic>
+                <title>Ensure that WildFire file size upload limits are maximized</title>
+                <description>Increase WildFire file size limits to the maximum file size supported by the environment. An organization with bandwidth constraints or heavy usage of unique files under a supported file type may require lower settings.</description>
+                <rationale>Increasing file size limits allows the devices to forward more files for WildFire analysis. This increases the chances of identifying, and later preventing, threats in larger files.</rationale>
+                <audit><![CDATA[
+                Navigate to Device > Setup > WildFire.
+                    Click the General Settings edit icon.
+                    Verify the maximum size for each file type.
+                    or
+                    Execute the following CLI command to verify that the WildFire file size limits are set correctly: username@hostname#run show wildfire status
+                    ]]>
+                </audit>
+                <remediation><![CDATA[
+                Navigate to Device > Setup > WildFire.
+                    Click the General Settings edit icon.
+                    Set the maximum size for each file type.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[
+                <ol><li>WildFire Administrator's Guide 6.1 (English) - <a href=https://live.paloaltonetworks.com/docs/DOC-8251 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8251</a></li>
+                    <li>How to Configure WildFire - <a href=https://live.paloaltonetworks.com/docs/DOC-3252 target=_blank>https://live.paloaltonetworks.com/docs/DOC-3252</a></li></ol>
+                    ]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="Wildfire2">
+                <enabled>false</enabled>
+                <topic>Wildfire</topic>
+                <title>Ensure forwarding is enabled for all applications and file types in WildFire file blocking profiles</title>
+                <description>Set Applications and File Types fields to any in WildFire file blocking profiles. With a WildFire license, seven file types are supported, while only PE (Portable Executable) files are supported without a license.</description>
+                <rationale>Selecting 'Any' application and file type ensures WildFire is analyzing as many files as possible.</rationale>
+                <audit><![CDATA[Navigate to Objects > Security Profiles > File Blocking.
+                    Verify an appropriate rule exists with Applications set to any, File Type set to any, and Action set to forward.]]></audit>
+                <remediation><![CDATA[Navigate to Objects > Security Profiles > File Blocking.
+                    Set a rule so that Applications is set to any, File Type is set to any, and Action is set to forward.
+                    or From CLI: # set profiles file-blocking "How to configure File Blocking" rules "File Blocking" action forward direction both application any file-type any]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol> <li>WildFire Administrator s Guide 6.1 (English) <a href=https://live.paloaltonetworks.com/docs/DOC-8251 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8251</a></li>
+                    <li>How to Configure WildFire <a href=https://live.paloaltonetworks.com/docs/DOC-3252 target=_blank>https://live.paloaltonetworks.com/docs/DOC-3252</a></li>
+                <li><a href=https://live.paloaltonetworks.com/docs/DOC-8706 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8706</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="Wildfire3">
+                <enabled>false</enabled>
+                <topic>Wildfire</topic>
+                <title>Ensure a WildFire file blocking profile is enabled for all security policies allowing Internet traffic flows</title>
+                <description>Apply a WildFire file blocking profile to all security policies allowing Internet traffic flows. In the following example, the "WildFire" blocking profile is included in the "Inside to Outside" profile group.</description>
+                <rationale>Traffic matching security policies that do not include a WildFire file blocking profile will not utilize WildFire for file analysis. Wildfire analysis is one of the key security measures available on this platform. Without Wildfire analysis enabled, inbound malware can only be analyzed by signature - which industrywide is roughly 40-60% effective. In a targeted attack, the success of signature-based-only analysis drops even further.</rationale>
+                <audit><![CDATA[To verify File Blocking Profile Navigate to Objects > Security Profiles > File Blocking > File Blocking Profile To verify File Blocking Rules Navigate to Policies > Security > Security Policy Rule > Actions > Profile Setting > File Blocking.
+                    Verify a WildFire file blocking profile exists with Source Zone INSIDE, Address any, and User any; with Destination Zone OUTSIDE, Address any, Service any, and Application set to all denied applications; and with Action set to Deny.
+                    Verify a WildFire file blocking profile exists with Source Zone INSIDE, Address any, and User any; with Destination Zone OUTSIDE, Address any, Application any, and Service set to all denied service ports; and with Action set to Deny.]]></audit>
+                <remediation><![CDATA[To Set File Blocking Profile Navigate to Objects > Security Profiles > File Blocking > File Blocking Profile
+                    To Set File Blocking Rules Navigate to Policies > Security > Security Policy Rule > Actions > Profile Setting > File Blocking.
+                    Set a WildFire file blocking profile with Source Zone INSIDE, Address any, and User any; with Destination Zone OUTSIDE, Address any, Service any, and Application set to all denied applications; and with Action set to Deny.
+                    Set a WildFire file blocking profile with Source Zone INSIDE, Address any, and User any; with Destination Zone OUTSIDE, Address any, Application any, and Service set to all denied service ports; and with Action set to Deny.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>WildFire Administrator's Guide 6.1 (English) <a href=https://live.paloaltonetworks.com/docs/DOC-8251 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8251</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="Wildfire4">
+                <enabled>false</enabled>
+                <topic>Wildfire</topic>
+                <title>Ensure forwarding of decrypted content to WildFire is enabled</title>
+                <description>Allow the firewall to forward decrypted content to WildFire. Note that SSL Forward-Proxy must also be enabled and configured for this setting to take effect on inside-to-outside traffic flows.</description>
+                <rationale>As encrypted Internet traffic continues to proliferate, WildFire becomes less effective unless it is allowed to act on decrypted content. For example, if a user downloads a malicious pdf over SSL, WildFire can only provide analysis if 1) the session is decrypted by the firewall and 2) forwarding of decrypted content is enabled. In today's internet, roughly 70-80% of all user traffic is encrypted. If Wildfire is not configured to analyze encrypted content, the effectiveness of Wildfire is drastically reduced.</rationale>
+                <audit><![CDATA[Navigate to Device > Setup > Content-ID > Content-ID Settings.
+                    Verify that Allow forwarding of decrypted content is checked.
+                    or
+                    Execute the following CLI command to verify ssl-decryption configuration: username@hostname#show setting ssl-decrypt | match decrypted]]></audit>
+                <remediation><![CDATA[Navigate to Device > Setup > Content-ID > Content-ID Settings.
+                    Set Allow forwarding of decrypted content to be checked.
+                    or
+                    Execute the following CLI command to set the ssl-decryption configuration <code>username@hostname#configure username@hostname#set setting ssl-decrypt allow-forward-decrypted-content yes username@hostname#commit</code>]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>WildFire Fails Forwarding File to Cloud for Encrypted Traffic <a href=https://live.paloaltonetworks.com/docs/DOC-6845 target=_blank>https://live.paloaltonetworks.com/docs/DOC-6845</a></li> <li>WildFire Administrator's Guide 6.1 (English) <a href=https://live.paloaltonetworks.com/docs/DOC-8251 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8251</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="Wildfire5">
+                <enabled>false</enabled>
+                <topic>Wildfire</topic>
+                <title>Ensure all WildFire session information settings are enabled</title>
+                <description>Enable all options under Session Information Settings for WildFire.</description>
+                <rationale>Permitting the firewall to send all of this information to WildFire creates more detailed reports, thereby making the process of tracking down potentially infected devices more efficient. This could prevent an infected system from further infecting the environment. Environments with security policies restricting sending this data to the WildFire cloud can instead utilize an on-premises WildFire appliance. In addition, risk can be analyzed in the context of the destination host and user account, either during analysis or during incident response.</rationale>
+                <audit><![CDATA[Navigate to Device > Setup > WildFire > Session Information Settings.
+                    Verify that every option is enabled.]]></audit>
+                <remediation><![CDATA[Navigate to Device > Setup > WildFire > Session Information Settings.
+                    Set every option to be enabled.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>WildFire Administrator's Guide 6.1 (English) <a href=https://live.paloaltonetworks.com/docs/DOC-8251 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8251</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="Wildfire6">
+                <enabled>false</enabled>
+                <topic>Wildfire</topic>
+                <title>Ensure alerts are enabled for malicious files detected by WildFire</title>
+                <description>Configure WildFire to send an alert when a malicious file is detected. This alert could be sent by whichever means is preferable, including email, SNMP trap, or syslog message.
+                    Alternatively, configure the WildFire cloud to generate alerts for malicious files. The cloud can generate alerts in addition to or instead of the local WildFire implementation. Note that the destination email address of alerts configured in the WildFire cloud portal is tied to the logged in account, and cannot be modified. Also, new systems added to the WildFire cloud portal will not be automatically set to email alerts.</description>
+                <rationale>WildFire analyzes files that have already been downloaded and possibly executed. A WildFire verdict of malicious indicates that a computer could already be infected. In addition, because WildFire only analyzes files it has not already seen that were not flagged by the firewall's antivirus filter, files deemed malicious by WildFire are more likely to evade detection by desktop antivirus products.</rationale>
+                <audit><![CDATA[Navigate to Objects > Log Forwarding.
+                    Verify that the WildFire log type is configured to generate alerts using the desired alerting mechanism.]]></audit>
+                <remediation><![CDATA[From GUI: Navigate to Device > Server Profiles > Email Click Add Enter a name for the Profile Select the virtual system from the Location drop down menu (if applicable) Click Add Configure the Syslog Server: Name, Display Name, Syslog Server, Transport, Port, Format, Facility Click OK Click Commit to save the configuration Configure the SMTP Server: Name, Display Name, From, To, Additional Recipients, Gateway IP or Hostname Click OK Click Commit to save the configuration]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>WildFire Email Alerts: Subscribe or Add Additional Recipients  <a href=https://live.paloaltonetworks.com/docs/DOC-7740 target=_blank>https://live.paloaltonetworks.com/docs/DOC-7740</a></li> <li>WildFire Administrator's Guide 6.1 (English) <a href=https://live.paloaltonetworks.com/docs/DOC-8251 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8251</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="Wildfire7">
+                <enabled>false</enabled>
+                <topic>Wildfire</topic>
+                <title>Ensure 'WildFire Update Schedule' is set to download and install updates every 15 minutes</title>
+                <description>Set the WildFire update schedule to download and install updates every 15 minutes.</description>
+                <rationale>WildFire definitions may contain signatures to block immediate, active threats to the environment. With a 15 minute update schedule, the firewall can ensure threats with new definitions are quickly mitigated.</rationale>
+                <audit><![CDATA[Navigate to Device > Dynamic Updates > WildFire Update Schedule.
+                    Verify that Action is set to Download and Install.
+                    Verify that Recurrence is set to Every 15 Minutes.
+                    or
+                    Execute the following CLI command to verify the update-schedule is configured: username@hostname#set deviceconfig system update-schedule ?]]></audit>
+                <remediation><![CDATA[Navigate to Device > Dynamic Updates > WildFire Update Schedule.
+                    Set Action to Download and Install.
+                    Set Recurrence to Every 15 Minutes.
+                    or
+                    Execute the following CLI command to set the update schedule: username@hostname#set deviceconfig system update-schedule wildfire recurring every-15-mins action download-and-install]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[ <ol><li>WildFire Administrator's Guide 6.1 (English) <a href=https://live.paloaltonetworks.com/docs/DOC-8251 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8251</a></li> <li>How to Configure WildFire <a href=https://live.paloaltonetworks.com/docs/DOC-3252 target=_blank>https://live.paloaltonetworks.com/docs/DOC-3252</a></li> <li>Tips for Managing Content Updates <a href=https://live.paloaltonetworks.com/docs/DOC-1578 target=_blank>https://live.paloaltonetworks.com/docs/DOC-1578</a></li> <li>PAN-OS Administrator's Guide 6.1 (English) <a href=https://live.paloaltonetworks.com/docs/DOC-8246 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8246</a></li></ol> ]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+        </checks>
+    </entry>
+    <entry name="Security Profiles">
+        <description>The Security Profiles section covers requirements for several types of profiles, including antivirus, anti-spyware, Vulnerability Protection Profiles, URL filtering, URL logging, data filtering, and Zone Protection Profiles.</description>
+        <color>#0f9d58</color>
+        <icon>fa-user-secret</icon>
+        <checks>
+            <check name="SecurityProfiles1">
+                <enabled>false</enabled>
+                <topic>Security Profiles</topic>
+                <title>Ensure at least one antivirus profile is set to block on all decoders except 'imap' and 'pop3'</title>
+                <description>Configure at least one antivirus profile to a value of 'block' for all decoders except imap and pop3 under both Action and WildFire Action. Configure imap and pop3 decoders to 'alert' under both Action and WildFire Action.</description>
+                <rationale>Antivirus signatures produce low false positives. By blocking any detected malware through the specified decoders, the threat of malware propagation through the firewall is greatly reduced. It is recommended to mitigate malware found in pop3 and imap through a dedicated antivirus gateway. Due to the nature of the pop3 and imap protocols, the firewall is not able to block only a single email message containing malware. Instead, the entire session would be terminated, potentially affecting benign email messages.</rationale>
+                <audit><![CDATA[Navigate to Objects > Security Profiles > Antivirus
+                    Verify that at least one antivirus profile has all decoders except imap and pop3 set to block for both Action and Wildfire Action, and that the imap and pop3 decoders are set to alert for both Action and Wildfire Action.]]></audit>
+                <remediation><![CDATA[Navigate to Objects > Security Profiles > Antivirus.
+                    Set at least one antivirus profile to have all decoders except imap and pop3 set to block for both Action and Wildfire Action, and the imap and pop3 decoders set to alert for both Action and Wildfire Action.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>Threat Prevention Deployment Tech Note - <a href=https://live.paloaltonetworks.com/docs/DOC-3094 target=_blank>https://live.paloaltonetworks.com/docs/DOC-3094</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="SecurityProfiles2">
+                <enabled>false</enabled>
+                <topic>Security Profiles</topic>
+                <title>Ensure a secure antivirus profile is applied to all relevant security policies</title>
+                <description>Create a secure antivirus profile and apply it to all security policies that could pass HTTP, SMTP, IMAP, POP3, FTP, or SMB traffic. The antivirus profile may be applied to the security policies directly or through a profile group.</description>
+                <rationale>By applying a secure antivirus profile to all applicable traffic, the threat of malware propagation through the firewall is greatly reduced. Without an antivirus profile assigned to any potential hostile zone, the first protection in the path against malware is removed, leaving in most cases only the desktop endpoint protection application to detect and remediate any potential malware.</rationale>
+                <audit><![CDATA[Navigate to Objects > Security Profiles > Antivirus Policies > Security<br>
+                    Verify there is an Antivirus profile applied to all security policies passing traffic - regardless of protocol.<br>Verify each Decoder contains Action set to Block and Wildfire Action set to Block<br>Verify the Source Zone is INSIDE and Source Address is ANY<br>Verify the Destination Zone is OUTSIDE and Destination Address is ANY<br>Verify Application is ANY Verify Service is ANY<br>Verify Action is checked<br>Verify Profile is BlockAll-AV]]></audit>
+                <remediation><![CDATA[Navigate to Objects > Security Profiles > Antivirus Policies > Security<br>Set an Antivirus profile for all security policies passing traffic - regardless of protocol.<br>Ensure each Decoder contains Action set to Block and Wildfire Action set to Block<br>Set the Source Zone to INSIDE and Source Address to ANY<br>Set the Destination Zone to OUTSIDE and Destination Address to ANY<br>Set Application to ANY<br>Set Service to ANY<br>Set Action to checked<br>Set Profile to BlockAll-AV]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="SecurityProfiles3">
+                <enabled>false</enabled>
+                <topic>Security Profiles</topic>
+                <title>Ensure an anti-spyware profile is configured to block on all spyware severity levels, categories, and threats</title>
+                <description>If a single rule exists within the anti-spyware profile, configure it to block on any spyware severity level, any category, and any threat. If multiple rules exist within the anti-spyware profile, ensure all spyware categories, threats, and severity levels are set to be blocked. Additional rules may exist for packet capture or exclusion purposes.</description>
+                <rationale>Requiring a blocking policy for all spyware threats, categories, and severities reduces the risk of spyware traffic from successfully exiting the organization. Without an anti-spyware profile assigned to any potential hostile zone, the first protection in the path against malware is removed, leaving in most cases only the desktop endpoint protection application to detect and remediate any potential spyware.</rationale>
+                <audit><![CDATA[Navigate to Objects > Security Profiles > Anti-Spyware<br>Verify a rule exists within the anti-spyware profile that is configured to perform the Block Action on any Severity level, any Category, and any Threat Name.]]></audit>
+                <remediation><![CDATA[Navigate to Objects > Security Profiles > Anti-Spyware<br>Set a rule within the anti-spyware profile that is configured to perform the Block Action on any Severity level, any Category, and any Threat Name.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>Threat Prevention Deployment Tech Note - <a href=https://live.paloaltonetworks.com/docs/DOC-3094 target=_blank>https://live.paloaltonetworks.com/docs/DOC-3094</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="SecurityProfiles4">
+                <enabled>yes</enabled>
+                <topic>Security Profiles</topic>
+                <title>Ensure DNS sinkholing is configured on all anti-spyware profiles in use</title>
+                <description>Configure DNS sinkholing for all anti-spyware profiles in use. All internal requests to the selected sinkhole IP address must traverse the firewall. Any device attempting to communicate with the DNS sinkhole IP address should be considered infected.</description>
+                <rationale>DNS sinkholing helps to identify infected clients by spoofing DNS responses for malware domain queries. Without sinkholing, the DNS server itself may be seen as infected, while the truly infected device remains unidentified. In addition, sinkholing also ensures that DNS queries that might be indicators of compromise do not transit the internet, where they could be potentially used to negatively impact the "ip reputation" of the organization's internet network subnets.</rationale>
+                <audit><![CDATA[Navigate to Objects > Security Profiles > Anti-Spyware<br>Within the anti-spyware profile, under its DNS Signatures tab, verify that Action on DNS queries is set to sinkhole.<br>Verify the 'Sinkhole IPv4' IP address is correct.<br>Verify the 'Sinkhole IPv6' IP address is correct.]]></audit>
+                <remediation><![CDATA[Navigate to Objects > Security Profiles > Anti-Spyware<br>Within the anti-spyware profile, under its DNS Signatures tab, set Action on DNS queries to sinkhole.<br>Set 'Sinkhole IPv4' to the correct IP address.<br>Set 'Sinkhole IPv6' to the correct IP address.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>How to Deal with Conficker using DNS Sinkhole - <a href=https://live.paloaltonetworks.com/docs/DOC-6628 target=_blank>https://live.paloaltonetworks.com/docs/DOC-6628</a></li>
+                    <li>Threat Prevention Deployment Tech Note - <a href=https://live.paloaltonetworks.com/docs/DOC-3094 target=_blank>https://live.paloaltonetworks.com/docs/DOC-3094</a></li>
+                <li>PAN-OS Administrator's Guide 6.1 (English) - <a href=https://live.paloaltonetworks.com/docs/DOC-8246 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8246</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="SecurityProfiles5">
+                <enabled>yes</enabled>
+                <topic>Security Profiles</topic>
+                <title>Ensure passive DNS monitoring is set to enabled on all anti-spyware profiles in use</title>
+                <description>Enable passive DNS monitoring within all anti-spyware profiles in use.</description>
+                <rationale>Enabling passive DNS monitoring improves PAN's threat prevention and threat intelligence capabilities. This is performed without source information delivered to PAN to ensure sensitive DNS information of the organization is not compromised.</rationale>
+                <audit><![CDATA[Navigate to Objects > Security Profiles > Anti-Spyware > Policies > Security.<br>For each anti-spyware profile in use, verify the Enable Passive DNS Monitoring box is checked under the DNS Signatures tab.]]></audit>
+                <remediation><![CDATA[Navigate to Objects > Security Profiles > Anti-Spyware Policies > Security.<br>For each anti-spyware profile in use, set the Enable Passive DNS Monitoring box under the DNS Signatures tab to be checked.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>What Information is Submitted to the Palo Alto Networks when Enabling the Passive DNS Feature - <a href= https://live.paloaltonetworks.com/docs/DOC-7256 target=_blank> https://live.paloaltonetworks.com/docs/DOC-7256</a></li>
+                    <li>PAN-OS Administrator's Guide 6.1 (English) - <a href=https://live.paloaltonetworks.com/docs/DOC-8246 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8246</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="SecurityProfiles6">
+                <enabled>false</enabled>
+                <topic>Security Profiles</topic>
+                <title>Ensure a secure anti-spyware profile is applied to all security policies permitting traffic to the Internet</title>
+                <description>Create one or more anti-spyware profiles and collectively apply them to all security policies permitting traffic to the Internet. The anti-spyware profiles may be applied to the security policies directly or through a profile group.</description>
+                <rationale>By applying secure anti-spyware profiles to all applicable traffic, the threat of sensitive data exfiltration or command-and-control traffic successfully passing through the firewall is greatly reduced. Anti-spyware profiles are not restricted to particular protocols like antivirus profiles, so anti-spyware profiles should be applied to all security policies permitting traffic to the Internet. Assigning an anti-spyware profile to each trusted zone will quickly and easily identify trusted hosts that have been infected with spyware, by identifying the infection from their outbound network traffic. In addition, that outbound network traffic will be blocked by the profile.</rationale>
+                <audit><![CDATA[Navigate to Objects > Security Profiles > Anti-Spyware.<br>Also navigate to Policies > Security.<br>Verify there are one or more anti-spyware profiles that collectively apply to all inside to outside traffic from any address to any address and any application and service.]]></audit>
+                <remediation><![CDATA[Navigate to Objects > Security Profiles > Anti-Spyware.<br>Also navigate to Policies > Security.<br>Set one or more anti-spyware profiles to collectively apply to all inside to outside traffic from any address to any address and any application and service.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>Threat Prevention Deployment Tech Note - <a href=https://live.paloaltonetworks.com/docs/DOC-3094 target=_blank>https://live.paloaltonetworks.com/docs/DOC-3094</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+            <check name="SecurityProfiles7">
+                <enabled>false</enabled>
+                <topic>Security Profiles</topic>
+                <title>Ensure a Vulnerability Protection Profile is set to block attacks against critical and high vulnerabilities, and set to default on medium, low, and informational vulnerabilities</title>
+                <description>Configure a Vulnerability Protection Profile set to block attacks against any critical or high vulnerabilities, at minimum, and set to default on any medium, low, or informational vulnerabilities. Configuring an alert action for low and informational, instead of default, will produce additional information at the expense of greater log utilization.</description>
+                <rationale>A Vulnerability Protection Profile helps to protect assets by alerting on, or blocking, network attacks. The default action for attacks against many critical and high vulnerabilities is to only alert on the attack - not to block.</rationale>
+                <audit><![CDATA[Navigate to Objects > Security Profiles > Vulnerability Protection.<br>Verify a Vulnerability Protection Profile is set to block attacks against any critical or high vulnerabilities (minimum), and set to default on attacks against any medium, low, or informational vulnerabilities.]]></audit>
+                <remediation><![CDATA[Navigate to Objects > Security Profiles > Vulnerability Protection.<br>Set a Vulnerability Protection Profile to block attacks against any critical or high vulnerabilities (minimum), and to default on attacks against any medium, low, or informational vulnerabilities.]]></remediation>
+                <default_value>Not Configured</default_value>
+                <reference><![CDATA[<ol><li>Threat Prevention Deployment Tech Note - <a href=https://live.paloaltonetworks.com/docs/DOC-3094 target=_blank>https://live.paloaltonetworks.com/docs/DOC-3094</a></li>
+                    <li>PAN-OS Administrator's Guide 6.1 (English) - <a href=https://live.paloaltonetworks.com/docs/DOC-8246 target=_blank>https://live.paloaltonetworks.com/docs/DOC-8246</a></li></ol>]]></reference>
+                <score/>
+                <panos>6</panos>
+            </check>
+        </checks>
+    </entry>
+</configuration>

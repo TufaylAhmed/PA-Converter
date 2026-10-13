@@ -1,0 +1,2 @@
+PA-220,8.0.8,/PALogs/PaloAltoSC/PA-220/
+PA-200,7.1.4,/PALogs/PaloAltoSC/PA-200/

@@ -1,0 +1,73 @@
+DROP TABLE IF EXISTS `tools_where`;
+CREATE TABLE `tools_where` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `table_name` varchar(45) NOT NULL,
+  `type` varchar(45) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `tools_where_columns_id` varchar(255) NOT NULL,
+  `tools_advanced_columns_id` varchar(255) NOT NULL,
+  `tools_operator_id` varchar(255) NOT NULL,
+  `order_by` INT(2) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `tools_where`
+--
+
+LOCK TABLES `tools_where` WRITE;
+/*!40000 ALTER TABLE `tools_where` DISABLE KEYS */;
+INSERT INTO tools_where VALUES
+('1', 'All', 'all', '', '', '1,73,74,78,79,84', '1,2,3,7,8', '1,2,3,4,5,6,7,8','1'),
+('2', 'Security Policies', 'security_rules', '', '/resources/images/icons/security.gif', '1,2,3,66,5,6,7,8,9,10,11,12,13,14,15,81,82,74,84,86,87,88,89,90,91,92,93,94,95,96', '1,10,11,3', '1,2,3,4,5,6,7,8','2'),
+('3', 'Nat Policies', 'nat_rules', '', '/resources/images/icons/nat.gif', '1,2,3,67,68,69,70,71,72,15,19,20,21,81,82,74,84,96', '1,10,11,3', '1,2,3,4,5,6,7,8','3'),
+('4', 'Application Override Policies', 'appoverride_rules', '', '/resources/images/rules/application-override.png', '1,2,3,4,5,6,7,8,9,22,23,16,17,18,84,97', '1,10,11,3', '1,2,3,4,5,6,7,8','4'),
+('5', 'Address', 'address', '', '/resources/images/rules/address.gif', '1,4,15,24,25,85,73,74,75,76,78,79,83,84', '1,2,3,4,5,7,8', '1,3,4,6','5'),
+('6', 'Address Groups', 'address_groups_id', '', '/resources/images/rules/address_group.gif', '1,4,15,26,73,74,75,76,77,78,79,84', '1,2,3,4,5,6,7,8', '1,3,4,6,9,10,11','6'),
+('7', 'Services', 'services', '', '/resources/images/rules/service.gif', '1,4,15,23,27,73,74,75,76,78,79,84', '1,2,3,4,5,7,8', '1,3,4,6','7'),
+('8', 'Services Groups', 'services_groups_id', '', '/resources/images/rules/service_group.gif', '1,4,15,26,73,74,75,76,77,78,79,84', '1,2,3,4,5,6,7,8', '1,3,4,6,9,10,11','8'),
+('9', 'Applications', 'applications', '', '/resources/images/rules/application.gif', '1,15,28,29,30,31,32,74,78,79,84', '1,3,4,7,8', '1,3,4,6','9'),
+('10', 'Applications Filters', 'applications_filters', '', '/resources/images/rules/applications_filters.png', '1,28,29,30,31,32,74,78,79,84', '1,3,4,7,8', '1,3,4,6','10'),
+('11', 'Applications Groups', 'applications_groups_id', '', '/resources/images/rules/applications_groups.gif', '1,26,74,75,76,77,78,79,84', '1,3,4,6,7,8', '1,3,4,6,9,10,11','11'),
+('12', 'Default Applications', 'default_applications', '', '/resources/images/rules/application.gif', '1,26,74,75,76,77,78,79,84', '1,3,4,6,7,8', '1,3,4,6,9,10,11','11.1'),
+('13', 'Users', 'userid_group', '', '', '1,74,78,79,84', '1,3,7,8', '1,3,4,6','20'),
+('14', 'Users Groups', 'userid_group_members', '', '', '1,26,74,80,84', '1,3,9,7,8', '1,3,4,6','21'),
+('15', 'Regions', 'regions', '', '/resources/images/rules/regions.png', '1,41,42,43,73,74,75,76,78,79,84', '1,2,3,4,5,7,8', '1,3,4,6','22'),
+('16', 'Tags', 'tag', '', '/resources/images/tags/tags_color3.png', '1,44,74,84', '1,3,7,8', '1,3,4,6','23'),
+('18', 'Interfaces', 'interfaces', '', '/resources/images/icons/interfaces.png', '1,49,57,50,51,52,74,84', '1,2,3,7,8', '1,3,4,6','27'),
+('19', 'Zones', 'zones', '', '/resources/images/rules/zone.gif', '1,49,53,73,74,84', '1,3,7,8', '1,3,4,6','28'),
+('20', 'Virtual Routers', 'virtual_routers', '', '/resources/images/icons/virtual-routers.png', '1,53,74,84', '1,3,7,8', '1,3,4,6','29'),
+('21', 'Virtual Wires', 'virtual_wires', '', '/resources/images/icons/virtual-wires.png', '1,54,55,74,84', '1,3,7,8', '1,3,4,6','30'),
+('22', 'VLANs', 'vlans', '', '/resources/images/icons/vlans.png', '1,53,56,74,84', '1,3,7,8', '1,3,4,6','31'),
+('23', 'IPSec Tunnels', 'ipsec_tunnel', '', '/resources/images/icons/ipsec-tunnels.png', '1,49,53,73,74,84', '1,3,7,8', '1,3,4,6','32'),
+('24', 'IKE Crypto', 'ike_crypto_profiles', '', '/resources/images/icons/ipsec-crypto.png', '1,53,74,84', '1,3,7,8', '1,3,4,6','33'),
+('25', 'IKE Gateways', 'ike_gateways_profiles', '', '/resources/images/icons/ike-gateways.png', '1,54,55,74,84', '1,3,7,8', '1,3,4,6','34'),
+('26', 'IPSec Crypto', 'ipsec_crypto_profiles', '', '/resources/images/icons/ipsec-crypto.png', '1,53,56,74,84', '1,3,7,8', '1,3,4,6','35'),
+('27', 'GlobalProtect IPSec Crypto', 'global_protect_app_ipsec_crypto_profiles', '', '/resources/images/icons/ipsec-crypto.png', '1,49,53,74,84', '1,3,7,8', '1,3,4,6','36'),
+('28', 'Monitor', 'monitor_profile', '', '/resources/images/icons/monitor.png', '1,53,74,84', '1,3,7,8', '1,3,4,6','37'),
+('29', 'Interface MGMT', 'interface_management_profile', '', '/resources/images/icons/interface-mgmt.png', '1,53,74,84', '1,3,7,8', '1,3,4,6','38'),
+('30', 'Virtual Systems', 'virtual_systems', '', '/resources/images/icons/device.png', '1,53,74,84', '1,3,7,8', '1,3,4,6','39'),
+('31', 'Response Pages', 'response_pages', '', '/resources/images/icons/response-pages.png', '1,53,74,84', '1,3,7,8', '1,3,4,6','40'),
+('33', 'Antivirus', 'profiles', 'virus', '/resources/images/rules/virus.gif', '1,74,84', '1,3', '1,3,4,6','12'),
+('34', 'Spyware', 'profiles', 'spyware', '/resources/images/rules/spyware.gif', '1,74,84', '1,3', '1,3,4,6','13'),
+('35', 'Vulnerability', 'profiles', 'vulnerability', '/resources/images/rules/vulnerability.gif', '1,74,84', '1,3', '1,3,4,6','14'),
+('36', 'Url-Filtering', 'profiles', 'url-filtering', '/resources/images/rules/url_filter.gif', '1,74,84', '1,3', '1,3,4,6','15'),
+('37', 'File Blocking', 'profiles', 'file-blocking', '/resources/images/rules/fileblocking.gif', '1,74,84', '1,3', '1,3,4,6','16'),
+('38', 'WildFire', 'profiles', 'wildfire-analysis', '/resources/images/rules/wildfire_analysis.gif', '1,74,84', '1,3', '1,3,4,6','17'),
+('39', 'Data Filtering', 'profiles', 'data-filtering', '/resources/images/rules/dlp_data_filter.gif', '1,74,84', '1,3', '1,3,4,6','18'),
+('40', 'Groups', 'profiles_groups', '', '/resources/images/rules/profile_group.gif', '1,74,84', '1,3', '1,3,4,6','19'),
+('41', 'Log Forward', 'log_settings', 'profiles', '/resources/images/rules/log-forwarding.png', '1,74,84', '1,3', '1,3,4,6','24'),
+('42', 'External-List', 'external_list', '', '/resources/images/rules/external_list.png', '1,74,84', '1,3', '1,3,4,6','25'),
+('43', 'Schedules', 'schedules', '', '/resources/images/rules/external_list.png', '1,74,84', '1,3', '1,3,4,6','26'),
+('44', 'SNMPTrap', 'log_settings', 'snmptrap', '/resources/images/rules/email.png', '1,74,84', '1,3', '1,3,4,6','41'),
+('45', 'Syslog', 'log_settings', 'syslog', '/resources/images/rules/email.png', '1,74,84', '1,3', '1,3,4,6','42'),
+('46', 'Email', 'log_settings', 'email', '/resources/images/rules/email.png', '1,74,84', '1,3', '1,3,4,6','43'),
+('47', 'Netflow', 'server_profile', 'netflow', '/resources/images/rules/email.png', '1,74,84', '1,3', '1,3,4,6','44'),
+('48', 'RADIUS', 'server_profile', 'radius', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6','45'),
+('49', 'LDAP', 'server_profile', 'ldap', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6','46'),
+('50', 'Kerberos', 'server_profile', 'kerberos', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6','47'),
+('51', 'TACACS+', 'server_profile', 'tacplus', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6','48'),
+('52', 'DNS', 'server_profile', 'dns', '/resources/images/rules/kerberos.gif', '1,74,84', '1,3', '1,3,4,6','49');
+/*!40000 ALTER TABLE `tools_where` ENABLE KEYS */;
+UNLOCK TABLES;

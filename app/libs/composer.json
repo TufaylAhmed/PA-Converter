@@ -1,0 +1,24 @@
+{
+    "require": {
+        "cartalyst/sentinel": "2.0.9.0",
+        "Illuminate/Database": "5.*",
+        "Illuminate/Pagination": "5.*",
+        "hassankhan/config": "0.10.0",
+        "ircmaxell/random-lib": "1.1.0.0",
+        "slim/slim": "2.6.2",
+        "phpmailer/phpmailer": "~5.2",
+        "alexgarrett/violin": "2.*",
+        "illuminate/events": "^5.2",
+        "illuminate/session": "~5.0",
+        "symfony/http-foundation": "^3.0",
+        "adldap2/adldap2": "9.1.*",
+        "php-amqplib/php-amqplib": "^2.6",
+        "doctrine/dbal": "2.5.*",
+	"twig/twig": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PaloAltoNetworks\\": "PaloAltoNetworks"
+        }
+    }
+}

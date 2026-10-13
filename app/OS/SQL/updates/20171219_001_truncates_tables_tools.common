@@ -1,0 +1,3 @@
+TRUNCATE TABLE tools_results;
+TRUNCATE TABLE tools_filters;
+TRUNCATE TABLE tools_sql;

@@ -1,0 +1,202 @@
+------------------------------------------------------------------
+title=FULLCONFIG.HTML - all configuration in a HTML file
+separator=<br>
+------------------------------------------------------------------
+<html>
+<!--------------------------------------------------------------->
+<!--- Note: this template is NOT meant to replace the         --->
+<!---       --output_html=  option of FW1Rules. It is just    --->
+<!---       provided for completeness.                        --->
+<!--------------------------------------------------------------->
+<HEAD>
+<style type="text/css">
+<!--
+	BODY,TD,TH {
+		font-family: Lucida,Verdana,Helvetica,Arial;
+		font-size: 7 pt;
+	}
+-->
+</style>
+<title>FireWall-1 Rule Base and Object Definitions</title>
+</head>
+<body bgcolor="#ffffff">
+<h2>Firewall Policy: <<<<configset>>>></h2>
+<table border=1 cellpadding=5 bgcolor="Silver">
+<tr valign=top><th bgcolor=#0000ff><FONT COLOR=white>RULE</FONT></th><th bgcolor=#0000ff><FONT COLOR=white>SOURCE</FONT></th><th bgcolor=#0000ff><FONT COLOR=white>DESTINATION</FONT></th><th bgcolor=#0000ff><FONT COLOR=white>SERVICES</FONT></th><th bgcolor=#0000ff><FONT COLOR=white>ACTION</FONT></th><th bgcolor=#0000ff><FONT COLOR=white>TRACK</FONT></th><th bgcolor=#0000ff><FONT COLOR=white>TIME</FONT></th><th bgcolor=#0000ff><FONT COLOR=white>INSTALL ON</FONT></th><th bgcolor=#0000ff><FONT COLOR=white>COMMENTS</FONT></th></tr>
+<!---+++++++++++++++++++++++++++++++++++++++++++++--->
+<<<<<rules>>>>><tr valign=top>
+<<<<<rules>>>>>    <td bgcolor=#0000ff ALIGN=center VALIGN=middle><FONT COLOR=white><B><<<rule>>></B></FONT></td>
+<<<<<rules>>>>>    <td><<<from>>></td>
+<<<<<rules>>>>>    <td><<<to>>></td>
+<<<<<rules>>>>>    <td><<<service>>></td>
+<<<<<rules>>>>>    <td><<<action>>></td>
+<<<<<rules>>>>>    <td><<<track>>>&nbsp;</td>
+<<<<<rules>>>>>    <td><<<time>>></td>
+<<<<<rules>>>>>    <td><<<installon>>></td>
+<<<<<rules>>>>>    <td><<<comment>>>&nbsp;</td>
+<<<<<rules>>>>>    </tr>
+<!--------------------------------------------------->
+</table><p>
+
+<p>&nbsp;<p>
+<h3>Address Translation Rules</h3>
+<table border=1 cellpadding=5 bgcolor="Silver"><tr valign=top><th rowspan=2 bgcolor=#0000ff><FONT COLOR=white>RULE</FONT></th><th colspan=3 bgcolor=#0000ff><FONT COLOR=white>ORIGINAL PACKET</FONT></th><th colspan=3 bgcolor=#0000ff><FONT COLOR=white>TRANSLATED PACKET</FONT></th><th rowspan=2 bgcolor=#0000ff><FONT COLOR=white>INSTALL ON</FONT></th><th rowspan=2 bgcolor=#0000ff><FONT COLOR=white>COMMENT</FONT></th></tr>
+<tr valign=top><th bgcolor=#0000ff><font color=white>SOURCE</font></th><th bgcolor=#0000ff><font color=white>DESTINATION</font></th><th bgcolor=#0000ff><font color=white>SERVICE</font></th><th bgcolor=#0000ff><font color=white>SOURCE</font></th><th bgcolor=#0000ff><font color=white>DESTINATION</font></th><th bgcolor=#0000ff><font color=white>SERVICE</font></th></tr>
+<!---+++++++++++++++++++++++++++++++++++++++++++++--->
+<<<<<nat>>>>><tr valign=top>
+<<<<<nat>>>>>    <td bgcolor=#0000ff align=center valign=middle><font color=white><B><<<rule>>> <<<disabled>>></B></font></td>
+<<<<<nat>>>>>    <td><<<from>>></td>
+<<<<<nat>>>>>    <td><<<to>>></td>
+<<<<<nat>>>>>    <td><<<service>>></td>
+<<<<<nat>>>>>    <td><<<tfrom>>></td>
+<<<<<nat>>>>>    <td><<<tto>>></td>
+<<<<<nat>>>>>    <td><<<tservice>>></td>
+<<<<<nat>>>>>    <td><<<installon>>></td>
+<<<<<nat>>>>>    <td><<<comment>>>&nbsp;</td>
+<<<<<nat>>>>>    </tr>
+<!--------------------------------------------------->
+</table>
+<p>&nbsp;<p>
+
+<h2>FireWall-1 Object Definitions</h2>
+
+<h3>Network Objects</h3>
+<table border=2 cellpadding=5 bgcolor="Silver"><tr valign=top><th bgcolor=#0000ff><font color=white><B>Name</B></font></th><th bgcolor=#0000ff><font color=white><B>Type</B></font></th><th bgcolor=#0000ff><font color=white><B>Location</B></font></th><th bgcolor=#0000ff><font color=white><B>FW-1</B></font></th><th bgcolor=#0000ff><font color=white><B>IP Address</B></font></th><th bgcolor=#0000ff><font color=white><B>Netmask</B></font></th><th bgcolor=#0000ff><font color=white><B>NAT Address</B></font></th><th bgcolor=#0000ff><font color=white><B>Members</B></font></th><th bgcolor=#0000ff><font color=white><B>Comment</B></font></th></tr>
+<!---+++++++++++++++++++++++++++++++++++++++++++++--->
+<<<<<objects>>>>><tr valign=top>
+<<<<<objects>>>>>   <td><<<name>>></td>
+<<<<<objects>>>>>   <td><<<type>>></td>
+<<<<<objects>>>>>   <td><<<location>>></td>
+<<<<<objects>>>>>   <td><<<fw1>>>&nbsp;</td>
+<<<<<objects>>>>>   <td><<<ipaddress>>>&nbsp;</td>
+<<<<<objects>>>>>   <td><<<netmask>>>&nbsp;</td>
+<<<<<objects>>>>>   <td><<<nataddress>>>&nbsp;<<<nattype>>></td>
+<<<<<objects>>>>>   <td><<<members>>>&nbsp;</td>
+<<<<<objects>>>>>   <td><<<comment>>>&nbsp;</td>
+<<<<<objects>>>>>   </tr>
+<!--------------------------------------------------->
+</table>
+
+<p>
+<h3>Service Objects</h3>
+<table border=2 cellpadding=5 bgcolor="Silver"><tr valign=top><th bgcolor=#0000ff><font color=white><B>Name</B></font></th><th bgcolor=#0000ff><font color=white><B>Type</B></font></th><th bgcolor=#0000ff><font color=white><B>Port/<br>Program</B></font></th><th bgcolor=#0000ff><font color=white><B>S_Port from</B></font></th><th bgcolor=#0000ff><font color=white><B>S_Port to:</B></font></th><th bgcolor=#0000ff><font color=white><B>Match</B></font></th><th bgcolor=#0000ff><font color=white><B>Prolog</B></font></th><th bgcolor=#0000ff><font color=white><B>Members</B></font></th><th bgcolor=#0000ff><font color=white><B>Comment</B></font></th></tr>
+<!---+++++++++++++++++++++++++++++++++++++++++++++--->
+<<<<<services>>>>><tr valign=top>
+<<<<<services>>>>>   <td><<<name>>></td>
+<<<<<services>>>>>   <td><<<type>>>&nbsp;</td>
+<<<<<services>>>>>   <td><<<port>>>&nbsp;</td>
+<<<<<services>>>>>   <td><<<sportfrom>>>&nbsp;</td>
+<<<<<services>>>>>   <td><<<sportto>>>&nbsp;</td>
+<<<<<services>>>>>   <td><<<match>>>&nbsp;</td>
+<<<<<services>>>>>   <td><<<prolog>>>&nbsp;</td>
+<<<<<services>>>>>   <td><<<members>>>&nbsp;</td>
+<<<<<services>>>>>   <td><<<comment>>>&nbsp;</td>
+<<<<<services>>>>>   </tr>
+<!--------------------------------------------------->
+</table>
+
+<p>
+<h3>User Objects</h3>
+<table border=2 cellpadding=5 bgcolor="Silver"><tr valign=top><th bgcolor=#0000ff><font color=white><B>Name</B></font></th><th bgcolor=#0000ff><font color=white><B>Type</B></font></th><th bgcolor=#0000ff><font color=white><B>From</B></font></th><th bgcolor=#0000ff><font color=white><B>To</B></font></th><th bgcolor=#0000ff><font color=white><B>Auth</B></font></th><th bgcolor=#0000ff><font color=white><B>Day</B></font></th><th bgcolor=#0000ff><font color=white><B>Expires</B></font></th><th bgcolor=#0000ff><font color=white><B>Members</B></font></th><th bgcolor=#0000ff><font color=white><B>Comment</B></font></th></tr>
+<!---+++++++++++++++++++++++++++++++++++++++++++++--->
+<<<<<user>>>>><tr align=top>
+<<<<<user>>>>>   <td><<<name>>>&nbsp;</td>
+<<<<<user>>>>>   <td><<<user_type>>>&nbsp;</td>
+<<<<<user>>>>>   <td><<<user_from>>>&nbsp;</td>
+<<<<<user>>>>>   <td><<<user_to>>>&nbsp;</td>
+<<<<<user>>>>>   <td><<<user_auth>>>&nbsp;</td>
+<<<<<user>>>>>   <td><<<user_day>>>&nbsp;</td>
+<<<<<user>>>>>   <td><<<user_expires>>>&nbsp;</td>
+<<<<<user>>>>>   <td><<<user_members>>>&nbsp;</td>
+<<<<<user>>>>>   <td><<<user_comment>>>&nbsp;</td>
+<<<<<user>>>>>   </tr>
+<!--------------------------------------------------->
+</table>
+
+<p>&nbsp;<p>
+<h3>Property Settings</h3>
+<!---+++++++++++++++++++++++++++++++++++++++++++++--->
+<h4>Security Policy</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th><th>Value</th></tr>
+<tr valign=top><td>Apply Gateway Rules to Interface Direction:  </td><td>&nbsp;</td><td><<<prop_gatewaydir>>></td></tr>
+<tr valign=top><td>TCP Session Timeout (sec):                   </td><td>&nbsp;</td><td><<<prop_tcptimeout>>></td></tr>
+<tr valign=top><td>Accept Firewall-1 Control Connections:       </td><td><<<prop_fw1enable>>></td><td><<<prop_fw1enable_p>>></td></tr>
+<tr valign=top><td>Accept UDP Replies:                          </td><td><<<prop_udpreply>>></td><td> <<<prop_udpreply_p>>></td></tr>
+<tr valign=top><td>UDP Reply Timeout (sec):                     </td><td>&nbsp;</td><td><<<prop_udptimeout>>></td></tr>
+<tr valign=top><td>Accept Outgoing Packets:                     </td><td><<<prop_outgoing>>></td><td> <<<prop_outgoing_p>>></td></tr>
+<tr valign=top><td>Enable Decryption on Accept:                 </td><td>&nbsp;</td><td><<<prop_acceptdecrypt>>></td></tr>
+<tr valign=top><td>Use FASTPATH:                                </td><td>&nbsp;</td><td><<<prop_enable_fastpath>>></td></tr>
+<tr valign=top><td>Accept RIP:                                  </td><td><<<prop_rip>>></td><td> <<<prop_rip_p>>></td></tr>
+<tr valign=top><td>Accept Domain Name Queries (UDP):            </td><td><<<prop_domain_udp>>></td><td> <<<prop_domain_udp_p>>></td></tr>
+<tr valign=top><td>Accept Domain Name Download (TCP):           </td><td><<<prop_domain_tcp>>></td><td> <<<prop_domain_tcp_p>>></td></tr>
+<tr valign=top><td>Accept ICMP:                                 </td><td><<<prop_icmpenable>>></td><td><<<prop_icmpenable_p>>></td></tr>
+</table>
+<h4>Services</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th><th>Value</th></tr>
+<tr valign=top><td>Enable FTP PASV Connections:                 </td><td><<<prop_ftppasv>>></td><td><<<prop_ftppasv_p>>></td></tr>
+<tr valign=top><td>Enable RSH/REXEC Reverse stderr Connections: </td><td><<<prop_rshstderr>>></td><td><<<prop_rshstderr_p>>></td></tr>
+<tr valign=top><td>Enable RPC Control:                          </td><td><<<prop_rpcenable>>></td><td><<<prop_rpcenable_p>>></td></tr>
+<tr valign=top><td>Enable Response of FTP Data Connections:     </td><td><<<prop_ftpdata>>></td><td><<<prop_ftpdata_p>>></td></tr>
+<tr valign=top><td>Enable Real Audio Reverse Connections:       </td><td><<<prop_raudioenable>>></td><td><<<prop_raudioenable_p>>></td></tr>
+<tr valign=top><td>Enable VDOLive Reverse Connections:          </td><td><<<prop_vdolivenable>>></td><td><<<prop_vdolivenable_p>>></td></tr>
+<tr valign=top><td>Enable CoolTalk Data Connections (UDP):      </td><td>&nbsp;</td><td><<<prop_cooltalkenable>>></td></tr>
+<tr valign=top><td>Enable H.323 Control and Data Connections:   </td><td>&nbsp;</td><td><<<prop_iphoneenable>>></td></tr>
+</table>
+<h4>Log and Alert</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th></tr>
+<tr valign=top><td>Excessive Log Grace Period (sec):            </td><td><<<prop_loggrace>>></td></tr>
+<tr valign=top><td>PopUp Alert Command:                         </td><td><<<prop_alertcmd>>></td></tr>
+<tr valign=top><td>Mail Alert Command:                          </td><td><<<prop_mailcmd>>></td></tr>
+<tr valign=top><td>SNMP Trap Alert Command:                     </td><td><<<prop_snmptrapcmd>>></td></tr>
+<tr valign=top><td>User Defined Alert Command:                  </td><td><<<prop_useralertcmd>>></td></tr>
+<tr valign=top><td>Anti Spoof Alert Command:                    </td><td><<<prop_spoofalertcmd>>></td></tr>
+<tr valign=top><td>User Authentication Alert Command:           </td><td><<<prop_userauthalertcmd<>>></td></tr>
+<tr valign=top><td>Log Established TCP Packets:                 </td><td><<<prop_log_established_tcp>>></td></tr>
+<tr valign=top><td>Enable Active Connections:                   </td><td><<<prop_liveconns>>></td></tr>
+</table>
+<h4>Resolving</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th></tr>
+<tr valign=top><td> Lookup Priorities:  			</td><td>1. <<<prop_resolver_1>>><br>
+									2. <<<prop_resolver_2>>><br>
+									3. <<<prop_resolver_3>>><br>
+									4. <<<prop_resolver_4>>></td></tr>
+<tr valign=top><td> BIND Timeout (sec):                         </td><td><<<prop_timeout>>></td></tr>
+<tr valign=top><td> BIND Retries:                               </td><td><<<prop_retries>>></td></tr>
+<tr valign=top><td> Log Viewer Resolver Properties:             </td><td><<<prop_pagetimeout>>></td></tr>
+</table>
+<h4>Security Servers</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th></tr>
+<tr valign=top><td> Telnet Welcome Message File:                </td><td><<<prop_telnet_msg>>>&nbsp;</td></tr>
+<tr valign=top><td> Rlogin Welcome Message File:                </td><td><<<prop_rlogin_msg>>>&nbsp;</td></tr>
+<tr valign=top><td> FTP Welcome Message File:                   </td><td><<<prop_ftp_msg>>>&nbsp;</td></tr>
+<tr valign=top><td> Client Authentication Welcome Message File: </td><td><<<prop_clnt_auth_msg>>>&nbsp;</td></tr>
+<tr valign=top><td> HTTP Next Proxy:                            </td><td><<<prop_http_next_proxy_host>>> : <<<prop_http_next_proxy_port>>></td></tr>
+</table>
+<h4>Authentication</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th></tr>
+<tr valign=top><td> User Authentication Session Timeout (min):	</td><td><<<prop_au_timeout>>></td></tr>
+<tr valign=top><td> AXENT Pathways Defender Server Setup:       </td><td>IP: <<<prop_snk_server_ip>>><br>
+									 Agent ID: <<<prop_snk_agent_id>>><br>
+									 Agent Key: <<<prop_snk_agent_key>>></td></tr>
+</table>
+<h4>SYNDefender</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th></tr>
+<tr valign=top><td> Method:                                      </td><td><<<prop_fwsynatk_method>>></td></tr>
+<tr valign=top><td> Timeout:                                     </td><td><<<prop_fwsynatk_timeout>>></td></tr>
+<tr valign=top><td> Maximum Sessions:                            </td><td><<<prop_fwsynatk_max>>></td></tr>
+<tr valign=top><td> Display Warning Messages:                    </td><td><<<prop_fwsynatk_warning>>></td></tr>
+</table>
+<h4>Miscellaneous</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th></tr>
+<tr valign=top><td> Load Agents Port:                            </td><td><<<prop_load_service_port>>></td></tr>
+<tr valign=top><td> Load Measurement Interval:                   </td><td><<<prop_lbalanced_period_wakeup_sec>>></td></tr>
+</table>
+<h4>Access Lists</h4><table border=2 cellpadding=5 bgcolor=Silver><tr valign=top><th>Property</th><th>Setting</th><th>Value</th></tr>
+<tr valign=top><td> Accept Established TCP Connections:          </td><td><<<prop_established>>></td><td><<<prop_established_p>>></td></tr>
+<tr valign=top><td> Accept RIP:                                  </td><td><<<prop_rip>>></td><td><<<prop_rip_p>>></td></tr>
+<tr valign=top><td> Accept Domain Name Queries (UDP):            </td><td><<<prop_domain_udp>>></td><td><<<prop_domain_udp_p>>></td></tr>
+<tr valign=top><td> Accept Domain Name Download (TCP):           </td><td><<<prop_domain_tcp>>></td><td><<<prop_domain_tcp_p>>></td></tr>
+<tr valign=top><td> Accept ICMP:                                 </td><td><<<prop_icmpenable>>></td><td><<<prop_icmpenable_p>>></td></tr>
+</table>
+<!--------------------------------------------------->
+
+
+<!------------------------>
+<p><hr>
+Generated: 
+<<<<date>>>>
+by <<<<fwrules>>>>
+</body>
+</html>

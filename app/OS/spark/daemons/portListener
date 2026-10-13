@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+# appEnrichment and dispatcher
+#
+# chkconfig: - 1 01
+# description: Daemon to capture Traffic logs from a PANOS, enrich the entries and classify them into Kafka topics based on the App Category
+#
+
+### BEGIN INIT INFO
+# Provides:          PORTLISTENER-client
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     
+# Default-Stop:      0 1 6
+# Description:       listens from a Syslog Port 
+# Short-Description: Daemon to capture Traffic logs and forward them
+### END INIT INFO
+
+# Source function library.
+#. /etc/init.d/functions
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+NAME=portListener.sh
+DESC=portListener-spark
+LISTENPORT=5141
+FORWARDPORT=5142
+DIRECTORY=/home/userSpace/log/
+PORTLISTENER_LOG=${DIRECTORY}/portListener.log
+DAEMON=/bin/netcat
+if [ ! -d "$DIRECTORY" ]; then
+  # Control will enter here if $DIRECTORY doesn't exist.
+  mkdir $DIRECTORY
+fi
+
+
+START_PROG="daemon"
+
+test -x $DAEMON || exit 0
+
+
+[ -f /etc/default/${NAME} ] && . /etc/default/${NAME}
+
+
+start_PORTLISTENER () {
+        DATE=`date`
+        echo "------------------------------------------------------------" >> $PORTLISTENER_LOG
+        echo "$DATE : Starting PORTLISTENER " >> $PORTLISTENER_LOG
+        echo "------------------------------------------------------------" >> $PORTLISTENER_LOG
+        (netcat -dlk $LISTENPORT |netcat -lk $FORWARDPORT &)
+        echo SUCCESS
+}
+
+stop_PORTLISTENER () {
+        DATE=`date`
+        echo "------------------------------------------------------------" >> $PORTLISTENER_LOG
+        echo "$DATE : Stopping PORTLISTENER.spark " >> $PORTLISTENER_LOG
+        echo "------------------------------------------------------------" >> $PORTLISTENER_LOG
+
+        kill -9 `ps -aux | grep "netcat -dlk $LISTENPORT" | grep -v grep | awk {'print $2'}`
+        kill -9 `ps -aux | grep "netcat -lk $FORWARDPORT" | grep -v grep | awk {'print $2'}`	
+}
+
+status_PORTLISTENER() {
+    ps -aux| grep "netcat -dlk $LISTENPORT" | grep -v grep > /dev/null 2>&1
+    if [ $? != 0 ] ; then
+        echo Listener Not Running
+        code1=3
+    else
+        code1=1
+        echo Listener Running with PID
+        ps -aux | grep "netcat -dlk $LISTENPORT" | grep -v grep | awk {'print $2'}
+    fi
+    
+    ps -aux| grep "netcat -lk $FORWARDPORT" | grep -v grep > /dev/null 2>&1
+    if [ $? != 0 ] ; then
+        echo Forwarding Not Running
+        code2=3
+    else
+        code2=1
+        echo Forwarding Running with PID
+        ps -aux | grep "netcat -lk $FORWARDPORT" | grep -v grep | awk {'print $2'}
+    fi
+   
+    if  [ "$code1" -eq "3" -a "$code2" -eq "3" ] 
+    then
+        echo One of the processes is not running
+    fi
+}
+
+restart_running_PORTLISTENER () {
+            DATE=`date`
+            echo "------------------------------------------------------------" >> $PORTLISTENER_LOG
+            echo "$DATE : Restarting PORTLISTENER.php " >> $PORTLISTENER_LOG
+            echo "------------------------------------------------------------" >> $PORTLISTENER_LOG
+
+        restart_PORTLISTENER
+}
+
+restart_PORTLISTENER() {
+    DATE=`date`
+    echo "------------------------------------------------------------" >> $PORTLISTENER_LOG
+    echo "$DATE : Restarting PORTLISTENER.php " >> $PORTLISTENER_LOG
+    echo "------------------------------------------------------------" >> $PORTLISTENER_LOG
+    stop_PORTLISTENER
+    start_PORTLISTENER
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        start_PORTLISTENER
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        stop_PORTLISTENER
+        ;;
+    status)
+        status_PORTLISTENER
+        ;;
+    force-reload|reload|restart)
+        echo -n "Restarting $DESC: "
+        restart_PORTLISTENER
+        ;;
+    try-restart)
+        echo -n "Restarting $DESC: "
+        restart_running_PORTLISTENER
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status|restart|try-restart|reload|force-reload}" >&2
+        RETVAL=1
+        ;;
+esac
+
+exit $RETVAL

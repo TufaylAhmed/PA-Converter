@@ -1,0 +1,6 @@
+------------------------------------------------------------------
+title=RULES.CSV - access rules CSV "," separated
+separator=<SPACE>
+------------------------------------------------------------------
+"Number","From","To","Service","Action","Track","Time","Install on","Comment"
+<<<<<rules>>>>>"<<<rule>>>","<<<from>>>","<<<to>>>","<<<service>>>","<<<action>>>","<<<track>>>","<<<time>>>","<<<installon>>>","<<<comment>>>"

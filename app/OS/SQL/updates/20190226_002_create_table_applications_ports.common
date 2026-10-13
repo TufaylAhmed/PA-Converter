@@ -1,0 +1,17 @@
+--
+-- Table structure for table `applications_ports`
+--
+
+-- DROP TABLE IF EXISTS `applications_ports`;
+CREATE TABLE `applications_ports` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `member_lid` int(11) NOT NULL,
+  `table_name` varchar(45) NOT NULL,
+  `ports` text NOT NULL,
+  `vsys` varchar(31) NOT NULL,
+  `devicegroup` varchar(255) NOT NULL,
+  `source` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `index1` (`member_lid`,`table_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

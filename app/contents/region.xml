@@ -1,0 +1,302 @@
+<response status="success" code="19"><result total-count="1" count="1">
+  <region>
+    <entry name="0.0.0.0-0.255.255.255" override="no" help-string="Reserved(0.0.0.0-0.255.255.255)"/>
+    <entry name="10.0.0.0-10.255.255.255" override="no" help-string="Reserved(10.0.0.0-10.255.255.255)"/>
+    <entry name="100.64.0.0-100.127.255.255" override="no" help-string="Reserved(100.64.0.0-100.127.255.255)"/>
+    <entry name="127.0.0.0-127.255.255.255" override="no" help-string="Reserved(127.0.0.0-127.255.255.255)"/>
+    <entry name="169.254.0.0-169.254.255.255" override="no" help-string="Reserved(169.254.0.0-169.254.255.255)"/>
+    <entry name="172.16.0.0-172.31.255.255" override="no" help-string="Reserved(172.16.0.0-172.31.255.255)"/>
+    <entry name="192.0.0.0-192.0.0.255" override="no" help-string="Reserved(192.0.0.0-192.0.0.255)"/>
+    <entry name="192.0.2.0-192.0.2.255" override="no" help-string="Reserved(192.0.2.0-192.0.2.255)"/>
+    <entry name="192.168.0.0-192.168.255.255" override="no" help-string="Reserved(192.168.0.0-192.168.255.255)"/>
+    <entry name="192.88.99.0-192.88.99.255" override="no" help-string="Reserved(192.88.99.0-192.88.99.255)"/>
+    <entry name="198.18.0.0-198.19.255.255" override="no" help-string="Reserved(198.18.0.0-198.19.255.255)"/>
+    <entry name="198.51.100.0-198.51.100.255" override="no" help-string="Reserved(198.51.100.0-198.51.100.255)"/>
+    <entry name="203.0.113.0-203.0.113.255" override="no" help-string="Reserved(203.0.113.0-203.0.113.255)"/>
+    <entry name="224.0.0.0-224.255.255.255" override="no" help-string="Reserved(224.0.0.0-224.255.255.255)"/>
+    <entry name="225.0.0.0-225.255.255.255" override="no" help-string="Reserved(225.0.0.0-225.255.255.255)"/>
+    <entry name="226.0.0.0-226.255.255.255" override="no" help-string="Reserved(226.0.0.0-226.255.255.255)"/>
+    <entry name="227.0.0.0-227.255.255.255" override="no" help-string="Reserved(227.0.0.0-227.255.255.255)"/>
+    <entry name="228.0.0.0-228.255.255.255" override="no" help-string="Reserved(228.0.0.0-228.255.255.255)"/>
+    <entry name="229.0.0.0-229.255.255.255" override="no" help-string="Reserved(229.0.0.0-229.255.255.255)"/>
+    <entry name="230.0.0.0-230.255.255.255" override="no" help-string="Reserved(230.0.0.0-230.255.255.255)"/>
+    <entry name="231.0.0.0-231.255.255.255" override="no" help-string="Reserved(231.0.0.0-231.255.255.255)"/>
+    <entry name="232.0.0.0-232.255.255.255" override="no" help-string="Reserved(232.0.0.0-232.255.255.255)"/>
+    <entry name="233.0.0.0-233.255.255.255" override="no" help-string="Reserved(233.0.0.0-233.255.255.255)"/>
+    <entry name="234.0.0.0-234.255.255.255" override="no" help-string="Reserved(234.0.0.0-234.255.255.255)"/>
+    <entry name="235.0.0.0-235.255.255.255" override="no" help-string="Reserved(235.0.0.0-235.255.255.255)"/>
+    <entry name="236.0.0.0-236.255.255.255" override="no" help-string="Reserved(236.0.0.0-236.255.255.255)"/>
+    <entry name="237.0.0.0-237.255.255.255" override="no" help-string="Reserved(237.0.0.0-237.255.255.255)"/>
+    <entry name="238.0.0.0-238.255.255.255" override="no" help-string="Reserved(238.0.0.0-238.255.255.255)"/>
+    <entry name="239.0.0.0-239.255.255.255" override="no" help-string="Reserved(239.0.0.0-239.255.255.255)"/>
+    <entry name="240.0.0.0-240.255.255.255" override="no" help-string="Reserved(240.0.0.0-240.255.255.255)"/>
+    <entry name="241.0.0.0-241.255.255.255" override="no" help-string="Reserved(241.0.0.0-241.255.255.255)"/>
+    <entry name="242.0.0.0-242.255.255.255" override="no" help-string="Reserved(242.0.0.0-242.255.255.255)"/>
+    <entry name="243.0.0.0-243.255.255.255" override="no" help-string="Reserved(243.0.0.0-243.255.255.255)"/>
+    <entry name="244.0.0.0-244.255.255.255" override="no" help-string="Reserved(244.0.0.0-244.255.255.255)"/>
+    <entry name="245.0.0.0-245.255.255.255" override="no" help-string="Reserved(245.0.0.0-245.255.255.255)"/>
+    <entry name="246.0.0.0-246.255.255.255" override="no" help-string="Reserved(246.0.0.0-246.255.255.255)"/>
+    <entry name="247.0.0.0-247.255.255.255" override="no" help-string="Reserved(247.0.0.0-247.255.255.255)"/>
+    <entry name="248.0.0.0-248.255.255.255" override="no" help-string="Reserved(248.0.0.0-248.255.255.255)"/>
+    <entry name="249.0.0.0-249.255.255.255" override="no" help-string="Reserved(249.0.0.0-249.255.255.255)"/>
+    <entry name="250.0.0.0-250.255.255.255" override="no" help-string="Reserved(250.0.0.0-250.255.255.255)"/>
+    <entry name="251.0.0.0-251.255.255.255" override="no" help-string="Reserved(251.0.0.0-251.255.255.255)"/>
+    <entry name="252.0.0.0-252.255.255.255" override="no" help-string="Reserved(252.0.0.0-252.255.255.255)"/>
+    <entry name="253.0.0.0-253.255.255.255" override="no" help-string="Reserved(253.0.0.0-253.255.255.255)"/>
+    <entry name="254.0.0.0-254.255.255.255" override="no" help-string="Reserved(254.0.0.0-254.255.255.255)"/>
+    <entry name="255.0.0.0-255.255.255.255" override="no" help-string="Reserved(255.0.0.0-255.255.255.255)"/>
+    <entry name="A1" help-string="Anonymous Proxy"/>
+    <entry name="A2" help-string="Satellite Provider"/>
+    <entry name="AD" help-string="Andorra"/>
+    <entry name="AE" help-string="United Arab Emirates"/>
+    <entry name="AF" help-string="Afghanistan"/>
+    <entry name="AG" help-string="Antigua And Barbuda"/>
+    <entry name="AI" help-string="Anguilla"/>
+    <entry name="AL" help-string="Albania"/>
+    <entry name="AM" help-string="Armenia"/>
+    <entry name="AN" help-string="Netherlands Antilles"/>
+    <entry name="AO" help-string="Angola"/>
+    <entry name="AP" help-string="Asia Pacific Region"/>
+    <entry name="AQ" help-string="Antarctica"/>
+    <entry name="AR" help-string="Argentina"/>
+    <entry name="AS" help-string="American Samoa"/>
+    <entry name="AT" help-string="Austria"/>
+    <entry name="AU" help-string="Australia"/>
+    <entry name="AW" help-string="Aruba"/>
+    <entry name="AX" help-string="Land Islands"/>
+    <entry name="AZ" help-string="Azerbaijan"/>
+    <entry name="BA" help-string="Bosnia And Herzegovina"/>
+    <entry name="BB" help-string="Barbados"/>
+    <entry name="BD" help-string="Bangladesh"/>
+    <entry name="BE" help-string="Belgium"/>
+    <entry name="BF" help-string="Burkina Faso"/>
+    <entry name="BG" help-string="Bulgaria"/>
+    <entry name="BH" help-string="Bahrain"/>
+    <entry name="BI" help-string="Burundi"/>
+    <entry name="BJ" help-string="Benin"/>
+    <entry name="BL" help-string="Saint BarthLemy"/>
+    <entry name="BM" help-string="Bermuda"/>
+    <entry name="BN" help-string="Brunei Darussalam"/>
+    <entry name="BO" help-string="Bolivia Plurinational State Of"/>
+    <entry name="BQ" help-string="Bonaire Saint Eustatius And Saba"/>
+    <entry name="BR" help-string="Brazil"/>
+    <entry name="BS" help-string="Bahamas"/>
+    <entry name="BT" help-string="Bhutan"/>
+    <entry name="BV" help-string="Bouvet Island"/>
+    <entry name="BW" help-string="Botswana"/>
+    <entry name="BY" help-string="Belarus"/>
+    <entry name="BZ" help-string="Belize"/>
+    <entry name="CA" help-string="Canada"/>
+    <entry name="CC" help-string="Cocos Islands"/>
+    <entry name="CD" help-string="Congo The Democratic Republic Of The"/>
+    <entry name="CF" help-string="Central African Republic"/>
+    <entry name="CG" help-string="Congo"/>
+    <entry name="CH" help-string="Switzerland"/>
+    <entry name="CI" help-string="CTe D Ivoire"/>
+    <entry name="CK" help-string="Cook Islands"/>
+    <entry name="CL" help-string="Chile"/>
+    <entry name="CM" help-string="Cameroon"/>
+    <entry name="CN" help-string="China"/>
+    <entry name="CO" help-string="Colombia"/>
+    <entry name="CR" help-string="Costa Rica"/>
+    <entry name="CU" help-string="Cuba"/>
+    <entry name="CV" help-string="Cape Verde"/>
+    <entry name="CW" help-string="CuraAo"/>
+    <entry name="CX" help-string="Christmas Island"/>
+    <entry name="CY" help-string="Cyprus"/>
+    <entry name="CZ" help-string="Czech Republic"/>
+    <entry name="DE" help-string="Germany"/>
+    <entry name="DJ" help-string="Djibouti"/>
+    <entry name="DK" help-string="Denmark"/>
+    <entry name="DM" help-string="Dominica"/>
+    <entry name="DO" help-string="Dominican Republic"/>
+    <entry name="DZ" help-string="Algeria"/>
+    <entry name="EC" help-string="Ecuador"/>
+    <entry name="EE" help-string="Estonia"/>
+    <entry name="EG" help-string="Egypt"/>
+    <entry name="EH" help-string="Western Sahara"/>
+    <entry name="ER" help-string="Eritrea"/>
+    <entry name="ES" help-string="Spain"/>
+    <entry name="ET" help-string="Ethiopia"/>
+    <entry name="EU" help-string="European Union"/>
+    <entry name="FI" help-string="Finland"/>
+    <entry name="FJ" help-string="Fiji"/>
+    <entry name="FK" help-string="Falkland Islands (Malvinas)"/>
+    <entry name="FM" help-string="Micronesia Federated States Of"/>
+    <entry name="FO" help-string="Faroe Islands"/>
+    <entry name="FR" help-string="France"/>
+    <entry name="GA" help-string="Gabon"/>
+    <entry name="GB" help-string="United Kingdom"/>
+    <entry name="GD" help-string="Grenada"/>
+    <entry name="GE" help-string="Georgia"/>
+    <entry name="GF" help-string="French Guiana"/>
+    <entry name="GG" help-string="Guernsey"/>
+    <entry name="GH" help-string="Ghana"/>
+    <entry name="GI" help-string="Gibraltar"/>
+    <entry name="GL" help-string="Greenland"/>
+    <entry name="GM" help-string="Gambia"/>
+    <entry name="GN" help-string="Guinea"/>
+    <entry name="GP" help-string="Guadeloupe"/>
+    <entry name="GQ" help-string="Equatorial Guinea"/>
+    <entry name="GR" help-string="Greece"/>
+    <entry name="GS" help-string="South Georgia And The South Sandwich Islands"/>
+    <entry name="GT" help-string="Guatemala"/>
+    <entry name="GU" help-string="Guam"/>
+    <entry name="GW" help-string="Guinea-Bissau"/>
+    <entry name="GY" help-string="Guyana"/>
+    <entry name="HK" help-string="Hong Kong"/>
+    <entry name="HN" help-string="Honduras"/>
+    <entry name="HR" help-string="Croatia"/>
+    <entry name="HT" help-string="Haiti"/>
+    <entry name="HU" help-string="Hungary"/>
+    <entry name="ID" help-string="Indonesia"/>
+    <entry name="IE" help-string="Ireland"/>
+    <entry name="IL" help-string="Israel"/>
+    <entry name="IM" help-string="Isle Of Man"/>
+    <entry name="IN" help-string="India"/>
+    <entry name="IO" help-string="British Indian Ocean Territory"/>
+    <entry name="IQ" help-string="Iraq"/>
+    <entry name="IR" help-string="Iran Islamic Republic Of"/>
+    <entry name="IS" help-string="Iceland"/>
+    <entry name="IT" help-string="Italy"/>
+    <entry name="JE" help-string="Jersey"/>
+    <entry name="JM" help-string="Jamaica"/>
+    <entry name="JO" help-string="Jordan"/>
+    <entry name="JP" help-string="Japan"/>
+    <entry name="KE" help-string="Kenya"/>
+    <entry name="KG" help-string="Kyrgyzstan"/>
+    <entry name="KH" help-string="Cambodia"/>
+    <entry name="KI" help-string="Kiribati"/>
+    <entry name="KM" help-string="Comoros"/>
+    <entry name="KN" help-string="Saint Kitts And Nevis"/>
+    <entry name="KP" help-string="Korea Democratic Peoples Republic Of"/>
+    <entry name="KR" help-string="Korea Republic Of"/>
+    <entry name="KW" help-string="Kuwait"/>
+    <entry name="KY" help-string="Cayman Islands"/>
+    <entry name="KZ" help-string="Kazakhstan"/>
+    <entry name="LA" help-string="Lao Peoples Democratic Republic"/>
+    <entry name="LB" help-string="Lebanon"/>
+    <entry name="LC" help-string="Saint Lucia"/>
+    <entry name="LI" help-string="Liechtenstein"/>
+    <entry name="LK" help-string="Sri Lanka"/>
+    <entry name="LR" help-string="Liberia"/>
+    <entry name="LS" help-string="Lesotho"/>
+    <entry name="LT" help-string="Lithuania"/>
+    <entry name="LU" help-string="Luxembourg"/>
+    <entry name="LV" help-string="Latvia"/>
+    <entry name="LY" help-string="Libyan Arab Jamahiriya"/>
+    <entry name="MA" help-string="Morocco"/>
+    <entry name="MC" help-string="Monaco"/>
+    <entry name="MD" help-string="Moldova Republic Of"/>
+    <entry name="ME" help-string="Montenegro"/>
+    <entry name="MF" help-string="Saint Martin (French Part)"/>
+    <entry name="MG" help-string="Madagascar"/>
+    <entry name="MH" help-string="Marshall Islands"/>
+    <entry name="MK" help-string="Macedonia The Former Yugoslav Republic Of"/>
+    <entry name="ML" help-string="Mali"/>
+    <entry name="MM" help-string="Myanmar"/>
+    <entry name="MN" help-string="Mongolia"/>
+    <entry name="MO" help-string="Macao"/>
+    <entry name="MP" help-string="Northern Mariana Islands"/>
+    <entry name="MQ" help-string="Martinique"/>
+    <entry name="MR" help-string="Mauritania"/>
+    <entry name="MS" help-string="Montserrat"/>
+    <entry name="MT" help-string="Malta"/>
+    <entry name="MU" help-string="Mauritius"/>
+    <entry name="MV" help-string="Maldives"/>
+    <entry name="MW" help-string="Malawi"/>
+    <entry name="MX" help-string="Mexico"/>
+    <entry name="MY" help-string="Malaysia"/>
+    <entry name="MZ" help-string="Mozambique"/>
+    <entry name="NA" help-string="Namibia"/>
+    <entry name="NC" help-string="New Caledonia"/>
+    <entry name="NE" help-string="Niger"/>
+    <entry name="NF" help-string="Norfolk Island"/>
+    <entry name="NG" help-string="Nigeria"/>
+    <entry name="NI" help-string="Nicaragua"/>
+    <entry name="NL" help-string="Netherlands"/>
+    <entry name="NO" help-string="Norway"/>
+    <entry name="NP" help-string="Nepal"/>
+    <entry name="NR" help-string="Nauru"/>
+    <entry name="NU" help-string="Niue"/>
+    <entry name="NZ" help-string="New Zealand"/>
+    <entry name="OM" help-string="Oman"/>
+    <entry name="PA" help-string="Panama"/>
+    <entry name="PE" help-string="Peru"/>
+    <entry name="PF" help-string="French Polynesia"/>
+    <entry name="PG" help-string="Papua New Guinea"/>
+    <entry name="PH" help-string="Philippines"/>
+    <entry name="PK" help-string="Pakistan"/>
+    <entry name="PL" help-string="Poland"/>
+    <entry name="PM" help-string="Saint Pierre And Miquelon"/>
+    <entry name="PN" help-string="Pitcairn"/>
+    <entry name="PR" help-string="Puerto Rico"/>
+    <entry name="PS" help-string="Palestinian Territory Occupied"/>
+    <entry name="PT" help-string="Portugal"/>
+    <entry name="PW" help-string="Palau"/>
+    <entry name="PY" help-string="Paraguay"/>
+    <entry name="QA" help-string="Qatar"/>
+    <entry name="RE" help-string="RUnion"/>
+    <entry name="RO" help-string="Romania"/>
+    <entry name="RS" help-string="Serbia"/>
+    <entry name="RU" help-string="Russian Federation"/>
+    <entry name="RW" help-string="Rwanda"/>
+    <entry name="SA" help-string="Saudi Arabia"/>
+    <entry name="SB" help-string="Solomon Islands"/>
+    <entry name="SC" help-string="Seychelles"/>
+    <entry name="SD" help-string="Sudan"/>
+    <entry name="SE" help-string="Sweden"/>
+    <entry name="SG" help-string="Singapore"/>
+    <entry name="SH" help-string="Saint Helena Ascension And Tristan Da Cunha"/>
+    <entry name="SI" help-string="Slovenia"/>
+    <entry name="SJ" help-string="Svalbard And Jan Mayen"/>
+    <entry name="SK" help-string="Slovakia"/>
+    <entry name="SL" help-string="Sierra Leone"/>
+    <entry name="SM" help-string="San Marino"/>
+    <entry name="SN" help-string="Senegal"/>
+    <entry name="SO" help-string="Somalia"/>
+    <entry name="SR" help-string="Suriname"/>
+    <entry name="SS" help-string="South Sudan"/>
+    <entry name="ST" help-string="Sao Tome And Principe"/>
+    <entry name="SV" help-string="El Salvador"/>
+    <entry name="SX" help-string="Sint Maarten (Dutch Part)"/>
+    <entry name="SY" help-string="Syrian Arab Republic"/>
+    <entry name="SZ" help-string="Swaziland"/>
+    <entry name="TC" help-string="Turks And Caicos Islands"/>
+    <entry name="TD" help-string="Chad"/>
+    <entry name="TF" help-string="French Southern Territories"/>
+    <entry name="TG" help-string="Togo"/>
+    <entry name="TH" help-string="Thailand"/>
+    <entry name="TJ" help-string="Tajikistan"/>
+    <entry name="TK" help-string="Tokelau"/>
+    <entry name="TL" help-string="Timor-Leste"/>
+    <entry name="TM" help-string="Turkmenistan"/>
+    <entry name="TN" help-string="Tunisia"/>
+    <entry name="TO" help-string="Tonga"/>
+    <entry name="TR" help-string="Turkey"/>
+    <entry name="TT" help-string="Trinidad And Tobago"/>
+    <entry name="TV" help-string="Tuvalu"/>
+    <entry name="TW" help-string="Taiwan ROC"/>
+    <entry name="TZ" help-string="Tanzania United Republic Of"/>
+    <entry name="UA" help-string="Ukraine"/>
+    <entry name="UG" help-string="Uganda"/>
+    <entry name="UM" help-string="United States Minor Outlying Islands"/>
+    <entry name="US" help-string="United States"/>
+    <entry name="UY" help-string="Uruguay"/>
+    <entry name="UZ" help-string="Uzbekistan"/>
+    <entry name="VA" help-string="Holy See (Vatican City State)"/>
+    <entry name="VC" help-string="Saint Vincent And The Grenadines"/>
+    <entry name="VE" help-string="Venezuela Bolivarian Republic Of"/>
+    <entry name="VG" help-string="Virgin Islands British"/>
+    <entry name="VI" help-string="Virgin Islands U.S."/>
+    <entry name="VN" help-string="Viet Nam"/>
+    <entry name="VU" help-string="Vanuatu"/>
+    <entry name="WF" help-string="Wallis And Futuna"/>
+    <entry name="WS" help-string="Samoa"/>
+    <entry name="YE" help-string="Yemen"/>
+    <entry name="YT" help-string="Mayotte"/>
+    <entry name="ZA" help-string="South Africa"/>
+    <entry name="ZM" help-string="Zambia"/>
+    <entry name="ZW" help-string="Zimbabwe"/>
+  </region>
+</result></response>

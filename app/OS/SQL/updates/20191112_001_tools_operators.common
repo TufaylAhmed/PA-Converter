@@ -1,0 +1,1 @@
+UPDATE tools_operator SET `name` = 'last 1 day' WHERE (`id` = '14');

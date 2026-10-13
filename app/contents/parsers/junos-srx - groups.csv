@@ -1,0 +1,11 @@
+Name,Members
+junos-nfsd,"junos-nfsd-tcp, junos-nfsd-udp"
+junos-ldp,"junos-ldp-tcp, junos-ldp-udp"
+junos-dns,"junos-dns-tcp, junos-dns-udp"
+junos-ms-rpc,"junos-ms-rpc-tcp, junos-ms-rpc-udp"
+junos-sun-rpc,"junos-sun-rpc-tcp, junos-sun-rpc-udp"
+junos-sun-rpc-portmap,"junos-sun-rpc-portmap-tcp, junos-sun-rpc-portmap-udp"
+junos-sun-rpc-mountd,"junos-sun-rpc-mountd-tcp, junos-sun-rpc-mountd-udp"
+junos-sun-rpc-ypbind,"junos-sun-rpc-ypbind-tcp, junos-sun-rpc-ypbind-udp"
+junos-sun-rpc-status,"junos-sun-rpc-status-tcp, junos-sun-rpc-status-udp"
+junos-any,"junos-tcp-any, junos-udp-any"

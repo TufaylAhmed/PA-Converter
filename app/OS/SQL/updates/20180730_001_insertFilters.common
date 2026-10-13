@@ -1,0 +1,5 @@
+INSERT INTO `tools_where_columns` (`name`, `column_or_table_name`, `order_by`) VALUES ('(Predefined) NAT NoNat', 'nat_nonat', '60.3');
+INSERT INTO `tools_where_columns` (`name`, `column_or_table_name`, `order_by`) VALUES ('(Predefined) NAT Static', 'nat_static', '60.4');
+INSERT INTO `tools_where_columns` (`name`, `column_or_table_name`, `order_by`) VALUES ('(Predefined) NAT Dynamic IP', 'nat_dynamic_ip', '60.5');
+INSERT INTO `tools_where_columns` (`name`, `column_or_table_name`, `order_by`) VALUES ('(Predefined) NAT Dynamic IP and Port', 'nat_dynamic_ip_port', '60.6');
+UPDATE `tools_where` SET `tools_where_columns_id`='1,2,3,67,68,69,70,71,72,15,19,20,21,81,82,74,84,96,109,110,112,117,119,120,121,122,123' WHERE `id`='3';

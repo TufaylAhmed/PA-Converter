@@ -1,0 +1,205 @@
+<response status="success" code="19">
+  <result total-count="1" count="1">
+    <pan-url-categories minver="5.0.0">
+      <hidden-entries minver="5.0.0" maxver="8.2.0">21</hidden-entries>
+      <entry name="real-estate" id="3010">
+        <index minver="5.0.0">1</index>
+      </entry>
+      <entry name="dynamic-dns" id="10002" minver="5.0.0">
+        <index minver="5.0.0">2</index>
+      </entry>
+      <entry name="financial-services" id="10003">
+        <index minver="5.0.0">3</index>
+      </entry>
+      <entry name="business-and-economy" id="10004">
+        <index minver="5.0.0">4</index>
+      </entry>
+      <entry name="computer-and-internet-info" id="10005">
+        <index minver="5.0.0">5</index>
+      </entry>
+      <entry name="auctions" id="10006">
+        <index minver="5.0.0">6</index>
+      </entry>
+      <entry name="shopping" id="80">
+        <index minver="5.0.0">7</index>
+      </entry>
+      <entry name="travel" id="11">
+        <index minver="5.0.0">9</index>
+      </entry>
+      <entry name="abused-drugs" id="10010">
+        <index minver="5.0.0">10</index>
+      </entry>
+      <entry name="adult" id="15011">
+        <index minver="5.0.0">11</index>
+      </entry>
+      <entry name="home-and-garden" id="10012">
+        <index minver="5.0.0">12</index>
+      </entry>
+      <entry name="military" id="10013">
+        <index minver="5.0.0">13</index>
+      </entry>
+      <entry name="social-networking" id="10014">
+        <index minver="5.0.0">14</index>
+      </entry>
+      <entry name="stock-advice-and-tools" id="15016">
+        <index minver="5.0.0">16</index>
+      </entry>
+      <entry name="training-and-tools" id="10017">
+        <index minver="5.0.0">17</index>
+      </entry>
+      <entry name="dating" id="10018">
+        <index minver="5.0.0">18</index>
+      </entry>
+      <entry name="sex-education" id="1490">
+        <index minver="5.0.0">19</index>
+      </entry>
+      <entry name="religion" id="3006">
+        <index minver="5.0.0">20</index>
+      </entry>
+      <entry name="entertainment-and-arts" id="10021">
+        <index minver="5.0.0">21</index>
+      </entry>
+      <entry name="personal-sites-and-blogs" id="10022">
+        <index minver="5.0.0">22</index>
+      </entry>
+      <entry name="legal" id="10023">
+        <index minver="5.0.0">23</index>
+      </entry>
+      <entry name="streaming-media" id="7509">
+        <index minver="5.0.0">25</index>
+      </entry>
+      <entry name="job-search" id="10026">
+        <index minver="5.0.0">26</index>
+      </entry>
+      <entry name="gambling" id="15027">
+        <index minver="5.0.0">27</index>
+      </entry>
+      <entry name="translation" id="10028">
+        <index minver="5.0.0">28</index>
+      </entry>
+      <entry name="reference-and-research" id="10029">
+        <index minver="5.0.0">29</index>
+      </entry>
+      <entry name="shareware-and-freeware" id="10030">
+        <index minver="5.0.0">30</index>
+      </entry>
+      <entry name="peer-to-peer" id="9801">
+        <index minver="5.0.0">31</index>
+      </entry>
+      <entry name="hacking" id="7504">
+        <index minver="5.0.0">33</index>
+      </entry>
+      <entry name="games" id="1202">
+        <index minver="5.0.0">34</index>
+      </entry>
+      <entry name="philosophy-and-political-advocacy" id="10035">
+        <index minver="5.0.0">35</index>
+      </entry>
+      <entry name="weapons" id="94">
+        <index minver="5.0.0">36</index>
+      </entry>
+      <entry name="hunting-and-fishing" id="10038">
+        <index minver="5.0.0">38</index>
+      </entry>
+      <entry name="society" id="10039">
+        <index minver="5.0.0">39</index>
+      </entry>
+      <entry name="educational-institutions" id="10040">
+        <index minver="5.0.0">40</index>
+      </entry>
+      <entry name="sports" id="10">
+        <index minver="5.0.0">42</index>
+      </entry>
+      <entry name="swimsuits-and-intimate-apparel" id="10043">
+        <index minver="5.0.0">43</index>
+      </entry>
+      <entry name="questionable" id="10044">
+        <index minver="5.0.0">44</index>
+      </entry>
+      <entry name="online-storage-and-backup" id="15047">
+        <index minver="5.0.0">47</index>
+      </entry>
+      <entry name="search-engines" id="7503">
+        <index minver="5.0.0">50</index>
+      </entry>
+      <entry name="internet-portals" id="10051">
+        <index minver="5.0.0">51</index>
+      </entry>
+      <entry name="web-advertisements" id="10052">
+        <index minver="5.0.0">52</index>
+      </entry>
+      <entry name="web-based-email" id="10055">
+        <index minver="5.0.0">55</index>
+      </entry>
+      <entry name="malware" id="15056">
+        <index minver="5.0.0">56</index>
+      </entry>
+      <entry name="phishing" id="15057">
+        <index minver="5.0.0">57</index>
+      </entry>
+      <entry name="proxy-avoidance-and-anonymizers" id="10058">
+        <index minver="5.0.0">58</index>
+      </entry>
+      <entry name="command-and-control" id="10059">
+        <index minver="5.0.0">59</index>
+      </entry>
+      <entry name="music" id="15060">
+        <index minver="5.0.0">60</index>
+      </entry>
+      <entry name="government" id="40">
+        <index minver="5.0.0">61</index>
+      </entry>
+      <entry name="nudity" id="10062">
+        <index minver="5.0.0">62</index>
+      </entry>
+      <entry name="news" id="15063">
+        <index minver="5.0.0">63</index>
+      </entry>
+      <entry name="content-delivery-networks" id="10065">
+        <index minver="5.0.0">65</index>
+      </entry>
+      <entry name="internet-communications-and-telephony" id="15066">
+        <index minver="5.0.0">66</index>
+      </entry>
+      <entry name="abortion" id="10068">
+        <index minver="5.0.0">68</index>
+      </entry>
+      <entry name="health-and-medicine" id="14">
+        <index minver="5.0.0">69</index>
+      </entry>
+      <entry name="extremism" id="9805">
+        <index minver="5.0.0">71</index>
+      </entry>
+      <entry name="insufficient-content" id="10072">
+        <index minver="5.0.0">72</index>
+      </entry>
+      <entry name="copyright-infringement" id="10073">
+        <index minver="5.0.0">73</index>
+      </entry>
+      <entry name="parked" id="15075">
+        <index minver="5.0.0">75</index>
+      </entry>
+      <entry name="alcohol-and-tobacco" id="1404">
+        <index minver="5.0.0">76</index>
+      </entry>
+      <entry name="private-ip-addresses" id="10077">
+        <index minver="5.0.0">77</index>
+      </entry>
+      <entry name="recreation-and-hobbies" id="10080">
+        <index minver="5.0.0">80</index>
+      </entry>
+      <entry name="motor-vehicles" id="1101">
+        <index minver="5.0.0">81</index>
+      </entry>
+      <entry name="web-hosting" id="10082">
+        <index minver="5.0.0">82</index>
+      </entry>
+      <entry name="not-resolved" id="16380">
+        <index minver="5.0.0">83</index>
+      </entry>
+      <entry name="unknown" id="16383">
+        <index minver="5.0.0">87</index>
+      </entry>
+    </pan-url-categories>
+  </result>
+</response>

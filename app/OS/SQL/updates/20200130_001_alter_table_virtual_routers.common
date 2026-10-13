@@ -1,0 +1,1 @@
+ALTER TABLE virtual_routers MODIFY multicast LONGTEXT NOT NULL DEFAULT '';

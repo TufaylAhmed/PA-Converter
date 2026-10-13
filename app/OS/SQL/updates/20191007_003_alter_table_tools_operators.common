@@ -1,0 +1,37 @@
+DROP TABLE IF EXISTS `tools_operator`;
+CREATE TABLE `tools_operator` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `operator` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `tools_operator`
+--
+
+LOCK TABLES `tools_operator` WRITE;
+/*!40000 ALTER TABLE `tools_operator` DISABLE KEYS */;
+INSERT INTO tools_operator
+VALUES
+('1', 'contains', 'LIKE'),
+('2', 'contains.recursive', 'LIKE'),
+('3', 'not contains', 'NOT LIKE'),
+('4', 'equal', '='),
+('5', 'equal.recursive', '='),
+('6', 'not equal', '!='),
+('7', 'in network', ''),
+('8', 'not in network', ''),
+('9', 'count.more_than', '>='),
+('10', 'count.less_than', '<='),
+('11', 'count.equals', '='),
+('12', 'starts with', 'LIKE'),
+('13', 'ends with', 'LIKE'),
+('14', 'last 1 days', '>='),
+('15', 'last 1 week', '>='),
+('16', 'last 2 weeks', '>='),
+('17', 'last 1 month', '>='),
+('18', 'last 2 months', '>='),
+('19', 'last 6 months', '>=');
+/*!40000 ALTER TABLE `tools_operator` ENABLE KEYS */;
+UNLOCK TABLES;

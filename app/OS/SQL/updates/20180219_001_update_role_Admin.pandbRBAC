@@ -1,0 +1,2 @@
+UPDATE `roles` SET `permissions`='{\"project.create\":true, \"device.create\":true, \"user.update\":true}' WHERE `id`='1';
+UPDATE `pandbRBAC`.`roles` SET `permissions`='{\"user.create\":true,\"user.admin\":true,\"user.delete\":true, \"role.admin\":true, \"server.admin\":true, \"project.create\":true, \"project.admin\":true, \"device.admin\":true, \"expedition.admin\":true}' WHERE `id`='3';

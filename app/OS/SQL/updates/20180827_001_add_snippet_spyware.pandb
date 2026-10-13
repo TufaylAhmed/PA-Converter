@@ -1,0 +1,1 @@
+INSERT INTO snippets_type (name,description) VALUES ('spy_profile','SPYWARE Profiles');

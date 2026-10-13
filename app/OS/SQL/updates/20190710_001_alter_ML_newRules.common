@@ -1,0 +1,7 @@
+ALTER TABLE `ML_NewRules`
+ADD COLUMN `seenSourceRegions` MEDIUMTEXT NULL AFTER `tag`,
+ADD COLUMN `seenDestinationRegions` MEDIUMTEXT NULL AFTER `seenSourceRegions`,
+ADD COLUMN `seenSourceNetworks` MEDIUMTEXT NULL AFTER `seenDestinationRegions`,
+ADD COLUMN `seenDestinationNetworks` MEDIUMTEXT NULL AFTER `seenSourceNetworks`,
+ADD COLUMN `minNetworkUsageSource` FLOAT NULL AFTER `seenDestinationNetworks`,
+ADD COLUMN `minNetworkUsageDestination` FLOAT NULL AFTER `minNetworkUsageSource`;

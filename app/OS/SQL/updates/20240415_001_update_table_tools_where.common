@@ -1,0 +1,4 @@
+INSERT INTO tools_where_columns VALUES ('136', '(Predefined) Not Ghost Objects', 'not_ghost_objects', '', '', '54.2', '');
+UPDATE `tools_where` SET `tools_where_columns_id` = '1,4,15,24,25,85,73,74,75,76,111,78,79,83,114,115,118,84,130,136' WHERE (`id` = '5');
+UPDATE `tools_where` SET `tools_where_columns_id` = '1,4,15,26,73,74,75,76,111,77,78,79,80,114,115,118,84,136' WHERE (`id` = '6');
+

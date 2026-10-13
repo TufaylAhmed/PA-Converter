@@ -1,0 +1,24 @@
+CREATE TABLE `topology_zones` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `source` INT NOT NULL,
+    PRIMARY KEY (`id`));
+
+CREATE TABLE `topology_networks` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `ipaddress` VARCHAR(45) NOT NULL,
+    `cidr` INT NOT NULL,
+    `source` int NULL,
+    PRIMARY KEY (`id`));
+
+CREATE TABLE `topology_rules` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `connector` INT NOT NULL,
+    `parent_rule_id` INT NOT NULL DEFAULT 0,
+    `operator` VARCHAR(45) NOT NULL DEFAULT 'AND',
+    `field1_table` VARCHAR(255) NOT NULL,
+    `field1_lid` INT NOT NULL,
+    `field2_table` VARCHAR(255) NULL,
+    `field2_lid` INT NULL,
+    PRIMARY KEY (`id`));

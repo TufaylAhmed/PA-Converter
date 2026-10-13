@@ -1,0 +1,1 @@
+UPDATE `tools_where_columns` SET `filter_type` = '1' WHERE `id` = '70';

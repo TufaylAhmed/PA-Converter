@@ -1,0 +1,3 @@
+ALTER TABLE config_views MODIFY panos_vsys VARCHAR(31) DEFAULT 'vsys1';
+ALTER TABLE templates_stacks_id MODIFY default_vsys VARCHAR(31) DEFAULT 'vsys1';
+ALTER TABLE templates MODIFY default_vsys VARCHAR(31) DEFAULT 'vsys1';

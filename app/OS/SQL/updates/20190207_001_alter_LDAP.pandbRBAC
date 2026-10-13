@@ -1,0 +1,11 @@
+SELECT IFNULL(column_name, '') INTO @colName
+FROM information_schema.columns
+WHERE table_name = 'remote_LDAP_server'
+AND column_name = 'uses_tsl';
+
+DELIMITER //
+IF @colName = '' THEN
+    ALTER TABLE `pandbRBAC`.`remote_LDAP_server`
+    CHANGE COLUMN `uses_tsl` `uses_tls` TINYINT(4) NOT NULL DEFAULT '0' ;
+END IF //
+DELIMITER ;

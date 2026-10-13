@@ -1,0 +1,14 @@
+-- DROP TABLE IF EXISTS `pbf_rules_target`;
+CREATE TABLE `pbf_rules_target` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `source` int(11) DEFAULT NULL,
+  `vsys` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `device_vsys` varchar(255) DEFAULT NULL,
+  `rule_lid` int(11) DEFAULT NULL,
+  `xml` text,
+  `devicegroup` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `index1` (`rule_lid`,`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -1,0 +1,1 @@
+ALTER TABLE qos_rules MODIFY schedule VARCHAR(45) NOT NULL;

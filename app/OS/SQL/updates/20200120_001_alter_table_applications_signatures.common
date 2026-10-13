@@ -1,0 +1,2 @@
+ALTER TABLE `applications_signatures`
+ADD COLUMN `name` varchar(31) NOT NULL AFTER `id`;

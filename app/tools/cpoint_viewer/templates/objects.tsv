@@ -1,0 +1,6 @@
+------------------------------------------------------------------
+title=OBJECTS.TSV - object definitions tab separated
+separator=<SPACE>
+------------------------------------------------------------------
+Name<TAB>IP-Address<TAB>Location<TAB>FW1<TAB>Netmask<TAB>NAT-Address<TAB>NAT-Type<TAB>Members<TAB>Comment
+<<<<<objects>>>>><<<name>>><TAB><<<type>>><TAB><<<location>>><TAB><<<fw1>>><TAB><<<ipaddress>>><TAB><<<netmask>>><TAB><<<nataddress>>><TAB><<<nattype>>><TAB><<<members>>><TAB><<<comment>>>

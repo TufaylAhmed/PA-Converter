@@ -1,0 +1,1 @@
+ALTER TABLE security_rules MODIFY description VARCHAR(1024);

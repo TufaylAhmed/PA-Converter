@@ -1,0 +1,43 @@
+{
+  "name": "@panw/expedition",
+  "version": "5.45.4",
+  "description": "Private internal Expedition runner for macOS/Linux via Docker (Palo Alto Networks)",
+  "private": true,
+  "license": "UNLICENSED",
+  "bin": {
+    "expedition": "bin/expedition.js"
+  },
+  "files": [
+    "bin",
+    "docker",
+    "databases",
+    "app",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bin/expedition.js start",
+    "stop": "node bin/expedition.js stop",
+    "status": "node bin/expedition.js status",
+    "logs": "node bin/expedition.js logs",
+    "build": "node bin/expedition.js build"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TufaylAhmed/PA-Converter.git"
+  },
+  "author": "Tufail Ahmed Sheikh <https://github.com/TufaylAhmed>",
+  "keywords": [
+    "expedition",
+    "paloalto",
+    "panw",
+    "firewall-migration",
+    "pa-converter"
+  ]
+}

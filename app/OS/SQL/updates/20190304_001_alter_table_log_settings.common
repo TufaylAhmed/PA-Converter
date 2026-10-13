@@ -1,0 +1,2 @@
+ALTER TABLE log_settings MODIFY name VARCHAR(63) NOT NULL;
+ALTER TABLE log_settings MODIFY name_ext VARCHAR(63) NOT NULL;

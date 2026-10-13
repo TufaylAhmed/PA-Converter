@@ -1,0 +1,6 @@
+------------------------------------------------------------------
+title=OBJECTS.CSV - object definitions CSV "," separated
+separator=<SPACE>
+------------------------------------------------------------------
+"Name","Type","Location","FW1","IP-Address","Netmask","NAT-Address","NAT-Type","Members","Comment"
+<<<<<objects>>>>>"<<<name>>>","<<<type>>>","<<<location>>>","<<<fw1>>>","<<<ipaddress>>>","<<<netmask>>>","<<<nataddress>>>","<<<nattype>>>","<<<members>>>","<<<comment>>>"

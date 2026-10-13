@@ -1,0 +1,837 @@
+fw1rules.pl: Analyze and print a report of Firewall-1 rules and objects
+
+Copyright (C) 2000-2008 Volker Tanger  <volker.tanger@wyae.de>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+http://www.gnu.org/copyleft/gpl.html
+
+
+HISTORY
+
+Previous versions (before 7.x) of this program were based on previous
+work by an anonymous programmer who posted it to the FireWall-1
+mailing list. Stephan Moser and Sean O'Neill modified the program
+considerably and put it under the GPL. You will find these programs in
+the archive file FWRulesArchive.zip on the WYAE webserver.
+
+The old codebase (pre 7.0 era) suffered quite heavily from patchwork
+bloat, peaking in a number of mutually incompatible patches sent to
+me. So after a number of unsuccessful attempts to include patches (or:
+programming the stuff) for implicit NAT, encryption and security
+servers all the stuff finally got tangled too much - so I set out to
+start from new, clean base.
+
+To mark the difference to the old codebase and to enable forking
+(which already seems to have happened) I slightly changed the name
+from fwrules to fw1rules.
+
+The new version (7.x) is separating reading the config file(s) into a
+(well documented) internal "database" in a first step - and then, in
+the second step, doing all the output. Nice side-effect: all
+information (services, objects, rules, etc.) can (additionally) be
+dumped into separate text or CSV files. This came out "for free" from
+debugging aids to the first step. Plus adding other output will be
+simple then. LaTeX (and resulting PDF) are already on my wish-list...
+
+For bug reports and suggestions or if you just want to talk to me
+please contact me at volker.tanger@wyae.de
+
+Updates will be available at  http://www.wyae.de/software/fw1rules/
+please check there for updates prior to submitting patches!
+
+------------------------------------------------------------------------
+
+May 2008
+v7.3.43 to v7.3.44
+    * Stefan Brunner <sbrunner@juniper.net>
+	- fix for implicit NAT rules
+        - Custom timeout values
+        - ICMP Type/Code values
+        - SUN-RPC program IDs
+        - MS-RPC UUIDs
+        - fix for name/comment R65
+    * Kevin Steves <stevesk@pobox.com>
+        - Support for host objects with multiple interfaces
+
+------------------------------------------------------------------------
+
+March 2008
+v7.3.42 to v7.3.43
+    * Jacob Jacobson <dubbelj@yahoo.com>
+	- added patches for R65 compatibility
+	  
+------------------------------------------------------------------------
+
+November 2004
+v7.3.41 to v7.3.42
+    * Kevin Steves <stevesk@pobox.com>
+	- found duplicate line in DumpNatTSV function    
+	  
+------------------------------------------------------------------------
+
+October 2004
+v7.3.40 to v7.3.41
+    * Don Wood <donald.j.wood@gmail.com>
+    	- added fix for services with single port
+    * Volker Tanger <volker.tanger@wyae.de>    
+    	- removed bug in FWS reading routine (line 3959) that failed reading
+	  one-word comments as reported in thorough bug report by Daniel
+	  Wisniewski <dw6794@sbc.com>
+        - corrected README (which still listed --dump... options)
+	  
+------------------------------------------------------------------------
+
+March 2004
+v7.3.39 to v7.3.40
+    * "Francesco Vigo" <f.vigo@hhq.it>
+    	- fixed bug in template processing for source ports (line 3571/2572)
+	- dito for implicit rules, line 3228
+
+------------------------------------------------------------------------
+
+March 2004
+v7.3.38 to v7.3.39
+    * Volker Tanger <volker.tanger@wyae.de>
+	- added --merge_AI option (just a copy of --merge_SP3)
+	  as lots of people keep asking...
+	- I'm no longer actively searching for a new maintainer but
+	  will stay coordinator
+    * Heinz Peterhans <Heinz.Peterhans@axpo.ch>
+    	- bugfix for "Sections Title", which sometimes were missed...
+
+------------------------------------------------------------------------
+
+February 2004
+v7.3.37 to v7.3.38
+    * Bernd Rudack <bernd.rudack@siemens.com>
+	- added a commonly asked-for feature: objects and services groups
+	  expansion (plus a few flags for detailed expansion control)
+    * Volker Tanger <volker.tanger@wyae.de>
+	- removed experimental CIS-FAST routines
+    
+------------------------------------------------------------------------
+
+November 2003		
+v7.3.36 to v7.3.37
+    * Edda Hochstrate <eh@netuse.de>
+	- corrected off-by-one error for interface output
+    * Heinz.Peterhans <Heinz.Peterhans@axpo.ch>
+	- corrected AntiSpoofing for NG AI - it now distincts between
+	  "Any" and "This Net"
+    * Paul Ewing Jr. <ewing@ima.umn.edu>
+	- patch: now displays the :EXP part of "other" service type
+	  as DST-port  (formerly titled "ICMP extension")
+    * Hiroyuki Kimura <kimurahrb@nttdata.co.jp>
+        - provided patch to support for User ClientAuth
+    * Volker Tanger <volker.tanger@wyae.de>
+	- services used only in implicit rules are now tagged as used
+	  and listed accordingly. 
+	  Thanks for bug report goes to David Pascoe <dpascoe2@ford.com>
+    
+------------------------------------------------------------------------
+
+June 2003		
+v7.3.35 to v7.3.36
+    * Brian Pothier  <pothier_brian@emc.com>
+	- corrected code to include the section titles
+	
+------------------------------------------------------------------------
+
+June 2003		
+v7.3.34 to v7.3.35
+    * Mark Hurst  <mhurst@infrasecure.com>
+	- provided patch for groups with a large number of members 
+	  (line truncation in HTML for line > 4000 chars).
+    * Fabrice Gonton <fabrice.gonton@creditlyonnais.fr>
+	- found bug in (still incomplete) &ReadResources() procedure which
+	  lead to listing of empty services.
+     
+     
+	
+------------------------------------------------------------------------
+
+March 2003		
+v7.3.33 to v7.3.34
+    * Brian Pothier  <pothier_brian@emc.com>
+    	- provided tool MAKE_MHT to create an MS-IE webarchive file
+	- provided hack to include the section titles
+	
+------------------------------------------------------------------------
+
+March 2003		
+v7.3.32 to v7.3.33
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- corrected header confusion in OBJECTS.CSV template as noted
+	  by Christian Labreche <christian.labreche@emergis.com>
+
+------------------------------------------------------------------------
+
+March 2003		
+v7.3.31 to v7.3.32
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- fixed bug in --with_interfaces read-in routine that marked
+	  all objects as "used". Problem was multiple use of the
+	  one-time-read-only positional variable "$1" - bug noticed by
+	  Peter-Paul Worm  <Peter-Paul.Worm@infonet.nl>
+        - added missing icons back from the old images (missing noted
+	  by Brian Pothier  <pothier_brian@emc.com>
+
+------------------------------------------------------------------------
+
+March 2003		
+v7.3.30 to v7.3.31
+    * Hiroyuki Kimura <kimurahrb@nttdata.co.jp>
+    	- fixed buglet, now removing all quotes from user rules
+
+------------------------------------------------------------------------
+
+March 2003		
+v7.3.29 to v7.3.30
+    * Volker Tanger <volker.tanger@wyae.de>
+	- bug when using ressource services with nonstandard names
+	  (see below) solved a bit nicer.
+	- first explicit NAT rule was missed for NG confg files,
+	  as reported by Keith Smith <keith@sailsolo.demon.co.uk>,
+	  solved.
+	- removed Gerhard's tool "wXfws.pl" from CONTRIB due to below.
+    * Gerhard Thiele <gerhard.thiele@siemens.com>
+    	- include comments that are missing in NG-SP3 config files
+	- includes advanced pattern matching logic
+
+------------------------------------------------------------------------
+
+February 2003		
+v7.3.28 to v7.3.29
+    * Volker Tanger <volker.tanger@wyae.de>
+	- bug when using ressource services with nonstandard names
+	  (i.e. other than http/smtp/ftp) as noted by Alexandr S Purtov
+	  <purtov@uray.ru>. Corrected.
+	- Gerhard Thiele <gerhard.thiele@siemens.com> added tool
+	  wXfws.pl to include comments that are missing in NG-SP3
+	  config files. See CONTRIB directory.
+
+------------------------------------------------------------------------
+
+January 2003		
+v7.3.27 to v7.3.28
+    * Volker Tanger <volker.tanger@wyae.de>
+	- removed bug in template processing reported by Florian
+	  Leibenzeder <florian.leibenzeder@lhsystems.com> - only used
+	  objects were printed regardless --all_objects option.
+	  Corrected.
+	
+------------------------------------------------------------------------
+
+January 2003		
+v7.3.26 to v7.3.27
+    * Volker Tanger <volker.tanger@wyae.de>
+	- completed  --link_to  option (was not really implemented)
+    * Hiroyuki Kimura <kimurahrb@nttdata.co.jp>
+	- added printing out the details of 'group_with_exclusion'
+	  objects 
+  	- printing out anti-spoofing settings
+    * Fabien Martinet/Julien Lefebvre <ho.fmartinet@cma-cgm.com>
+	- updated colour information to reflect new NG colours
+	- quite a number of optimizations for icon handling. Not all
+	  made it into this release (yet?) because they are a major
+	  change in an older version - fitting the old diff to new
+	  source is quite time consuming.
+
+	WARNING! 
+	Only the NG icons are working proper now. 
+	The 4.1 icons (partially wrong named) are removed and
+	available as separate archive. 
+	
+------------------------------------------------------------------------
+
+January 2003		
+v7.3.25 to v7.3.26
+    * Hiroyuki Kimura <kimurahrb@nttdata.co.jp>
+    	- added printing out members of gateway clusters
+	- corrected gateway interface behaviour for NG
+
+------------------------------------------------------------------------
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Feature Freeze announced !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+January 2003		
+v7.3.24 to v7.3.25    
+    * Kevin Steves <stevesk@pobox.com>
+	- corrected typos in README
+	- corrected template special character (as <TAB>) handling 
+    * Fabien Martinet/Julien Lefebvre <ho.fmartinet@cma-cgm.com>
+	- provided new, coloured NG icons
+
+------------------------------------------------------------------------
+
+December 2002 (same day)
+v7.3.23 to v7.3.24
+    * Volker Tanger <volker.tanger@wyae.de>
+	- major bug found by reports by Thomas Munn
+	  <tjmunn@stvincent.org> - line reading (esp. for Microsoft
+	  based systems was handled incorrect, resulting (for now) in
+	  missing icons in NAT rules and objects not marked as used.
+	  My mistake - incorrect parameter return. Fixed globally now. 
+
+------------------------------------------------------------------------
+
+December 2002
+v7.3.22 to v7.3.23
+    * Volker Tanger <volker.tanger@wyae.de>
+	- changed --title= option behaviour as suggested by 
+	  Darren Beatty <dazbeattie@blueyonder.co.uk>
+	- corrected colouring scheme upon suggestion/bugreport of 
+	  Fabien Martinet <ho.fmartinet@cma-cgm.com>
+	- changed properties background in CSS as suggested by
+	  Hans Maurer <hans.maurer.isdn@t-online.de> - writing on
+	  and copying printouts is better that way.
+	  
+------------------------------------------------------------------------
+
+December 2002
+v7.3.21 to v7.3.22
+    * Volker Tanger <volker.tanger@wyae.de>
+	- Corrected a bug introduced with objects file reading in 7.3.6: 
+	  Micro$oft-based config files are not read as reported by 
+	  Hans Maurer <hans.maurer.isdn@t-online.de>
+	  
+------------------------------------------------------------------------
+
+December 2002
+v7.3.20 to v7.3.21
+    * Volker Tanger <volker.tanger@wyae.de>
+	- changed rules reading to enable reading multiple *.W files 
+	  for (more) complete --unused-objects output
+	- renamed NG icons - quite a number is missing, though...
+	  
+------------------------------------------------------------------------
+
+December 2002
+v7.3.19 to v7.3.20
+    * Volker Tanger <volker.tanger@wyae.de>
+	- changed TEMPLATE format for better international support and
+	  easier reading
+	- nicer output of setting (simply added &NBSP; where useful)
+	
+------------------------------------------------------------------------
+
+December 2002
+v7.3.18 to v7.3.19
+    * Volker Tanger <volker.tanger@wyae.de>
+	- changed graphic format from GIF to PNG
+	- added TXT templates
+	- included warnings on --dump options, which will be dumped 
+	  with one of the next (major) releases. Better start early...
+
+------------------------------------------------------------------------
+
+December 2002
+v7.3.17 to v7.3.18
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected USAGE text (which still showed some USER parameters)
+	  and explained dropped userDB support a bit longer in the error
+	  message displayed.
+	- corrected usergroup output (wrong due to dropped user support)
+	  as noted by Richard Lucassen <reply1@lucassen.org>
+	- corrected packing mechanism to include the NG icons, too...
+
+------------------------------------------------------------------------
+
+November 2002
+v7.3.16 to v7.3.17
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected an off-by-one error when processing interface
+	  information as noted by Bill Powell <whp@att.net>
+    * Kevin Steves <stevesk@pobox.com>
+	- corrected port limit handling in services (including another 
+	  off-by one and missing handling of "less-than")
+	
+------------------------------------------------------------------------
+
+November 2002
+v7.3.15 to v7.3.16
+    * Sharon Besser <sbesser@checkpoint.com>
+    	- provided NG-icons (from CheckPoint's WebVisualization Tool)
+    * Kevin Steves <stevesk@pobox.com>
+	- fixed bug in DumpRulesTSV (tab missing)
+	- fixed missing ICMP translation table
+    * Daniel Wisniewski <dw6794@sbc.com>
+    	- added "Tacacs" icon
+
+	
+------------------------------------------------------------------------
+
+November 2002
+v7.3.14 to v7.3.15
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected another error in RULES.SQL template as noted by
+	  Daniel Wisniewski <dw6794@sbc.com> - field/value mixup.
+	- Parameter parsing error: "--version" did not work as noted by 
+	  Rikard Stemland Skjelsvik <rskjels@pogostick.net>
+	  Simple addition solved that problem.
+	- just was told: TIME objects are not working at all. So did a
+	  unclean workaround to display at least the proper icon.
+	
+------------------------------------------------------------------------
+
+November 2002
+v7.3.13 to v7.3.14
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected error in RULES.SQL template as noted by Daniel
+	  Wisniewski <dw6794@sbc.com> - in the first (untested)
+	  versions I used reserved words. Bad boy me.
+	- completed --include_template= option
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.12 to v7.3.13
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected typo in RULES.SQL template as noted by Daniel
+	  Wisniewski <dw6794@sbc.com> - which resulted in invalid "to"
+	  entries entered into the database.
+	- clarified USAGE a tiny bit (for templates)
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.11 to v7.3.12
+    * Ian Genge <igenge2@csc.com.au>)
+	- bug in user-rules fixed - forgot to eliminate double-quotes
+	- added border around tables, though it does look nicer on the
+	  screen without, reading pritouts is easier that way.
+	- corrected typo 
+    * Volker Tanger <volker.tanger@wyae.de>
+	- implicit rules were printed ALWAYS regardless flag and
+	  its USAGE text was wrong/outdated as noted by Daniel
+	  Wisniewski <dw6794@sbc.com> - corrected.
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.10 to v7.3.11
+    * Volker Tanger <volker.tanger@wyae.de>
+	- user-rules (e.g. for client-encrypt) were not read correctly
+	  as reported by Dan Golden <dgolden@redsiren.com>
+	  fixed now - even if not too clean (see source in routine
+	  ReadAccessRules). 
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.9 to v7.3.10
+    * Ian Genge <igenge2@csc.com.au>)
+	- provided more icons (dns-server, CA, ldap, exclusion_group)
+	- fixed (another) bug in reading servers subroutine
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.8 to v7.3.9
+    * Peter van Eynde <pve@fitit.be>
+    	- corrected more endless-loops when reading NG (ReferenceObject)
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- fixed "--debug" option (missing in parameter definition)
+	- removed complaint when omitting "--no_users"
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.7 to v7.3.8
+    * Peter van Eynde <pve@fitit.be>
+    	- corrected endless-loops when reading NG  (line 651)
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.6 to v7.3.7
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- added "--debug" option as there were endless-loops reported
+	- corrected version information
+	- disabled users due to (increasingly) broken routines
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.5 to v7.3.6
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- added NG compatibility: core reading routines 
+	  (objects, services, rules) now working
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.4 to v7.3.5
+    * Mark van Gelder <vgelder@nbs.co.za>
+    	- fixed non-handling of HTTPS ressources (yes, httpS)
+	- provided UFP graphic
+	- fixed ALL_USERS graphics bug	
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.3 to v7.3.4
+    * Volker Tanger <volker.tanger@wyae.de>
+	- bugfix - HTML referencing was broken for objects - as noted
+	  by a whole bunch of people.
+	
+------------------------------------------------------------------------
+
+October 2002
+v7.3.2 to v7.3.3
+    * Volker Tanger <volker.tanger@wyae.de>
+	- fixed EOF-handling bug as reported by Stelios Leftheris
+	  <itsecurity@hsbc.gr>
+    * Roland Alder <roland.alder@celeris.ch>
+    	- sent patch for "--show_members" option
+	
+------------------------------------------------------------------------
+
+September 2002
+v7.3.1 to v7.3.2
+    * Volker Tanger <volker.tanger@wyae.de>
+	- improved (i.e. more robust) referencing in HTML
+	- introducing the bugfix below introduced a different bug. 
+	  So deleted those changes.
+    * Andrea Barbieri <andrea@ubqtmedia.com>
+	- provided correct handling of machine ranges
+    * Olivier Badet <oligan@mangoosta.net>
+	- provided GIFs for RADIUS, TCP_SUBINTERFACE and INTERFACE
+	- added server support
+	- added option --dump_unused_objects_tsv 
+    * Olivier Badet & Volker Tanger
+	- added interface support
+
+------------------------------------------------------------------------
+
+September 2002
+v7.3.0 to v7.3.1
+    * Volker Tanger <volker.tanger@wyae.de>
+	- IP address range bugfix - the type was not parsed at all as
+	  reported by Andrea Barbieri <andrea@ubqtmedia.com>
+
+------------------------------------------------------------------------
+
+August 2002
+v7.2.10 to v7.3.0
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- embedded subroutines for CIS-Fast routines
+
+    *** Volker Tanger <volker.tanger@wyae.de>
+    	Forked 7.3.0 into the ASLrules script, that does similar
+	things for the "Astaro Security Linux" Firewall. The script
+	homepage is located at http://www.wyae.de/software/aslrules/
+
+------------------------------------------------------------------------
+
+July 2002
+v7.2.9 to v7.2.10
+    * Oddbjorn Steffensen <oddbjorn@tricknology.org>
+	- provided an extended CSS for FW1Rules' HTML output.
+	- recoded/compressed HTML output routines
+	- changed output to get alternating table rows which makes
+ 	  reading easier and the output more elegant
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- applied patch above to the other tables, too
+	- corrected a few typos
+
+------------------------------------------------------------------------
+
+July 2002
+v7.2.8 to v7.2.9
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected bug: §§§disabled§§§ placeholder in templates was not
+	  evaluated for implicit NAT rules
+	- explicit NAT had problems in default HTML output as there
+	  was a <td> missing - bug found by Miguel A Cortez Tena 
+	  <macortest@es.ibm.com> solved: inserted <td> where it was 
+	  missing...   ;-)
+	- due to popular request: now there are the
+	  --match_comment=... and --match_installon=... options which
+	  enable the user to filter rules according to entries in the
+	  "Comments" or "InstallOn" columns - use with care!
+
+------------------------------------------------------------------------
+
+July 2002
+v7.2.7 to v7.2.8
+    * Joachim Altenheim <joachim.altenheim@mikado.de>
+    	- improved NG compatibility (when using ressources)
+	- removed bug with rules using AUTH
+	- supplied some more icons
+    * Tetsujyoh Go <e31709@jp.ibm.com>
+        - found and removed bug that prevented service source port 
+	  from being printed out.
+    * Volker Tanger <volker.tanger@wyae.de>
+	- DISABLED flag not evaluated for explicit NAT rules - bug
+	  found by Frank Breedijk <f.breedijk@nl.unisys.com> 
+	  solved: handling analogue to access rules
+	
+	WARNING! 
+	The correction of the "NAT disabled bug" may lead to
+	incompatible processing of NAT.TSV files (in case you use them
+	for forther automated processing).
+	
+
+------------------------------------------------------------------------
+
+June 2002
+v7.2.6 to v7.2.7
+    * Volker Tanger <volker.tanger@wyae.de>
+	- optimization was done a bit too thorough in 7.1.0 so object
+	  and service icons were not defined if using --no_objects
+	  and/or --no_services switches - bug found by Tom Lorelle
+	  <lorellrt@usano.ksc.nasa.gov>
+	  solved: both types are read regardless options
+
+------------------------------------------------------------------------
+
+June 2002
+v7.2.5 to v7.2.6
+    * Volker Tanger <volker.tanger@wyae.de>
+	- "install on" not working correctly when having more than one
+	  object in "install on" - bug found by
+	  Mark Villaverde <ny_jerk@yahoo.com>
+	  solved: object separator was set wrong
+	
+
+------------------------------------------------------------------------
+
+June 2002
+v7.2.4 to v7.2.5
+    * Volker Tanger <volker.tanger@wyae.de>
+	- script did not dump the last NAT rule - bug found by 
+	  Neil Burt <neil_burt@hotmail.com>
+	  solved: count limit was off by 1
+	
+
+------------------------------------------------------------------------
+
+April 2002
+v7.2.3 to v7.2.4
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected Printlog bug (name in wrong case line 502) as
+	  found by Michael Glassman <admin@iaa.goc.il>
+	- renamed Us(e)rgroup-Icon to match the program code. Bug
+	  found by Rikard Stemland Skjelsvik <rskjels@pogostick.net>
+	- RULESHISTORY.SH script got a major overhaul. Mechanism is
+	  working much better now - and is tested.
+
+------------------------------------------------------------------------
+
+April 2002
+v7.2.2 to v7.2.3
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected bug about missing negated items in access rules
+	  which somehow sneaked in between 7.1.2 and 7.1.3 as found by
+	  Richard Lodge <richard.lodge@t-mobile.co.uk>
+
+------------------------------------------------------------------------
+
+April 2002
+v7.2.1 to v7.2.2
+    * Volker Tanger <volker.tanger@wyae.de>
+	- step forward to NG compatibility: Paul Sears 
+	  <paul.sears@pfitzer.com> analyzed the "bug" in my parsing
+	  pattern. I chose a different kludge, though...  ;-)
+	
+------------------------------------------------------------------------
+
+April 2002
+v7.2.0 to v7.2.1
+    * Volker Tanger <volker.tanger@wyae.de>
+	- optimized HTML output a bit for people trimming it manually
+	  (just some newlines and comments) on suggestion of 
+	  Mike Vore <mvore@ix.netcom.com>
+	- corrected objects separation 
+	- corrected log file creation
+	- added ruleshistory.sh script in CONTRIB
+	- Corrected bug resulting in broken RulesTSV (missing tabs)
+	  as found by Daniel Wisniewski <dw6794@sbc.com>
+
+	
+------------------------------------------------------------------------
+
+April 2002
+v7.1.7 to v7.2.0
+    * Volker Tanger <volker.tanger@wyae.de>
+	- output into templates - more formats, more flexibility 
+	  (default templates: TXT, HTML and LaTeX/PDF plus a number of
+	  dumps) 
+	- added ADVANCED_USAGE.txt
+	- maillist fwtools@wyae.de was established
+	- corrected HTML header colours in service/user tables
+	- removed comment "linebreaks" (colon)
+	- corrected --dump_rules_tsv (implicit rules column count)
+	
+------------------------------------------------------------------------
+
+March 2002
+v7.1.6 to v7.1.7
+    * Volker Tanger <volker.tanger@wyae.de>
+	- splitted USAGE.txt from README - just being lazy editing two
+	  files with each parameter change...
+    * Daniel Wisniewski <dw6794@sbc.com>
+	- patched a bug that stemmed from options renaming (7.1.2),
+	  that rendered objects dump useless
+       
+------------------------------------------------------------------------
+
+March 2002
+v7.1.5 to v7.1.6
+    * Volker Tanger <volker.tanger@wyae.de>
+	- patched patch below for shorter network output
+    * John Adams
+	- provided patch for "--with_ip" option.
+       
+------------------------------------------------------------------------
+
+March 2002
+v7.1.4 to v7.1.5
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected bug because of which service members were not listed
+	  (follower to bugfix 7.1.2 -> 7.1.3) as spotted by
+	  Edward Luck <Edward.Luck@fulcrum.com.au>
+	- Corrected implicit ICMP was not working - spotted by
+	  Edward Luck <Edward.Luck@fulcrum.com.au>
+	- NG still not working correctly: missing action, log and
+	  complete NAT table. But the rest seems to work.
+
+------------------------------------------------------------------------
+
+March 2002
+v7.1.3 to v7.1.4
+    * Volker Tanger <volker.tanger@wyae.de>
+	- corrected icon inconsistency for IKE as found by
+	  Edward Luck <Edward.Luck@fulcrum.com.au>
+    * Petr Sava <petr_sava@hp.com>
+	- corrected read-in routines for better compatibility with NG 
+	  in access rules.
+
+------------------------------------------------------------------------
+
+March 2002
+v7.1.2 to v7.1.3
+    * Volker Tanger <volker.tanger@wyae.de>
+	- currected service separation bug when using ressources 
+	  or services with blanks (spaces) in their name. 
+    * Helmar Gerloni <helmar.gerloni@t-systems.com>
+	- nicened comment fields (removed quotes)
+	- added UserAuth / ClientAuth
+	- corrected --no_users / --title options
+    * Helmar Gerloni <helmar.gerloni@t-systems.com>
+      and Ian Genge <igenge2@csc.com.au>)
+    	- simultaneously found even more NAT errors (Volker: *argh*)
+	
+------------------------------------------------------------------------
+
+February 2002
+v7.1.1 to v7.1.2
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- parameters more consistent (everywhere "objects" instead of
+	  just "objs")
+	- started output into templates - more formats, more
+	  flexibility (default planned: TXT, HTML and LaTeX/PDF)
+	- removed major cut/paste error in Users headline
+	- corrected bug not marking object as being used when only
+	  used in the "Install On" column - as reported by John
+	  Mackender <johnm@mackender.com>
+	- corrected another implicit NAT bug
+    * Ian Genge <igenge2@csc.com.au>
+    	- corrected two implicit NAT bugs (typo, HTML out mix-up)
+    * Helmar Gerloni <Helmar.Gerloni@t-systems.com>
+    	- corrected inconsistencies in user file paramter and usage 
+	  output, provided negated TCP icon
+    * Dennis Barmenkov <barmenkov@bpc.ru>
+    	- provided negated icons
+
+
+    *** Stefan Majer <stefan@x-cellent.de>
+    	Forked 7.1.0 into the project CP2FWBUILDER, that converts FW1
+	rulesets into a FWBUILDER configuration file (XML). Project to
+	be located at SourceForge.
+
+
+-----------------------------------------------------------------------
+
+February 2002
+v7.1.0 to v7.1.1
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- including the patches below, some cleaning up, some debugging 
+	  (minor stuff)
+    * Ian Genge <igenge2@csc.com.au>
+    	- corrected table labeling error
+	- suggested & implemented improved object output
+	  (now including NAT)
+
+------------------------------------------------------------------------
+
+February 2002
+v7.0.10 to v7.1.0
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- output of properties (thus rendering 6.1.5 useless - finally!)
+	- output of ressourced services in ruleset correct, alas
+	  ressources itself not handled yet.
+	- implicit access rules (in dumps and HTML)
+	- text dump of property settings
+
+------------------------------------------------------------------------
+
+February 2002
+v7.0.9 to v7.0.10
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- dump of unused users, too
+	- added switches --no_rules, --no_objects, 
+	  --no_services and --no_users
+	- correct handling of MS-DOS type files 
+	  (all CR+LF, sometimes spaces instead of tabs)
+
+------------------------------------------------------------------------
+
+February 2002
+v7.0.8 to v7.0.9
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- comments for objects and services (bracket matching)
+	  corrected (thanks to David Pascoe for reporting this problem)
+    	- NAT rules now translate to "Original" instead of "Any",
+	  corrected (thanks to Charlie Acker for reporting this problem)
+    	- corrected false empty NAT rule between explicit and implicit
+    	- corrected NAT in HTML output (Any/Original mixed up)
+    	- added user TXT and TSV dump (thanks to Christian's read)
+	- corrected wrong handling in HTML when using --all_objs
+    * Christian Port <christian.port@openadvice.de>
+    	- added user reading and HTML output
+	- clean NAT rule reading
+	- added tool fwdbexport.pl
+
+------------------------------------------------------------------------
+
+January 2002
+v7.0.7 to v7.0.8
+    * Volker Tanger <volker.tanger@wyae.de>
+    	- sorting of objects and services corrected (case ignore)
+	- sorting by type, then alphabetically - that to group the
+	  services and objects by type (thanks to Magnus Sandberg
+	  <magnus.sandberg@bluelabs.se> for this idea!).
+    * Joachim Altenberg <joachim.altenberg@mikado.de>
+    	- fixed problem with "install on" when only "Gateways" is
+	  definded.
+
+------------------------------------------------------------------------
+
+December 2001
+v6.1.>4 to v7.0.7
+    * Volker Tanger <volker.tanger@wyae.de>
+	- (re)wrote most of the code from scratch
+	- separating reading the config file(s) into a (well
+	  documented) internal data format in a first step - and then,  
+	  in the second step, doing all the output. 
+    * Frank Steidl 
+    	- supplied the new transparent icons
+
+------------------------------------------------------------------------

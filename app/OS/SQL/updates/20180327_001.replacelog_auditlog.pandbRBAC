@@ -1,0 +1,30 @@
+DROP TABLE IF EXISTS `logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL,
+  `msg` text,
+  `logCode` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `auditlogs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(45) NOT NULL,
+  `level` int(11) NOT NULL,
+  `task` varchar(50) NOT NULL,
+  `message` text NOT NULL,
+  `action` text NOT NULL,
+  `fixed` int(1) NOT NULL DEFAULT '0',
+  `datetime` datetime NOT NULL,
+  `obj_type` varchar(75) NOT NULL,
+  `obj_id` int(11) NOT NULL,
+  `obj_table` varchar(75) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `index1` (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

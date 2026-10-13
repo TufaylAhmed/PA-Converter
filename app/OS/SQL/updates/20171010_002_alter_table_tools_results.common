@@ -1,0 +1,2 @@
+ALTER TABLE `tools_results`
+ADD COLUMN `source` INT(11) NOT NULL AFTER `selected`;

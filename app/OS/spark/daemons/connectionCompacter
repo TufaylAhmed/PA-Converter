@@ -1,0 +1,169 @@
+#!/bin/sh
+#
+# appEnrichment and dispatcher
+#
+# chkconfig: - 1 01
+# description: Daemon to capture Traffic logs from a PANOS, enrich the entries and classify them into Kafka topics based on the App Category
+#
+
+### BEGIN INIT INFO
+# Provides:          CONNECTIONCOMPACTER-client
+# Required-Start:    $kafka
+# Required-Stop:     $kafka 
+# Default-Start:     
+# Default-Stop:      0 1 6
+# Description:       trafficEnricher client
+# Short-Description: Daemon to capture Traffic logs and enrich them
+### END INIT INFO
+
+# Source function library.
+#. /etc/init.d/functions
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+NAME=connectionCompacterd.sh
+DESC=connectionCompacterd-spark
+CONNECTIONCOMPACTER_SCRIPT=/var/www/html/OS/spark/scripts/connectionCompacter.spark
+DIRECTORY=/home/userSpace/log
+CONNECTIONCOMPACTER_LOG=${DIRECTORY}/connectionCompacter.log
+PROCESSNAME=com.paloaltonetworks.tbd.FlatMap_SourceDestPort
+
+if [ ! -d "$DIRECTORY" ]; then
+  # Control will enter here if $DIRECTORY doesn't exist.
+  mkdir $DIRECTORY
+fi
+
+cd /home/userSpace
+
+os_check() {
+    set +e
+
+    uname -v | grep Ubuntu | wc -l > /dev/null 2>&1
+    if [ $? != 1 ] ; then   #Unbuntu OS
+        DAEMON=/bin/bash
+        USER=panML
+    else                    #Red-Hat based OS
+        DAEMON=/bin/bash
+        USER=panML
+    fi
+    set -e
+}
+
+os_check
+
+START_PROG="daemon"
+
+test -x $DAEMON || exit 0
+
+
+RETVAL=0
+set -e
+
+[ -f /etc/default/${NAME} ] && . /etc/default/${NAME}
+
+
+start_CONNECTIONCOMPACTER () {
+    status_CONNECTIONCOMPACTER quiet
+    if [ $RETVAL = 0 ] ; then
+        echo PAN CONNECTIONCOMPACTER is currently running
+    else
+        RETVAL=0
+        set +e
+        DATE=`date`
+        echo "------------------------------------------------------------" >> $CONNECTIONCOMPACTER_LOG
+        echo "$DATE : Starting CONNECTIONCOMPACTER.spark " >> $CONNECTIONCOMPACTER_LOG
+        echo "------------------------------------------------------------" >> $CONNECTIONCOMPACTER_LOG
+        $DAEMON $CONNECTIONCOMPACTER_SCRIPT >> $CONNECTIONCOMPACTER_LOG &
+
+        set -e
+        echo SUCCESS
+    fi
+}
+
+stop_CONNECTIONCOMPACTER () {
+    status_CONNECTIONCOMPACTER quiet
+    if [ $RETVAL = 0 ] ; then
+        set +e
+        DATE=`date`
+        echo "------------------------------------------------------------" >> $CONNECTIONCOMPACTER_LOG
+        echo "$DATE : Stopping CONNECTIONCOMPACTER.spark " >> $CONNECTIONCOMPACTER_LOG
+        echo "------------------------------------------------------------" >> $CONNECTIONCOMPACTER_LOG
+
+        kill -9 `ps -aux | grep $PROCESSNAME | grep -v grep | awk {'print $2'}`
+        sleep 5
+        set -e
+    else
+        echo PAN CONNECTIONCOMPACTER is not running
+        RETVAL=0
+    fi
+}
+
+status_CONNECTIONCOMPACTER() {
+    set +e
+
+    ps -aux| grep $PROCESSNAME | grep -v grep > /dev/null 2>&1
+    if [ $? != 0 ] ; then
+        echo Not Running
+        RETVAL=3
+    else
+        echo Running with PID
+        ps -aux | grep $PROCESSNAME | grep -v grep | awk {'print $2'}
+    fi
+    set -e
+}
+
+restart_running_CONNECTIONCOMPACTER () {
+    status_CONNECTIONCOMPACTER quiet
+    if [ $RETVAL = 0 ] ; then
+            DATE=`date`
+            echo "------------------------------------------------------------" >> $CONNECTIONCOMPACTER_LOG
+            echo "$DATE : Restarting CONNECTIONCOMPACTER.php " >> $CONNECTIONCOMPACTER_LOG
+            echo "------------------------------------------------------------" >> $CONNECTIONCOMPACTER_LOG
+
+        restart_CONNECTIONCOMPACTER
+    else
+        echo PAN CONNECTIONCOMPACTER is not runnning
+        RETVAL=0
+    fi
+}
+
+restart_CONNECTIONCOMPACTER() {
+    DATE=`date`
+    echo "------------------------------------------------------------" >> $CONNECTIONCOMPACTER_LOG
+    echo "$DATE : Restarting CONNECTIONCOMPACTER.php " >> $CONNECTIONCOMPACTER_LOG
+    echo "------------------------------------------------------------" >> $CONNECTIONCOMPACTER_LOG
+    stop_CONNECTIONCOMPACTER
+    start_CONNECTIONCOMPACTER
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        start_CONNECTIONCOMPACTER
+#        echo "$NAME."
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        stop_CONNECTIONCOMPACTER
+#        echo "$NAME."
+        ;;
+    status)
+        status_CONNECTIONCOMPACTER
+        ;;
+    force-reload|reload|restart)
+        echo -n "Restarting $DESC: "
+        restart_CONNECTIONCOMPACTER
+#        echo "$NAME."
+        ;;
+    try-restart)
+        echo -n "Restarting $DESC: "
+        restart_running_CONNECTIONCOMPACTER
+#        echo "$NAME."
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status|restart|try-restart|reload|force-reload}" >&2
+        RETVAL=1
+        ;;
+esac
+
+exit $RETVAL

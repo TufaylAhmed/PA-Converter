@@ -1,0 +1,19 @@
+drop procedure IF EXISTS update_parentJobs;
+DELIMITER //
+CREATE PROCEDURE update_parentJobs(
+	IN parentID_In INT(20)
+)
+BEGIN
+  SET @query = '
+    UPDATE jobs
+    SET completed = ?,
+        failed = ?
+    WHERE id = ?';
+  SET @co = (SELECT sum(completed) FROM jobs where parentJob= parentID_In);
+  SET @fa = (SELECT sum(failed) FROM jobs where parentJob= parentID_In);
+  SET @pa = parentID_In;
+  PREPARE stmt FROM @query;
+  EXECUTE stmt USING @co, @fa, @pa;
+  DEALLOCATE PREPARE stmt;
+END //
+DELIMITER ;

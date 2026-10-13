@@ -1,0 +1,16 @@
+#!/bin/sh
+###############################################################
+#	example on how tp create a PDF documentation
+###############################################################
+
+time ./fw1rules.pl --verbose --with_ip \
+	--with_implicit_rules  \
+	--template=templates/baseconfig.tex \
+	--output=configuration.tex
+
+cat configuration.tex | sed -e "s/_/\\\underline\{ \}/g" > conf.tex
+
+pdflatex conf.tex
+latex conf.tex
+dvips -t a4 -t landscape conf.dvi -o conf.ps
+

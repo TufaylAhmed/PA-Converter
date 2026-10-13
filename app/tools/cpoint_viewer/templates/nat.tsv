@@ -1,0 +1,7 @@
+------------------------------------------------------------------
+title=TAB.TSV - all NAT rules tab separated
+separator=<SPACE>    
+------------------------------------------------------------------
+Rule<TAB>From<TAB>To<TAB>Service<TAB>transl. From<TAB>transl. To<TAB>transl. Service<TAB>Installed On<TAB>Comment
+<<<<<nat>>>>><<<rule>>><TAB><<<from>>><TAB><<<to>>><TAB><<<service>>><TAB><<<tfrom>>><TAB><<<tto>>><TAB><<<tservice>>><TAB><<<installon>>><TAB><<<comment>>>
+

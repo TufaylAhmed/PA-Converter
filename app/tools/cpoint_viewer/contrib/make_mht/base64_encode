@@ -1,0 +1,3 @@
+#!/bin/sh
+
+perl -MMIME::Base64 -0777 -ne 'print encode_base64($_)' < $1

@@ -1,0 +1,75 @@
+<response status="success" code="19">
+  <result total-count="1" count="1">
+    <url-categories>
+    <entry name="sports" id="10"/>
+    <entry name="travel" id="11"/>
+    <entry name="hobbies-and-recreation" id="12"/>
+    <entry name="gambling" id="13"/>
+    <entry name="health-and-medicine" id="14">
+      <free>yes</free>
+    </entry>
+    <entry name="news" id="20"/>
+    <entry name="finance-and-investment" id="25">
+      <free>yes</free>
+    </entry>
+    <entry name="government" id="40"/>
+    <entry name="arts" id="50"/>
+    <entry name="entertainment" id="51"/>
+    <entry name="job-search-and-career-development" id="60"/>
+    <entry name="education" id="70"/>
+    <entry name="computing-and-internet" id="75"/>
+    <entry name="advertisements-and-popups" id="76"/>
+    <entry name="shopping" id="80">
+      <free>yes</free>
+    </entry>
+    <entry name="adult-or-sexually-explicit" id="90"/>
+    <entry name="criminal-activity" id="91"/>
+    <entry name="intolerance-and-hate" id="92"/>
+    <entry name="violence" id="93"/>
+    <entry name="weapons" id="94"/>
+    <entry name="intimate-apparel-and-swimwear" id="95"/>
+    <entry name="personals-and-dating" id="96"/>
+    <entry name="photo-searches" id="97"/>
+    <entry name="proxies-and-translators" id="98"/>
+    <entry name="hosting-sites" id="99"/>
+    <entry name="business" id="100"/>
+    <entry name="motor-vehicles" id="1101"/>
+    <entry name="games" id="1202"/>
+    <entry name="illegal-drugs" id="1403"/>
+    <entry name="alcohol-and-tobacco" id="1404"/>
+    <entry name="sex-education" id="1490"/>
+    <entry name="blogs-and-forums" id="2002"/>
+    <entry name="chat" id="3001"/>
+    <entry name="society-and-culture" id="3003"/>
+    <entry name="food-and-dining" id="3004"/>
+    <entry name="religion" id="3006"/>
+    <entry name="real-estate" id="3010"/>
+    <entry name="reference" id="7001"/>
+    <entry name="kids-sites" id="7003"/>
+    <entry name="downloads" id="7501"/>
+    <entry name="search-engines" id="7503"/>
+    <entry name="hacking" id="7504">
+      <free>yes</free>
+      <malware>yes</malware>
+    </entry>
+    <entry name="spyware" id="7505"/>
+    <entry name="web-based-e-mail" id="7507"/>
+    <entry name="streaming-media" id="7509"/>
+    <entry name="phising-and-fraud" id="9101"/>
+    <entry name="tasteless-and-offensive" id="9301"/>
+    <entry name="fashion-and-beauty" id="9501"/>
+    <entry name="peer-to-peer" id="9801"/>
+    <entry name="infrastructure" id="9802"/>
+    <entry name="philanthropic-and-professional-orgs" id="9803"/>
+    <entry name="ringtones-or-mobile-phone-downloads" id="9804"/>
+    <entry name="spam-urls" id="9805"/>
+    <entry name="politics" id="9806"/>
+    <entry name="allow-list" id="14000"/>
+    <entry name="block-list" id="15000"/>
+    <entry name="not-resolved" id="16380"/>
+    <entry name="none" id="16381"/>
+    <entry name="license-expired" id="16382"/>
+    <entry name="unknown" id="16383"/>
+  </url-categories>
+</result>
+</response>

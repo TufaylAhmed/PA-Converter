@@ -1,0 +1,7 @@
+------------------------------------------------------------------
+title=SERVICES.TSV - all services tab separated
+separator=<SPACE>
+------------------------------------------------------------------
+Name<TAB>Type<TAB>Destination Port<TAB>Source Port (low)<TAB>Source Port (high)<TAB>pre-Match<TAB>Prolog<TAB>Members<TAB>Comment
+<<<<<services>>>>><<<name>>><TAB><<<type>>><TAB><<<port>>><TAB><<<sportfrom>>><TAB><<<sportto>>><TAB><<<match>>><TAB><<<prolog>>><TAB><<<members>>><TAB><<<comment>>>
+

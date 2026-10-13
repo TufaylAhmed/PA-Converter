@@ -1,0 +1,11 @@
+SELECT IFNULL(column_name, '') INTO @colName
+FROM information_schema.columns
+WHERE table_name = 'device_logs'
+AND column_name = 'device_id';
+
+DELIMITER //
+IF @colName = '' THEN
+    ALTER TABLE `device_logs`
+    CHANGE COLUMN `device_id` `device_serial` VARCHAR(255) NOT NULL ;
+END IF //
+DELIMITER ;

@@ -1,0 +1,23 @@
+------------------------------------------------------------------
+title=NAT.TXT - just the NAT rules
+separator=<NEWLINE><TAB><TAB>    
+------------------------------------------------------------------
+
+=========================================================
+NAT Rules
+=========================================================
+
+<<<<<nat>>>>><<<rule>>> <<<disabled>>>
+<<<<<nat>>>>>    Comment:      <<<comment>>>
+<<<<<nat>>>>>    Installed On: <<<installon>>>
+<<<<<nat>>>>>    ORIGINAL 
+<<<<<nat>>>>>        From:     <<<from>>>
+<<<<<nat>>>>>        To:       <<<to>>>
+<<<<<nat>>>>>        Service:  <<<service>>>
+<<<<<nat>>>>>    TRANSLATED
+<<<<<nat>>>>>        From:     <<<tfrom>>>
+<<<<<nat>>>>>        To:       <<<tto>>>
+<<<<<nat>>>>>        Service:  <<<tservice>>>
+<<<<<nat>>>>>
+
+

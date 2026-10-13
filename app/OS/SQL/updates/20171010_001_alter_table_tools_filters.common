@@ -1,0 +1,2 @@
+ALTER TABLE `tools_filters`
+ADD COLUMN `user_id` INT(11) DEFAULT NULL AFTER `tools_sql_id`;

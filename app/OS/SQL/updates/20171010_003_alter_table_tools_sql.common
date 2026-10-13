@@ -1,0 +1,2 @@
+ALTER TABLE `tools_sql`
+ADD COLUMN `source` INT(11) NOT NULL AFTER `filter_id`;

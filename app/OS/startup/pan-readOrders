@@ -1,0 +1,185 @@
+#!/bin/sh
+#
+# pan-readOrders client
+#
+# chkconfig: - 1 01
+# description: Deamon to read Migration Tool orders and process them in background
+#
+
+### BEGIN INIT INFO
+# Provides:          readOrders-client
+# Required-Start:    $remote_fs $network $rabbitmq-server
+# Required-Stop:     $remote_fs $network $rabbitmq-server
+# Description:       readOrders client
+# Short-Description: Deamon to read Migration Tool orders and process them in background via rabbitMQ
+### END INIT INFO
+
+# Source function library.
+#. /etc/init.d/functions
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
+NAME=readOrders.php
+DESC=readOrders-client
+ROTATE_SUFFIX=
+READORDERS_SCRIPT=/var/www/html/console/messaging/readOrders.php
+READORDERS_LOG=/home/userSpace/panReadOrders.log
+
+os_check() {
+    set +e
+
+    uname -v | grep Ubuntu | wc -l > /dev/null 2>&1
+    if [ $? != 1 ] ; then   #Ubuntu OS / Debian Docker images
+        USER=www-data
+        if [ -x /usr/local/bin/php ]; then
+            DAEMON=/usr/local/bin/php
+        elif [ -x /usr/bin/php ]; then
+            DAEMON=/usr/bin/php
+        else
+            DAEMON=`command -v php 2>/dev/null`
+        fi
+    else                    #Red-Hat based OS
+        USER=apache
+        if [ -x /bin/php ]; then
+            DAEMON=/bin/php
+        elif [ -x /usr/bin/php ]; then
+            DAEMON=/usr/bin/php
+        elif [ -x /usr/local/bin/php ]; then
+            DAEMON=/usr/local/bin/php
+        else
+            DAEMON=`command -v php 2>/dev/null`
+        fi
+    fi
+    set -e
+}
+
+os_check
+
+START_PROG="daemon"
+
+# Empty DAEMON means php was not found on any known path
+[ -n "$DAEMON" ] && [ -x "$DAEMON" ] || exit 0
+#test -r $READORDERS_SCRIPT || exit 0
+
+
+RETVAL=0
+set -e
+
+[ -f /etc/default/${NAME} ] && . /etc/default/${NAME}
+
+
+start_readOrders () {
+    status_readOrders quiet
+    if [ $RETVAL = 0 ] ; then
+        echo PAN readOrders is currently running
+    else
+        RETVAL=0
+        set +e
+        DATE=`date`
+        echo "------------------------------------------------------------" >> $READORDERS_LOG
+        echo "$DATE : Starting readOrders.php " >> $READORDERS_LOG
+        echo "------------------------------------------------------------" >> $READORDERS_LOG
+        # Preserve Compose RabbitMQ/Spark env when started from healthcheck repair
+        export RABBITMQ_HOST="${RABBITMQ_HOST:-rabbitmq}"
+        export JAVA_HOME="${JAVA_HOME:-}"
+        export SPARK_HOME="${SPARK_HOME:-}"
+        $DAEMON $READORDERS_SCRIPT >> $READORDERS_LOG &
+
+        set -e
+        echo SUCCESS
+    fi
+}
+
+stop_readOrders () {
+    status_readOrders quiet
+    if [ $RETVAL = 0 ] ; then
+        set +e
+        DATE=`date`
+        echo "------------------------------------------------------------" >> $READORDERS_LOG
+        echo "$DATE : Stopping readOrders.php " >> $READORDERS_LOG
+        echo "------------------------------------------------------------" >> $READORDERS_LOG
+
+        kill -9 `ps -aux | grep readOrders.php | grep -v grep | awk {'print $2'}`
+        set -e
+    else
+        echo PAN readOrders is not running
+        RETVAL=0
+    fi
+}
+
+# PIDs for the PHP worker only (exclude su/bash wrappers that also mention the script)
+readOrders_pids() {
+    ps -aux | grep readOrders.php | grep -v grep | awk '$11 == "php" || $11 ~ /\/php$/ { print $2 }'
+}
+
+status_readOrders() {
+    set +e
+
+    PIDS=`readOrders_pids`
+    if [ -z "$PIDS" ] ; then
+        echo Not Running
+        RETVAL=3
+    else
+        echo Running with PID
+        # Exactly one line expected by getStatus() (grep -v Running | wc -l == 1)
+        echo "$PIDS" | head -n 1
+    fi
+    set -e
+}
+
+restart_running_readOrders () {
+    status_readOrders quiet
+    if [ $RETVAL = 0 ] ; then
+            DATE=`date`
+            echo "------------------------------------------------------------" >> $READORDERS_LOG
+            echo "$DATE : Restarting readOrders.php " >> $READORDERS_LOG
+            echo "------------------------------------------------------------" >> $READORDERS_LOG
+
+        restart_readOrders
+    else
+        echo PAN readOrders is not runnning
+        RETVAL=0
+    fi
+}
+
+restart_readOrders() {
+    DATE=`date`
+    echo "------------------------------------------------------------" >> $READORDERS_LOG
+    echo "$DATE : Restarting readOrders.php " >> $READORDERS_LOG
+    echo "------------------------------------------------------------" >> $READORDERS_LOG
+    stop_readOrders
+    start_readOrders
+}
+
+export PHP_IDE_CONFIG="serverName=Expedition1"
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        start_readOrders
+#        echo "$NAME."
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        stop_readOrders
+#        echo "$NAME."
+        ;;
+    status)
+        status_readOrders
+        ;;
+    force-reload|reload|restart)
+        echo -n "Restarting $DESC: "
+        restart_readOrders
+#        echo "$NAME."
+        ;;
+    try-restart)
+        echo -n "Restarting $DESC: "
+        restart_running_readOrders
+#        echo "$NAME."
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status|restart|try-restart|reload|force-reload}" >&2
+        RETVAL=1
+        ;;
+esac
+
+exit $RETVAL

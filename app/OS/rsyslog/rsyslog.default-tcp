@@ -1,0 +1,19 @@
+#####################################################
+# Log everything to a per host daily logfile        #
+#####################################################
+
+$ModLoad imtcp
+
+### Listeners
+$InputTCPServerRun 10514
+
+$FileOwner www-data
+$FileGroup expedition
+$DirCreateMode 0755
+
+# specify senders you permit to access
+$AllowedSender TCP, 127.0.0.1, 10.11.29.0/24, 172.16.26.0/24, *.paloaltonetworks.com
+
+$template DynaTrafficLog,"/PALogs/%FROMHOST-IP%/%HOSTNAME%_traffic_%$YEAR%_%$MONTH%_%$DAY%_last_calendar_day.csv"
+:msg, contains, ",TRAFFIC," -?DynaTrafficLog
+#*.* -?DynaTrafficLog

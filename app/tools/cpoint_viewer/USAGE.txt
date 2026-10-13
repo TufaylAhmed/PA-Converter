@@ -1,0 +1,179 @@
+-----------------------------------------------------------------------
+			FW1Rules   USAGE
+-----------------------------------------------------------------------
+
+   fw1rules.pl
+	[--objects=<objects file>]
+	[--rules=<rules file>]
+	[--merge_SP3=<FWS rules file>]	[--merge_AI=<FWS rules file>]
+	[--all_objects] [--all_services]
+	[--no_rules] [--no_objects] [--no_services]
+	[--no_servers]
+	[--with_implicit_rules] [--with_ip]
+	[--with_interfaces] [--with_antispoofing]
+	[--show_members]
+	[--sort_by_type]
+	[--match_comment=<string>]  [--match_installon=<string>]
+	[--match_source=<string>] [--match_destination=<string>]
+	[--match_service=<string>] [--match_case]
+	[--match_logic=<string>]
+	[--verbose] [--debug] [--version]
+
+	[--dump_unused_objects=<text file>]
+	[--dump_unused_objects_tsv=<text file>]
+
+	[--use-css=<css file>]
+	[--with_colors] [--icon_path=<path>]
+	[--link_to=<directory>]
+	[--title=<document title>]
+	[--output_html=<html file>]
+
+
+	[--template=<template file>]
+	[--template_include=<template include filename>]
+
+	[--unused_objects]
+	[--hosts_only]
+	[--gateways_only]
+	[--networks_only]
+	[--groups_only]
+	[--expand_object_groups]
+        [--expand_service_groups]
+	
+	[--output=<filled template file>]
+
+
+
+
+Optional Parameters:
+--------------------
+
+   --rules=<rule file>: Location of FireWall-1 rule file.
+	Default is 'Standard.W'
+
+   --merge_SP3=<FWS rule file>
+   --merge_AI=<FWS rule file> : Location of FireWall-1 SP3 rulebases file
+	Merges <rule file> with comments of <FWS rule file>
+	eg. 'rulebases_5_0.fws'
+
+   --objects=<objects file>: Location of FireWall-1 objects file.
+	  Default is 'objects.C' which is good for V4.1,
+	  please use 'objects_5_0.C' if you are using CKP-NG
+
+   --all_objects  /  --all_services :
+	it will list ALL objects/services. By default only those
+	in use will be listed.
+
+   --no_rules / --no_objects / --no_services / --no_servers:
+	it will NOT read nor list rules/objects/services/servers.
+	Default disabled.
+	--no_rules implies --all_objs and --all_services
+
+   --with_implicit_rules: include the implicit rules into the tables
+
+   --with_ip: prints IP addresses along with the object names into the
+	access rule & objects dump for HTML.
+	(Note: this does not affect templates or dumps - see below)
+
+   --with_interfaces: prints interfaces per network object for HTML.
+	(Note: this does not affect templates or dumps - see below)
+
+   --with_antispoofing: prints antispoofing information in the comment
+	fields of the network object for HTML.
+	(Note: this does not affect templates or dumps - see below)
+
+   --show_members: lists groups with their members in access/NAT rules.
+	(Note: this does not affect templates or dumps - see below)
+
+   --sort_by_type: use object and service type as primary sorting key
+   	to group them. Secondary key is alphabetically then. Default
+	sorting is just plain alphabetically (case ignore).
+
+   --match_case: search case sensitive for all --match_options below
+
+   --match_comment=<string>  /  --match_installon=<string>  /
+   --match_source=<string>   /  --match_destination=<string>  /
+   --match_service=<string>:
+	Only those NAT and access rules will be printed that match the
+	literal string (NOT RegEx!) given as parameter. The objects
+	and services used will be limited accordingly unless the
+	corresponding --all... switches are given.
+
+   --match_logic=<string>: Match Pattern Logic (src/dst/svc/com)
+	src = Source, dst = Destination, svc = Serivce, com = Comment
+	Pattern Operator: && = AND, || = OR, ! = NOT
+	eg.: --match_logic='com && ( !dst )\'
+	or : --match_logic='com && ( src || dst )'
+	Default: --match_logic='( src && dst && svc && com )'
+	You will still have to give all the --match_... parameters!
+
+   --with_colors: Add html color tags to network and service objects
+	to reflect the colors used in the FW-1 GUI.  By default, this
+	is OFF to enhance readability (e.g. on printouts).
+
+   --icon_path=<path>: Location of the icon graphic files.
+   	Defaults is './icons'
+
+   --use-css=<css file>: include reference to the CSS file given (for
+	nicer output). Default is './fw1rules.css'
+
+   --title=<title>: Here you can set a custom document title.
+	Defaults to the ruleset filename (as given or Standard.W).
+
+   --link_to=<directory>: references put in [squarebrackets] into the
+	comment field will be HTML-linked to the file
+		<directory>/squarebrackets.html
+	    or	<directory>/squarebrackets.pdf
+	for easier rule/project/background documentation
+
+   --verbose: prints debugging information to STDERR and FWrules.log
+
+   --version: prints version and exists
+
+   --expand_object_groups: checking a rulebase with groups or
+        groups within groups can be a horrible job; this option
+        expands object groups and removes duplicates
+
+   --expand_service_groups: checking a rulebase with groups or
+        groups within groups can be a horrible job; this option
+        expands object groups and removes duplicates
+
+
+To give an overall documentation of the ruleset (and used objects) you
+can print the output into different file formats. Other formats will
+be supported as soon as someone supplies according documentation or
+patch. You can call any number of these options (okay, only one per
+file type per program run):
+
+   --output_html=<html file>
+
+
+For cleaning up firewall rulesets a list of unused objects comes in
+very handy, so these functions sort out the culprits for you:
+
+   --dump_unused_objects=<text file>
+   --dump_unused_objects_tsv=<text files>
+
+
+To fill a custom template with the current firewall configuration you
+have to give a template file and the name of the resulting file. You
+only can give one template/output pair per program run.
+
+A number of predefined templates is supplied with the tarball in the
+subdirectory templates/
+
+A special case is the option --template_include where one can set the
+template variable <<<include>>> to be replaced with the command line
+parameter. This comes in handy when defining files to be included e.g.
+for producing complete documentations - see the template called
+templates/fullconfig.txt
+
+   --template=<template file>
+   --template_include=<template include filename>
+   --output=<filled template file>
+   --unused_objects
+   --hosts_only
+   --gateways_only
+   --networks_only
+   --groups_only
+

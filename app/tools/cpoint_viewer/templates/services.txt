@@ -1,0 +1,22 @@
+------------------------------------------------------------------
+title=SERVICES.TXT - just the network services
+separator=<NEWLINE><TAB><TAB>    
+------------------------------------------------------------------
+
+
+=========================================================
+Services
+=========================================================
+
+<<<<<services>>>>><<<name>>>
+<<<<<services>>>>>        Type:               <<<type>>>
+<<<<<services>>>>>        Destination Port:   <<<port>>>
+<<<<<services>>>>>        Source Port (low):  <<<sportfrom>>>
+<<<<<services>>>>>        Source Port (high): <<<sportto>>>
+<<<<<services>>>>>        pre-Match:          <<<match>>>
+<<<<<services>>>>>        Prolog:             <<<prolog>>>
+<<<<<services>>>>>        Members:            <<<members>>>
+<<<<<services>>>>>        Comment:            <<<comment>>>
+<<<<<services>>>>>
+
+

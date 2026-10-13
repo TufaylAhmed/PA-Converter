@@ -1,0 +1,99 @@
+------------------------------------------------------------------
+title=PROPERTIES.TXT - all properties in a TXT file
+separator=<SPACE>
+------------------------------------------------------------------
+
+Firewall Properties
+
+<<<<configset>>>>
+
+Created <<<<date>>>> by <<<<fwrules>>>>
+
+
+=========================================================
+PROPERTIES
+=========================================================
+
+
+Security Policy
+---------------------------------------------------------
+Apply Gateway Rules to Interface Direction:  <<<prop_gatewaydir>>>
+TCP Session Timeout (sec):                   <<<prop_tcptimeout>>>    
+Accept Firewall-1 Control Connections:       <<<prop_fw1enable>>> / <<<prop_fw1enable_p>>>
+Accept UDP Replies:                          <<<prop_udpreply>>> /  <<<prop_udpreply_p>>>
+UDP Reply Timeout (sec):                     <<<prop_udptimeout>>>    
+Accept Outgoing Packets:                     <<<prop_outgoing>>> /  <<<prop_outgoing_p>>>
+Enable Decryption on Accept:                 <<<prop_acceptdecrypt>>>
+Use FASTPATH:                                <<<prop_enable_fastpath>>>    
+Accept RIP:                                  <<<prop_rip>>> /  <<<prop_rip_p>>>
+Accept Domain Name Queries (UDP):            <<<prop_domain_udp>>> /  <<<prop_domain_udp_p>>>
+Accept Domain Name Download (TCP):           <<<prop_domain_tcp>>> /  <<<prop_domain_tcp_p>>>
+Accept ICMP:                                 <<<prop_icmpenable>>> / <<<prop_icmpenable_p>>>
+ 
+Services
+---------------------------------------------------------
+Enable FTP PASV Connections:                 <<<prop_ftppasv>>> / <<<prop_ftppasv_p>>>
+Enable RSH/REXEC Reverse stderr Connections: <<<prop_rshstderr>>> / <<<prop_rshstderr_p>>>
+Enable RPC Control:                          <<<prop_rpcenable>>> / <<<prop_rpcenable_p>>>
+Enable Response of FTP Data Connections:     <<<prop_ftpdata>>> / <<<prop_ftpdata_p>>>
+Enable Real Audio Reverse Connections:       <<<prop_raudioenable>>> / <<<prop_raudioenable_p>>>
+Enable VDOLive Reverse Connections:          <<<prop_vdolivenable>>> / <<<prop_vdolivenable_p>>>
+Enable CoolTalk Data Connections (UDP):      <<<prop_cooltalkenable>>>
+Enable H.323 Control and Data Connections:   <<<prop_iphoneenable>>>
+ 
+Log and Alert
+---------------------------------------------------------
+Excessive Log Grace Period (sec):            <<<prop_loggrace>>>
+PopUp Alert Command:                         <<<prop_alertcmd>>>
+Mail Alert Command:                          <<<prop_mailcmd>>>
+SNMP Trap Alert Command:                     <<<prop_snmptrapcmd>>>
+User Defined Alert Command:                  <<<prop_useralertcmd>>>
+Anti Spoof Alert Command:                    <<<prop_spoofalertcmd>>>
+User Authentication Alert Command:           <<<prop_userauthalertcmd<>>>    
+Log Established TCP Packets:                 <<<prop_log_established_tcp>>>
+Enable Active Connections:                   <<<prop_liveconns>>>
+ 
+Resolving
+---------------------------------------------------------
+Lookup Priorities:                        1. <<<prop_resolver_1>>>
+                                          2. <<<prop_resolver_2>>>
+                                          3. <<<prop_resolver_3>>>
+                                          4. <<<prop_resolver_4>>>
+BIND Timeout (sec):                          <<<prop_timeout>>>
+BIND Retries:                                <<<prop_retries>>>
+Log Viewer Resolver Properties:              <<<prop_pagetimeout>>>
+ 
+Security Servers
+---------------------------------------------------------
+Telnet Welcome Message File:                 <<<prop_telnet_msg>>>
+Rlogin Welcome Message File:                 <<<prop_rlogin_msg>>>
+FTP Welcome Message File:                    <<<prop_ftp_msg>>>
+Client Authentication Welcome Message File:  <<<prop_clnt_auth_msg>>>
+HTTP Next Proxy:                             <<<prop_http_next_proxy_host>>> : <<<prop_http_next_proxy_port>>>
+ 
+Authentication
+---------------------------------------------------------
+User Authentication Session Timeout (min):   <<<prop_au_timeout>>>
+AXENT Pathways Defender Server Setup:    IP: <<<prop_snk_server_ip>>>
+                                   Agent ID: <<<prop_snk_agent_id>>>
+                                  Agent Key: <<<prop_snk_agent_key>>>
+ 
+SYNDefender
+---------------------------------------------------------
+Method:                                      <<<prop_fwsynatk_method>>>
+Timeout:                                     <<<prop_fwsynatk_timeout>>>
+Maximum Sessions:                            <<<prop_fwsynatk_max>>>
+Display Warning Messages:                    <<<prop_fwsynatk_warning>>>
+ 
+Miscellaneous
+---------------------------------------------------------
+Load Agents Port:                            <<<prop_load_service_port>>>
+Load Measurement Interval:                   <<<prop_lbalanced_period_wakeup_sec>>>
+ 
+Access Lists
+---------------------------------------------------------
+Accept Established TCP Connections:          <<<prop_established>>> / <<<prop_established_p>>>
+Accept RIP:                                  <<<prop_rip>>> / <<<prop_rip_p>>>
+Accept Domain Name Queries (UDP):            <<<prop_domain_udp>>> / <<<prop_domain_udp_p>>>
+Accept Domain Name Download (TCP):           <<<prop_domain_tcp>>> / <<<prop_domain_tcp_p>>>
+Accept ICMP:                                 <<<prop_icmpenable>>> / <<<prop_icmpenable_p>>>

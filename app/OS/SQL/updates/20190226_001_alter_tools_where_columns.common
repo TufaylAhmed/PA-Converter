@@ -1,0 +1,2 @@
+UPDATE tools_where_columns SET recursive = 'false' WHERE id = '20';
+UPDATE tools_where_columns SET filter_type = '2' WHERE id = '21';

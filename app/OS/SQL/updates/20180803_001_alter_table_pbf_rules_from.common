@@ -1,0 +1,3 @@
+ALTER TABLE `pbf_rules_from`
+ADD COLUMN `type` varchar(150) NOT NULL AFTER `rule_lid`;
+

@@ -1,0 +1,18 @@
+<svg width="57" height="57" viewBox="0 0 57 57" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<style>
+    .red { font: 20px sans-serif; fill: #5fba7d; }
+</style>
+<text x="16" y="35" class="red">LS</text>
+<g id="Canvas" fill="none">
+<g id="AutoFocus">
+
+<g id="Vector">
+<path d="M 5.04 0L 49.11 0C 51.8935 0 54.15 2.25648 54.15 5.04L 54.15 49.11C 54.15 51.8935 51.8935 54.15 49.11 54.15L 5.04 54.15C 2.25648 54.15 0 51.8935 0 49.11L 0 5.04C 0 2.25648 2.25648 0 5.04 0Z" stroke-width="2" stroke-miterlimit="10" transform="translate(1 1)" stroke="#5fba7d"/>
+</g>
+<g id="Vector_2">
+<path d="M 3.6 -1.52588e-07L 39.72 -1.52588e-07C 41.7082 -1.52588e-07 43.32 1.61178 43.32 3.6L 43.32 39.72C 43.32 41.7082 41.7082 43.32 39.72 43.32L 3.6 43.32C 1.61178 43.32 -1.52588e-07 41.7082 -1.52588e-07 39.72L -1.52588e-07 3.6C -1.52588e-07 1.61178 1.61178 -1.52588e-07 3.6 -1.52588e-07Z" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0.99 2.98" transform="translate(6.41016 6.41016)" stroke="#5fba7d"/>
+</g>
+</g>
+</g>
+</svg>
+

@@ -1,0 +1,34 @@
+DROP TRIGGER IF EXISTS `pandbRBAC`.`update_job`;
+
+DELIMITER $$
+USE `pandbRBAC`$$
+CREATE DEFINER=`root`@`localhost` trigger update_job
+after insert
+ on pandbRBAC.sparkJobs for each row
+begin
+  -- Update the task
+  update pandbRBAC.tasks set statusCode=IF(NEW.status='completed',1,IF(NEW.status='start',0.1,-1)),
+                             statusMessage=NEW.message,
+                             updated_at = NOW()
+  where id=NEW.taskID;
+
+  -- Update the direct Job where the task resides
+  update pandbRBAC.jobs set completed=completed+ IF(NEW.status='completed' OR NEW.status='failed',1,0),
+                            failed=failed+ IF(NEW.status='failed',1,0)
+  where id=(select job_id
+            from pandbRBAC.tasks
+            where id=NEW.taskID);
+
+  -- updating parent job
+  update pandbRBAC.jobs set completed=completed+ IF(NEW.status='completed' OR NEW.status='failed',1,0),
+                            failed=failed+ IF(NEW.status='failed',1,0)
+  where id=
+			(select * from (SELECT parentJob
+             FROM pandbRBAC.jobs
+             WHERE id=
+				(select job_id
+				 from pandbRBAC.tasks
+				 where id=NEW.taskID)
+			 )t);
+end$$
+DELIMITER ;

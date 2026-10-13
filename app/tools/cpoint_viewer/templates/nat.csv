@@ -1,0 +1,7 @@
+------------------------------------------------------------------
+title=TAB.CSV - all NAT rules CSV "," separated
+separator=<SPACE>    
+------------------------------------------------------------------
+"Rule","From","To","Service","transl. From","transl. To","transl. Service","Installed On","Comment"
+<<<<<nat>>>>>"<<<rule>>>","<<<from>>>","<<<to>>>","<<<service>>>","<<<tfrom>>>","<<<tto>>>","<<<tservice>>>","<<<installon>>>","<<<comment>>>"
+

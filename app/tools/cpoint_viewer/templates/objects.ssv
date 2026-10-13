@@ -1,0 +1,6 @@
+------------------------------------------------------------------
+title=OBJECTS.SSV - object definitions semicolon separated
+separator=<SPACE>
+------------------------------------------------------------------
+Name;IP-Address;Location;FW1;Netmask;NAT-Address;NAT-Type;Members;Comment
+<<<<<objects>>>>><<<name>>>;<<<type>>>;<<<location>>>;<<<fw1>>>;<<<ipaddress>>>;<<<netmask>>>;<<<nataddress>>>;<<<nattype>>>;<<<members>>>;<<<comment>>>

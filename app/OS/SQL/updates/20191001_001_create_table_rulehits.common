@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS `security_rules_hits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `security_rules_hits` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `source` int(11) DEFAULT NULL,
+  `vsys` varchar(31) NOT NULL,
+  `rule_name` varchar(255) DEFAULT NULL,
+  `rule_lid` int(11) unsigned NOT NULL,
+  `hit_count` varchar(255) DEFAULT NULL,
+  `hit_last` datetime DEFAULT NULL ,
+  `hit_first` datetime DEFAULT NULL ,
+  `last_reset` datetime DEFAULT NULL ,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

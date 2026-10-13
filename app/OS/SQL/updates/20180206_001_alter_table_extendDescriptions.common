@@ -1,0 +1,5 @@
+ALTER TABLE `address`
+CHANGE COLUMN `description` `description` VARCHAR(1023) NOT NULL ;
+
+ALTER TABLE `interfaces`
+CHANGE COLUMN `comment` `comment` VARCHAR(1023) NOT NULL ;

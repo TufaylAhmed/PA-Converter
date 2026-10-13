@@ -1,0 +1,3 @@
+# Copy to ~/.npmrc (or project .npmrc) for GitHub Packages
+# @panw:registry=https://npm.pkg.github.com
+# //npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT

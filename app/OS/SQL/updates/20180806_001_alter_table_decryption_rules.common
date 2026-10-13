@@ -1,0 +1,5 @@
+ALTER TABLE `decryption_rules`
+ADD COLUMN `target_negate` varchar(3) NOT NULL DEFAULT 'no' AFTER `target`;
+
+ALTER TABLE `decryption_rules`
+ADD COLUMN `log_forwarding` varchar(45) NOT NULL AFTER `profile`;

@@ -1,0 +1,21 @@
+
+**********************************************************************************
+                  Migration Tool  VIRTUAL  APPLIANCE"
+                   			Version 3.1"
+
+ (c)2015 PaloAlto Networks (http://www.paloaltonetworks.com)
+**********************************************************************************
+
+ The virtual appliance IP address are: 
+
+ %INTERFACES% 
+
+ You can access this virtual appliance remotely using a browser via HTTPS:
+
+ Now you can login with username: admin and password: paloalto
+
+ From the cli you can run sudo commands like sudo nmtui, sudo ifconfig, sudo route, 
+ sudo reboot and sudo shutdown.
+
+**********************************************************************************
+

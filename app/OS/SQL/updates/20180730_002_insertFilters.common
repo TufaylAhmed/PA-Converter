@@ -1,0 +1,4 @@
+UPDATE `tools_where` SET `tools_where_columns_id`='1,2,3,66,5,6,7,8,9,10,11,12,13,14,15,81,82,74,84,86,87,88,89,90,91,92,93,94,95,96,106,107,109,110,112,113,115,116,117' WHERE `id`='2';
+UPDATE `tools_where` SET `tools_where_columns_id`='1,2,3,67,68,69,70,71,72,15,19,20,21,81,82,74,84,96,109,110,112,115,117,119,120,121,122,123' WHERE `id`='3';
+UPDATE `tools_where` SET `tools_where_columns_id`='1,15,28,29,30,31,32,74,111,78,79,115,118,84' WHERE `id`='9';
+UPDATE `tools_where` SET `tools_where_columns_id`='1,26,74,75,76,77,78,79,80,84,111,115,118' WHERE `id`='11';

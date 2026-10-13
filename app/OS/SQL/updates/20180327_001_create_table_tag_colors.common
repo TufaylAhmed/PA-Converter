@@ -1,0 +1,58 @@
+-- DROP TABLE IF EXISTS `tag_colors`;
+CREATE TABLE IF NOT EXISTS `tag_colors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `color` varchar(45) NOT NULL,
+  `version` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `tag_colors` WRITE;
+/*!40000 ALTER TABLE `tag_colors` DISABLE KEYS */;
+INSERT INTO tag_colors VALUES
+('1', 'color1', '#CD383F', '6'),
+('2', 'color2', '#72A392', '6'),
+('3', 'color3', '#569BBD', '6'),
+('4', 'color4', '#EBD722', '6'),
+('5', 'color5', '#C27D2A', '6'),
+('6', 'color6', '#FF6A00', '6'),
+('7', 'color7', '#7D3953', '6'),
+('8', 'color8', '#5B6F7B', '6'),
+('9', 'color9', '#C9D6A6', '6'),
+('10', 'color10', '#8AD3DF', '6'),
+('11', 'color11', '#C2D1D3', '6'),
+('12', 'color12', '#80A1B6', '6'),
+('13', 'color13', '#C1D72F', '6'),
+('14', 'color14', '#000000', '6'),
+('15', 'color15', '#FFC425', '6'),
+('16', 'color16', '#918A75', '6'),
+('17', 'color17', '#97a730', '8.1'),
+('19', 'color19', '#c1254a', '8.1'),
+('20', 'color20', '#fd682f', '8.1'),
+('21', 'color21', '#fdad4d', '8.1'),
+('22', 'color22', '#61a678', '8.1'),
+('23', 'color23', '#70dae6', '8.1'),
+('24', 'color24', '#4d98ce', '8.1'),
+('25', 'color25', '#6da2b8', '8.1'),
+('26', 'color26', '#07488a', '8.1'),
+('27', 'color27', '#4773e3', '8.1'),
+('28', 'color28', '#8c91c6', '8.1'),
+('29', 'color29', '#7670c6', '8.1'),
+('30', 'color30', '#6459b5', '8.1'),
+('31', 'color31', '#8e4bb1', '8.1'),
+('32', 'color32', '#d76ebd', '8.1'),
+('33', 'color33', '#d76ebd', '8.1'),
+('34', 'color34', '#e19dd1', '8.1'),
+('35', 'color35', '#eab1d6', '8.1'),
+('36', 'color36', '#fecba7', '8.1'),
+('37', 'color37', '#fd92a5', '8.1'),
+('38', 'color38', '#f457a6', '8.1'),
+('39', 'color39', '#b93784', '8.1'),
+('40', 'color40', '#c8363a', '8.1'),
+('41', 'color41', '#aa6647', '8.1'),
+('42', 'color42', '#b74e4b', '8.1'),
+('43', 'None', '', '8.1'),
+('44', '', '', '8.1');
+/*!40000 ALTER TABLE `tag_colors` ENABLE KEYS */;
+UNLOCK TABLES;
+/* El 18 no existe! */

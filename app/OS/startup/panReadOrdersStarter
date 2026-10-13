@@ -1,0 +1,31 @@
+#!/bin/sh
+# $Id: init,v 1.0 2019/08/01 18:46:45  $
+#
+# Script to start panReadOrders after reboot
+#
+
+### BEGIN INIT INFO
+# Provides:          panReadOrdersStarter
+# Required-Start:    $rabbitmq-server
+# Required-Stop:     $rabbitmq-server
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts panReadOrders agent for Expedition
+# Description: Calls panReadOrders to start an agent that executes
+#  Expedition backend tasks
+### END INIT INFO
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+NAME=panReadOrdersStarter
+DESC="panReadOrders agent started"
+USER=www-data
+
+case "$1" in
+start)
+    sleep 10
+    sudo -u www-data php /var/www/html/console/messaging/readOrders.php >> /home/userSpace/panReadOrders.log &
+    ;;
+stop|restart|reload|force-reload)
+    ;;
+esac
+
+exit 0

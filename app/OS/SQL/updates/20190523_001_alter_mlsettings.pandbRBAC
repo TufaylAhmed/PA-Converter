@@ -1,0 +1,33 @@
+SELECT IFNULL(column_name, '') INTO @colName
+FROM information_schema.columns
+WHERE table_name = 'ml_settings'
+AND column_name = 'tempDataPath';
+
+DELIMITER //
+IF @colName = '' THEN
+    ALTER TABLE `pandbRBAC`.`ml_settings`
+    ADD COLUMN `tempDataPath` VARCHAR(255) NULL DEFAULT '/data' AFTER `parquetPath`,
+    CHANGE COLUMN `parquetPath` `parquetPath` VARCHAR(255) NULL DEFAULT '/data' ;
+END IF //
+DELIMITER ;
+
+CREATE TABLE IF NOT EXISTS `periodicTasks` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `createdBy` int(11) NOT NULL,
+ `processCode` varchar(255) NOT NULL,
+ `params` text NOT NULL,
+ `description` varchar(1024) DEFAULT NULL,
+ `frequency` varchar(45) NOT NULL DEFAULT 'daily',
+ `executionTime` time NOT NULL DEFAULT '00:00:00',
+ `active` tinyint(4) NOT NULL DEFAULT '1',
+ `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+ `pid` int(11) DEFAULT NULL,
+ `started_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+ `completed_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `pandbRBAC`.`devices`
+ADD COLUMN `autoProcessCSV` TINYINT(4) NOT NULL DEFAULT 0 AFTER `afterProcess`;
+

@@ -1,0 +1,16 @@
+ALTER TABLE `default_applications`
+  CHANGE COLUMN `issaas` `is_saas` VARCHAR(3) DEFAULT 'no' ;
+
+ALTER TABLE `default_applications`
+ADD COLUMN `certifications` VARCHAR(3) DEFAULT 'no' AFTER `is_saas`,
+ADD COLUMN `is_fedramp` VARCHAR(3) DEFAULT 'no' AFTER `certifications`,
+ADD COLUMN `is_hipaa` VARCHAR(3) DEFAULT 'no' AFTER `is_fedramp`,
+ADD COLUMN `is_pci` VARCHAR(3) DEFAULT 'no' AFTER `is_hipaa`,
+ADD COLUMN `is_soc1` VARCHAR(3) DEFAULT 'no' AFTER `is_pci`,
+ADD COLUMN `is_soc2` VARCHAR(3) DEFAULT 'no' AFTER `is_soc1`,
+ADD COLUMN `is_ssae16` VARCHAR(3) DEFAULT 'no' AFTER `is_soc2`,
+ADD COLUMN `is_truste` VARCHAR(3) DEFAULT 'no' AFTER `is_ssae16`,
+ADD COLUMN `is_data_breaches` VARCHAR(3) DEFAULT 'no' AFTER `is_truste`,
+ADD COLUMN `is_ip_based_restrictions` VARCHAR(3) DEFAULT 'no' AFTER `is_data_breaches`,
+ADD COLUMN `is_poor_financial_viability` VARCHAR(3) DEFAULT 'no' AFTER `is_ip_based_restrictions`,
+ADD COLUMN `is_poor_terms_of_service` VARCHAR(3) DEFAULT 'no' AFTER `is_poor_financial_viability`;

@@ -1,0 +1,5 @@
+ALTER TABLE `services`
+ADD COLUMN `override` varchar(3) NOT NULL DEFAULT 'no' AFTER `merge_as_primary`,
+ADD COLUMN `timeout` varchar(255) NOT NULL AFTER `override`,
+ADD COLUMN `halfclose_timeout` varchar(255) NOT NULL AFTER `timeout`,
+ADD COLUMN `timewait_timeout` varchar(255) NOT NULL AFTER `halfclose_timeout`;

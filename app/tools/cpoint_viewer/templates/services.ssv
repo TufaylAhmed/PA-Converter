@@ -1,0 +1,7 @@
+------------------------------------------------------------------
+title=SERVICES.SSV - all services semicolon separated
+separator=<SPACE>
+------------------------------------------------------------------
+Name;Type;Destination Port;Source Port (low);Source Port (high);pre-Match;Prolog;Members;Comment
+<<<<<services>>>>><<<name>>>;<<<type>>>;<<<port>>>;<<<sportfrom>>>;<<<sportto>>>;<<<match>>>;<<<prolog>>>;<<<members>>>;<<<comment>>>
+

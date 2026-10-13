@@ -1,0 +1,3 @@
+ALTER TABLE `ML_RuleEnrichment`
+ADD COLUMN `SourcesZones` MEDIUMTEXT NULL AFTER `SourcesRegions`,
+ADD COLUMN `DestinationZones` MEDIUMTEXT NULL AFTER `DestinationRegions`;

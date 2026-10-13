@@ -1,0 +1,19 @@
+------------------------------------------------------------------
+title=OBJECTS.TXT - just the network objects
+separator=<NEWLINE><TAB><TAB>    
+------------------------------------------------------------------
+
+=========================================================
+Network Objects
+=========================================================
+
+<<<<<objects>>>>><<<name>>>
+<<<<<objects>>>>>        Type:        <<<type>>>  (<<<location>>> / <<<fw1>>>)
+<<<<<objects>>>>>        IP-Address:  <<<ipaddress>>>
+<<<<<objects>>>>>        Netmask:     <<<netmask>>>
+<<<<<objects>>>>>        NAT-Address: <<<nataddress>>>
+<<<<<objects>>>>>        NAT-Type:    <<<nattype>>>
+<<<<<objects>>>>>        Members:     <<<members>>>
+<<<<<objects>>>>>        Comment:     <<<comment>>>
+<<<<<objects>>>>>
+

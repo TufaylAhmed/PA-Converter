@@ -1,0 +1,119 @@
+-----------------------------------------------------------------------
+		    Advanced  FW1Rules  USAGE
+-----------------------------------------------------------------------
+
+This file describes combination of FW1Rules input or output to enhance
+or ease an administrator's work. While this may sometimes sound like
+"Success Stories" plugs, that is not intended to be so.
+
+This is mainly a collection of ideas that have proven to work but -
+for whatever reason - did not make it as ready-to-run bundle into the
+CONTRIB directory. For implementation details you are on your own.
+
+Please do not ask me or any of the contributors for any help when
+trying to implement one of these ideas. Else there probably would be a
+running bundle. Exceptions will be explicitally marked.
+
+Well, of course, you can ask - for a price. You probably will have to
+pay the consultants you need if you don't have the manpower or
+know-how at your location to do it on your own. If so, please use the
+official way in, which for me currently is: volker.tanger@discon.de
+
+If you have an idea up and running - and want to share: PLEASE DO!
+Just mail to me: volker.tanger@wyae.de
+
+
+
+-----------------------------------------------------------------------
+Concept:	Convert FW1 to Juniper/Netscreen 
+Applicable:	Juniper/Netscreen Owners
+Reported:	2004  Carlos de Sousa  <fw1.convert@sousa.se>
+-----------------------------------------------------------------------
+
+The FW config es exported to a "generic" format (by fw1rules) which then is
+converted to Juniper / Netscreen FW rules sets. A too vor conversion from/to
+Cisco Pix seems to be underway, too.
+
+
+
+-----------------------------------------------------------------------
+Concept:	Firewall Configuration Revision History
+Applicable:	Any
+Reported:	2002-03-01  Volker Tanger <volker.tanger@wyae.de>
+-----------------------------------------------------------------------
+
+Each night (if needed, even more often) the current configuration is
+dumped into HTML (with date stamp in its filename) and transferred to
+a subdirectory or the admin webserver. If the configuration is the
+same as the last one (DIFF and check on the exit code), the new one is
+erased.
+
+This way you automagically document dates and changes on the firewall
+configuration in easy (read-only) access. Changed parts are not
+specially marked, though.
+
+See CONTRIB directory for the RULESHISTORY.SH script.
+
+
+-----------------------------------------------------------------------
+Concept:	Accessible FW ruleset documentation
+Applicable:	Distributed FW1 installation, Provider-1
+Reported by:	2002-03-31  Daniel Wisniewski  <dw6794@sbc.com>
+-----------------------------------------------------------------------
+
+We have firewalls in 8 U.S. States that we take care of. Many of them
+are managed by a Provider-1 management station. Since there are about
+20 people who may want to see the current rulesets for trouble
+shooting or just to see what access a client has, this is how I
+provided the solution.
+
+1) I wrote a shell script (oh its ugly, hacked, whacked because
+   Checkpoint keeps moving their directories around) to find all
+   working firewalls, then grab the rule file, object files, uniquely
+   name them, encrypt them, and then FTP them to my UNIX box.
+   Provider-1 boxes where another challenge since you need to identify
+   working managers (CMA's) and then loop through each CMA to .. etc..
+   lots' of loops. & only send 1 Object file. So.. this shell script
+   is in cron and runs once or twice an hour.
+
+2) On my Unix box, I have a cron job that runs twice an hour that:
+    a) looks into the receiving directory ( from Step 1) and then;	
+    b) decrypts the files, & assigns variable to pass to your script.
+    c) Your Script then outputs into my /www directory for restricted
+       https: access.
+    d) I use the objects & rule outputs ( tsv format as follows)
+       Change the Tabs to commas, put the Rules into 1 directory,
+       Objects into another ( haven't got to the NAT stuff yet) and
+       use a PHP script to take an input via the www pages to search
+       for an object & see where its used. THIS is what was needed.
+
+
+
+-----------------------------------------------------------------------
+Concept:	extract unused objects from a multi-module Mgmt server
+Applicable:	Management server for multiple filter modules
+Reported:	2002-12-25  Volker Tanger <volker.tanger@wyae.de>
+-----------------------------------------------------------------------
+
+One problem with --dump_unused_objects on management server is that
+you only get the objects not being used in the given *.W file set.
+
+To extract objects not used at all, you can (versions 7.3.21 and up)
+simply concat all (active) *.W files and use the combined file for the
+--dump_unused_objects operation. Rule and NAT rules will of course
+look a bit... wild - and numeration will have offsets, so best delete
+those outputs immediately.
+
+
+-----------------------------------------------------------------------
+Concept:	<short title describing the main point>
+Applicable:	<FW installation/configuration base>
+Reported by:	<date, name and email address>
+-----------------------------------------------------------------------
+Details 
+	- please keep focussed on the big picture
+	- where are the "hairy" parts?
+	- what is critical?
+	- where are possible improvements?
+	- please fo not exceed 4k of text
+-----------------------------------------------------------------------

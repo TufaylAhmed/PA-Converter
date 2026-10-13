@@ -1,0 +1,14 @@
+CREATE TABLE `ML_RuleEnrichment` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `RuleID` varchar(45) NOT NULL,
+  `RuleName` varchar(255) NOT NULL,
+  `Application` mediumtext,
+  `Services` mediumtext,
+  `Sources` mediumtext,
+  `SourcesRegions` mediumtext,
+  `Users` mediumtext,
+  `Destinations` mediumtext,
+  `DestinationRegions` mediumtext,
+  `timestamp` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=latin1;

@@ -1,0 +1,10 @@
+#-----------------------------------------------------------------------
+#			cp2fwbuilder.pl
+#		by Stefan Majer <stefan@x-cellent.de>
+#-----------------------------------------------------------------------
+#
+#  Converts FW1 ruleset into a FWBUILDER configuration file (XML). 
+#  This program was forked from fw1rules version 7.1.0 
+#
+#  Please download from its homepage at SourceForge
+#  (http://cp2fwbuilder.sourceforge.net/).

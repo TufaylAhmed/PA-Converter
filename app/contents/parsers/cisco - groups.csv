@@ -1,0 +1,10 @@
+Name,Members
+domain,"udp_domain, tcp_domain"
+kerberos,"udp_kerberos, tcp_kerberos"
+nfs,"udp_nfs, tcp_nfs"
+pim-auto-rp,"udp_pim-auto-rp, tcp_pim-auto-rp"
+sip,"udp_sip, tcp_sip"
+sunrpc,"udp_sunrpc, tcp_sunrpc"
+tacacs,"udp_tacacs, tcp_tacacs"
+talk,"udp_talk, tcp_talk"
+www,"udp_www, tcp_www"

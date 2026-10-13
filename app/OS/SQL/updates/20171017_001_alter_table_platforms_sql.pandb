@@ -1,0 +1,50 @@
+DROP TABLE IF EXISTS `platforms`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `platforms` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `icon` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `platforms`
+--
+
+LOCK TABLES `platforms` WRITE;
+/*!40000 ALTER TABLE `platforms` DISABLE KEYS */;
+INSERT INTO `platforms` VALUES
+(1,'VM-50','vmseries.png'),
+(2,'VM-100','vmseries.png'),
+(3,'VM-200','vmseries.png'),
+(4,'VM-300','vmseries.png'),
+(5,'VM-500','vmseries.png'),
+(6,'VM-700','vmseries.png'),
+(7,'VM-1000-HV','vmseries.png'),
+(8,'PA-200','pa200.png'),
+(9,'PA-220','pa200.png'),
+(10,'PA-500','pa500.png'),
+(11,'PA-820','pa500.png'),
+(12,'PA-850','pa500.png'),
+(13,'PA-2020','pa2000.png'),
+(14,'PA-2050','pa2000.png'),
+(15,'PA-3020','pa3000.png'),
+(16,'PA-3050','pa3000.png'),
+(17,'PA-3060','pa3000.png'),
+(18,'PA-4020','pa4000.png'),
+(19,'PA-4050','pa4000.png'),
+(20,'PA-4060','pa4000.png'),
+(21,'PA-5020','pa5000.png'),
+(22,'PA-5050','pa5000.png'),
+(23,'PA-5060','pa5000.png'),
+(24,'PA-5220','pa5000.png'),
+(25,'PA-5250','pa5000.png'),
+(26,'PA-5260','pa5000.png'),
+(27,'PA-7050','pa7000.png'),
+(28,'PA-7080','pa7000.png');
+
+
+/*!40000 ALTER TABLE `platforms` ENABLE KEYS */;
+UNLOCK TABLES;

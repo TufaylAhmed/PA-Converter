@@ -1,0 +1,2 @@
+ALTER TABLE `address_groups_id`
+ADD COLUMN `expression` VARCHAR(2048) NULL DEFAULT '' AFTER `merge_as_primary`;

@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS `zones_exclude_list`;
+CREATE TABLE `zones_exclude_list` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `zones_lid` int(11) NOT NULL,
+  `member_lid` int(11) NOT NULL,
+  `table_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`id`),
+  KEY `index1` (`zones_lid`),
+  KEY `index3` (`member_lid`,`table_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -1,0 +1,159 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          LOGCLASSIFIER-client
+# Required-Start:    $kafka $nc
+# Required-Stop:     $kafka $nc
+# Default-Start:     
+# Default-Stop:      0 1 6
+# Description:       trafficEnricher client
+# Short-Description: Daemon to capture Traffic logs and enrich them
+### END INIT INFO
+
+# Source function library.
+#. /etc/init.d/functions
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+NAME=logClassiferd.sh
+DESC=logClassifier-spark
+LOGCLASSIFIER_SCRIPT=/var/www/html/OS/spark/scripts/logClassifier.spark
+DIRECTORY=/home/userSpace/log
+LOGCLASSIFIER_LOG=${DIRECTORY}/logClassifier.log
+PROCESSNAME=com.paloaltonetworks.tbd.LogClassifierApp
+
+cd /home/userSpace
+
+if [ ! -d "$DIRECTORY" ]; then
+  # Control will enter here if $DIRECTORY doesn't exist.
+  mkdir $DIRECTORY
+fi
+
+os_check() {
+    set +e
+
+    uname -v | grep Ubuntu | wc -l > /dev/null 2>&1
+    if [ $? != 1 ] ; then   #Unbuntu OS
+        DAEMON=/bin/bash
+        USER=panML
+    else                    #Red-Hat based OS
+        DAEMON=/bin/bash
+        USER=panML
+    fi
+    set -e
+}
+
+os_check
+
+START_PROG="daemon"
+
+test -x $DAEMON || exit 0
+
+
+RETVAL=0
+set -e
+
+[ -f /etc/default/${NAME} ] && . /etc/default/${NAME}
+
+
+start_LOGCLASSIFIER () {
+    status_LOGCLASSIFIER quiet
+    if [ $RETVAL = 0 ] ; then
+        echo PAN LOGCLASSIFIER is currently running
+    else
+        RETVAL=0
+        set +e
+        DATE=`date`
+        echo "------------------------------------------------------------" >> $LOGCLASSIFIER_LOG
+        echo "$DATE : Starting LOGCLASSIFIER.spark " >> $LOGCLASSIFIER_LOG
+        echo "------------------------------------------------------------" >> $LOGCLASSIFIER_LOG
+        ($DAEMON $LOGCLASSIFIER_SCRIPT >> $LOGCLASSIFIER_LOG &)
+
+        set -e
+        echo SUCCESS
+    fi
+}
+
+stop_LOGCLASSIFIER () {
+    status_LOGCLASSIFIER 
+    if [ $RETVAL = 0 ] ; then
+        set +e
+        DATE=`date`
+        echo "------------------------------------------------------------" >> $LOGCLASSIFIER_LOG
+        echo "$DATE : Stopping LOGCLASSIFIER.spark " >> $LOGCLASSIFIER_LOG
+        echo "------------------------------------------------------------" >> $LOGCLASSIFIER_LOG
+        
+        echo "ps -aux | grep $PROCESSNAME | grep -v grep | awk {'print $2'}"
+        kill -9 `ps -aux | grep $PROCESSNAME | grep -v grep | awk {'print $2'}`
+        set -e
+    else
+        echo PAN LOGCLASSIFIER is not running
+        RETVAL=0
+    fi
+}
+
+status_LOGCLASSIFIER() {
+    set +e
+
+    ps -aux | grep $PROCESSNAME | grep -v grep > /dev/null 2>&1
+    if [ $? != 0 ] ; then
+        echo Not Running
+        RETVAL=3
+    else
+        echo Running with PID
+        ps -aux | grep $PROCESSNAME | grep -v grep | awk {'print $2'}
+    fi
+    set -e
+}
+
+restart_running_LOGCLASSIFIER () {
+    status_LOGCLASSIFIER quiet
+    if [ $RETVAL = 0 ] ; then
+            DATE=`date`
+            echo "------------------------------------------------------------" >> $LOGCLASSIFIER_LOG
+            echo "$DATE : Restarting LOGCLASSIFIER.php " >> $LOGCLASSIFIER_LOG
+            echo "------------------------------------------------------------" >> $LOGCLASSIFIER_LOG
+
+        restart_LOGCLASSIFIER
+    else
+        echo PAN LOGCLASSIFIER is not runnning
+        RETVAL=0
+    fi
+}
+
+restart_LOGCLASSIFIER() {
+    DATE=`date`
+    echo "------------------------------------------------------------" >> $LOGCLASSIFIER_LOG
+    echo "$DATE : Restarting LOGCLASSIFIER.php " >> $LOGCLASSIFIER_LOG
+    echo "------------------------------------------------------------" >> $LOGCLASSIFIER_LOG
+    stop_LOGCLASSIFIER
+    start_LOGCLASSIFIER
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        start_LOGCLASSIFIER
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        stop_LOGCLASSIFIER
+        ;;
+    status)
+        status_LOGCLASSIFIER
+        ;;
+    force-reload|reload|restart)
+        $0 stop
+        sleep 2
+        $0 start
+        ;;
+    try-restart)
+        echo -n "Restarting $DESC: "
+        restart_running_LOGCLASSIFIER
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status|restart|try-restart|reload|force-reload}" >&2
+        RETVAL=1
+        ;;
+esac
+
+exit $RETVAL

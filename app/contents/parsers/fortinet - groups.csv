@@ -1,0 +1,12 @@
+Name,Members
+RTSP,"RTSP_UDP, RTSP_TCP"
+DNS,"DNS_UDP, DNS_TCP"
+SNMP,"SNMP_UDP, SNMP_TCP"
+DCE-RPC,"DCE-RPC_UDP, DCE-RPC_TCP"
+Kerberos,"Kerberos_udp, Kerberos_tcp"
+NTP,"NTP_udp, NTP_tcp"
+H323,"H323_udp, H323_tcp"
+SIP,"SIP_udp, SIP_tcp"
+L2TP,"L2TP_udp, L2TP_tcp"
+NFS,"NFS_udp, NFS_tcp"
+PC-Anywhere,"PC-Anywhere_udp, PC-Anywhere_tcp"

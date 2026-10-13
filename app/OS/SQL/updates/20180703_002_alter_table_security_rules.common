@@ -1,0 +1,3 @@
+ALTER TABLE `security_rules`
+ADD COLUMN `re_users` INT(1) NOT NULL DEFAULT '0' AFTER `re`,
+ADD COLUMN `re_app_default` INT(1) NOT NULL DEFAULT '0' AFTER `re_users`;

@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+    <start>
+        <element name="response">
+            <attribute name="code">
+                <data type="integer"/>
+            </attribute>
+            <attribute name="status">
+                <data type="NCName"/>
+            </attribute>
+            <element name="result">
+                <attribute name="count">
+                    <data type="integer"/>
+                </attribute>
+                <attribute name="total-count">
+                    <data type="integer"/>
+                </attribute>
+                <element name="application">
+                    <oneOrMore>
+                        <ref name="entry"/>
+                    </oneOrMore>
+                </element>
+            </element>
+        </element>
+    </start>
+    <define name="entry">
+        <element name="entry">
+            <optional>
+                <attribute name="id">
+                    <data type="integer"/>
+                </attribute>
+            </optional>
+            <optional>
+                <attribute name="minver">
+                    <data type="NMTOKEN"/>
+                </attribute>
+            </optional>
+            <optional>
+                <attribute name="name">
+                    <data type="anyURI"/>
+                </attribute>
+            </optional>
+            <optional>
+                <attribute name="ori_country"/>
+            </optional>
+            <optional>
+                <attribute name="ori_language"/>
+            </optional>
+            <optional>
+                <element name="ottawa-name">
+                    <data type="NMTOKEN"/>
+                </element>
+            </optional>
+            <optional>
+                <element name="category">
+                    <data type="NCName"/>
+                </element>
+            </optional>
+            <optional>
+                <element name="subcategory">
+                    <data type="NCName"/>
+                </element>
+                <element name="technology">
+                    <data type="NCName"/>
+                </element>
+            </optional>
+            <optional>
+                <element name="icon">
+                    <attribute name="minver">
+                        <data type="NMTOKEN"/>
+                    </attribute>
+                    <data type="anyURI"/>
+                </element>
+            </optional>
+            <optional>
+                <choice>
+                    <element name="analysis">
+                        <oneOrMore>
+                            <choice>
+                                <text/>
+                                <element name="br">
+                                    <empty/>
+                                </element>
+                            </choice>
+                        </oneOrMore>
+                    </element>
+                    <element name="ident-by-sport">
+                        <data type="NCName"/>
+                    </element>
+                </choice>
+            </optional>
+            <optional>
+                <element name="ident-by-dport">
+                    <data type="NCName"/>
+                </element>
+            </optional>
+            <zeroOrMore>
+                <choice>
+                    <element name="able-to-transfer-file">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="alg-disable-capability">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="breaks-decryption">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="can-disable">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="child">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="consume-big-bandwidth">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="ctd-restart">
+                        <data type="integer"/>
+                    </element>
+                    <element name="data-ident">
+                        <optional>
+                            <attribute name="minver">
+                                <data type="NMTOKEN"/>
+                            </attribute>
+                        </optional>
+                        <data type="NCName"/>
+                    </element>
+                    <element name="decode">
+                        <optional>
+                            <attribute name="minver">
+                                <data type="NMTOKEN"/>
+                            </attribute>
+                        </optional>
+                        <data type="NCName"/>
+                    </element>
+                    <element name="default">
+                        <optional>
+                            <choice>
+                                <element name="ident-by-icmp-type">
+                                    <attribute name="minver">
+                                        <data type="NMTOKEN"/>
+                                    </attribute>
+                                    <element name="type">
+                                        <data type="integer"/>
+                                    </element>
+                                </element>
+                                <element name="ident-by-ip-protocol">
+                                    <data type="NMTOKEN"/>
+                                </element>
+                                <element name="port">
+                                    <oneOrMore>
+                                        <ref name="member"/>
+                                    </oneOrMore>
+                                </element>
+                            </choice>
+                        </optional>
+                    </element>
+                    <element name="deprecated">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="discard-timeout">
+                        <data type="integer"/>
+                    </element>
+                    <element name="doc-review">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="enable-url-filter">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="evasive-behavior">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="file-forward">
+                        <optional>
+                            <attribute name="minver">
+                                <data type="NMTOKEN"/>
+                            </attribute>
+                        </optional>
+                        <data type="NCName"/>
+                    </element>
+                    <element name="file-type-ident">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="ha-safe">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="has-known-vulnerability">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="implicit-use-applications">
+                        <oneOrMore>
+                            <ref name="member"/>
+                        </oneOrMore>
+                    </element>
+                    <element name="is-saas">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="netx-vmotion">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="new-appid">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="not-support-ssl">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="obsolete">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="pervasive-use">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="preemptive">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="prone-to-misuse">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="references">
+                        <zeroOrMore>
+                            <ref name="entry"/>
+                        </zeroOrMore>
+                    </element>
+                    <element name="related-applications">
+                        <ref name="member"/>
+                    </element>
+                    <element name="risk">
+                        <data type="integer"/>
+                    </element>
+                    <element name="saas">
+                        <attribute name="minver">
+                            <data type="NMTOKEN"/>
+                        </attribute>
+                        <optional>
+                            <element name="certifications">
+                                <optional>
+                                    <element name="is-fedramp">
+                                        <data type="NCName"/>
+                                    </element>
+                                </optional>
+                                <optional>
+                                    <element name="is-hipaa">
+                                        <data type="NCName"/>
+                                    </element>
+                                </optional>
+                                <optional>
+                                    <element name="is-pci">
+                                        <data type="NCName"/>
+                                    </element>
+                                </optional>
+                                <optional>
+                                    <element name="is-soc1">
+                                        <data type="NCName"/>
+                                    </element>
+                                </optional>
+                                <optional>
+                                    <element name="is-soc2">
+                                        <data type="NCName"/>
+                                    </element>
+                                </optional>
+                                <optional>
+                                    <element name="is-ssae16">
+                                        <data type="NCName"/>
+                                    </element>
+                                </optional>
+                                <optional>
+                                    <element name="is-truste">
+                                        <data type="NCName"/>
+                                    </element>
+                                </optional>
+                            </element>
+                        </optional>
+                        <zeroOrMore>
+                            <choice>
+                                <element name="is-data-breaches">
+                                    <data type="NCName"/>
+                                </element>
+                                <element name="is-ip-based-restrictions">
+                                    <data type="NCName"/>
+                                </element>
+                                <element name="is-poor-financial-viability">
+                                    <data type="NCName"/>
+                                </element>
+                                <element name="is-poor-terms-of-service">
+                                    <data type="NCName"/>
+                                </element>
+                            </choice>
+                        </zeroOrMore>
+                    </element>
+                    <element name="tcp-discard-timeout">
+                        <data type="integer"/>
+                    </element>
+                    <element name="tcp-timeout">
+                        <data type="integer"/>
+                    </element>
+                    <element name="timeout">
+                        <data type="integer"/>
+                    </element>
+                    <element name="trusted-credential">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="tunnel-applications">
+                        <optional>
+                            <attribute name="minver">
+                                <data type="NMTOKEN"/>
+                            </attribute>
+                        </optional>
+                        <oneOrMore>
+                            <ref name="member"/>
+                        </oneOrMore>
+                    </element>
+                    <element name="tunnel-other-application">
+                        <optional>
+                            <attribute name="minver">
+                                <data type="NMTOKEN"/>
+                            </attribute>
+                        </optional>
+                        <data type="NCName"/>
+                    </element>
+                    <element name="udp-discard-timeout">
+                        <data type="integer"/>
+                    </element>
+                    <element name="udp-timeout">
+                        <data type="integer"/>
+                    </element>
+                    <element name="use-applications">
+                        <optional>
+                            <attribute name="minver">
+                                <data type="NMTOKEN"/>
+                            </attribute>
+                        </optional>
+                        <oneOrMore>
+                            <ref name="member"/>
+                        </oneOrMore>
+                    </element>
+                    <element name="used-by-malware">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="video-type">
+                        <data type="NCName"/>
+                    </element>
+                    <element name="virus-ident">
+                        <data type="NCName"/>
+                    </element>
+                </choice>
+            </zeroOrMore>
+            <optional>
+                <choice>
+                    <element name="application-container">
+                        <data type="NMTOKEN"/>
+                    </element>
+                    <element name="link">
+                        <data type="anyURI"/>
+                    </element>
+                    <group>
+                        <element name="correlate">
+                            <element name="rule-match">
+                                <data type="NCName"/>
+                            </element>
+                            <ref name="interval"/>
+                            <element name="key-by">
+                                <ref name="member"/>
+                            </element>
+                            <element name="rules">
+                                <ref name="entry"/>
+                            </element>
+                        </element>
+                        <element name="protocol">
+                            <data type="NCName"/>
+                        </element>
+                        <ref name="interval"/>
+                        <element name="threshold">
+                            <data type="integer"/>
+                        </element>
+                        <element name="track-by">
+                            <ref name="member"/>
+                        </element>
+                    </group>
+                </choice>
+            </optional>
+        </element>
+    </define>
+    <define name="member">
+        <element name="member">
+            <optional>
+                <attribute name="minver">
+                    <data type="NMTOKEN"/>
+                </attribute>
+            </optional>
+            <text/>
+        </element>
+    </define>
+    <define name="interval">
+        <element name="interval">
+            <data type="integer"/>
+        </element>
+    </define>
+</grammar>

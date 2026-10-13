@@ -1,0 +1,2 @@
+ALTER TABLE `connectors`
+ADD COLUMN `top` varchar(45) NOT NULL DEFAULT '500' AFTER `serial`;

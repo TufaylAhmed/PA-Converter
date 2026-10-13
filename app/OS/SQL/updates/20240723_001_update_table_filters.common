@@ -1,0 +1,2 @@
+ALTER TABLE `applications_filters` ADD COLUMN `tagging` VARCHAR(250) NULL AFTER `used`;
+

@@ -1,0 +1,21 @@
+clear
+IPADDRESS=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{print $1}'`
+
+echo "*******************************************************************"
+echo "                  Migration Tool  VIRTUAL  APPLIANCE"
+echo "                   			Version 3.1"
+echo ""
+echo " (c)2015 PaloAlto Networks (http://www.paloaltonetworks.com)"
+echo "*******************************************************************"
+echo ""
+echo "- The virtual appliance IP address is: $IPADDRESS" 
+echo ""
+echo "- You can access this virtual appliance remotely using a browser via HTTPS:"
+echo ""
+echo "- Now you can login with username: admin and password: paloalto"
+echo ""
+echo "- From the cli you can run sudo commands like sudo nmtui, sudo ifconfig, sudo reboot and sudo shutdown."
+echo ""
+echo "*******************************************************************"
+echo ""
+echo ""

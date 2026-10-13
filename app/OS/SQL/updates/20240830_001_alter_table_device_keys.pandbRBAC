@@ -1,0 +1,2 @@
+ALTER TABLE `pandbRBAC`.`device_keys`
+CHANGE COLUMN `api_key` `api_key` VARCHAR(1024) NOT NULL ;

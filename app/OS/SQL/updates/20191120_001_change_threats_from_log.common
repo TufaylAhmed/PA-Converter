@@ -1,0 +1,20 @@
+DROP TABLE IF EXISTS `threats_from_log`;
+CREATE TABLE `threats_from_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app` varchar(255) NOT NULL,
+  `threatid` varchar(255) NOT NULL,
+  `action` varchar(255) NOT NULL,
+  `tid` bigint(20) NOT NULL,
+  `category_of_threatid` varchar(255) NOT NULL,
+  `source` int(11) NOT NULL,
+  `count` int(11) NOT NULL,
+  `rule_lid` int(11) NOT NULL,
+  `vsys` varchar(31) NOT NULL DEFAULT 'vsys1',
+  `subtype` varchar(255) NOT NULL DEFAULT '',
+  `severity_of_threatid` varchar(255) NOT NULL DEFAULT '',
+  `date_retrieve` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `index1` (`rule_lid`),
+  KEY `index2` (`source`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

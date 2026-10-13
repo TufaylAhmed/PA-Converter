@@ -1,0 +1,9 @@
+#!/bin/sh
+
+time ./fw1rules.pl --verbose --debug --with_ip --show_members\
+	--with_implicit_rules \
+	--output_html=configuration.html \
+	--template=templates/fullconfig.txt \
+	--output=configuration.txt
+
+
