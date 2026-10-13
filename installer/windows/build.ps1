@@ -19,14 +19,16 @@ Write-Host "Building PA-Converter $Version MSI…" -ForegroundColor Cyan
 # Keep payload script version in sync
 $configure = Join-Path $PSScriptRoot "payload\Configure-PAConverter.ps1"
 if (Test-Path $configure) {
-  (Get-Content $configure -Raw) -replace 'Version = "[\d.]+"', "Version = `"$Version`"" |
-    Set-Content $configure -Encoding utf8 -NoNewline
+  $c = Get-Content $configure -Raw
+  $c = $c -replace 'Version = "[\d.]+"', "Version = `"$Version`""
+  Set-Content -Path $configure -Value $c -Encoding utf8
 }
 
 # Patch Package.wxs version define
 $wxs = Join-Path $PSScriptRoot "Package.wxs"
-(Get-Content $wxs -Raw) -replace 'ProductVersion = "[\d.]+"', "ProductVersion = `"$Version`"" |
-  Set-Content $wxs -Encoding utf8 -NoNewline
+$w = Get-Content $wxs -Raw
+$w = $w -replace 'ProductVersion = "[\d.]+"', "ProductVersion = `"$Version`""
+Set-Content -Path $wxs -Value $w -Encoding utf8
 
 if (-not (Get-Command wix -ErrorAction SilentlyContinue)) {
   Write-Host "Installing WiX CLI (dotnet tool)…" -ForegroundColor Yellow
@@ -39,24 +41,28 @@ if (-not (Get-Command wix -ErrorAction SilentlyContinue)) {
   throw "WiX CLI not found. Install .NET SDK, then: dotnet tool install --global wix"
 }
 
-# UI extension
-$extDir = Join-Path $PSScriptRoot ".wixext"
-New-Item -ItemType Directory -Force -Path $extDir | Out-Null
-Push-Location $PSScriptRoot
-try {
-  wix extension add WixToolset.UI.wixext/4.0.5 --quiet 2>$null
-} catch { }
+Write-Host "Ensuring WiX UI extension…" -ForegroundColor DarkGray
+# Cache extensions under the installer folder so CI is reproducible
+$env:WIX_EXTENSIONS_CACHE = Join-Path $PSScriptRoot ".wixext"
+New-Item -ItemType Directory -Force -Path $env:WIX_EXTENSIONS_CACHE | Out-Null
+
+# wix extension add downloads to the user cache; -ext name resolves from there
+& wix extension add "WixToolset.UI.wixext/4.0.5"
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Extension add returned $LASTEXITCODE (may already be installed) — continuing" -ForegroundColor Yellow
+}
 
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 $msi = Join-Path $OutDir "PA-Converter-$Version.msi"
 
-wix build .\Package.wxs `
+Write-Host "Running wix build…" -ForegroundColor DarkGray
+& wix build .\Package.wxs `
   -ext WixToolset.UI.wixext `
   -arch x64 `
   -out $msi
 
 if (-not (Test-Path $msi)) {
-  throw "MSI was not produced."
+  throw "MSI was not produced at $msi"
 }
 
 Write-Host ""
