@@ -187,7 +187,10 @@ GitHub Packages:
   npm publish --registry=https://npm.pkg.github.com
 
 Install / run:
-  npx @tufaylahmed/pa-converter@5.45.5 start
+  npx @tufaylahmed/pa-converter@5.45.6 start
+
+Windows MSI:
+  installer\\windows\\build.ps1   →  dist\\PA-Converter-5.45.6.msi
 
 Windows bootstrap:
   powershell -ExecutionPolicy Bypass -File scripts/install-windows.ps1

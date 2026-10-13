@@ -9,3 +9,7 @@ tests/artifacts/
 *.swp
 .idea/
 .vscode/
+installer/windows/dist/
+installer/windows/.wixext/
+*.msi
+*.wixpdb

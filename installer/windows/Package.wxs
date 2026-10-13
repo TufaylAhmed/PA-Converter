@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  WiX v4 package for PA-Converter (Windows .msi).
+  Build:  powershell -ExecutionPolicy Bypass -File build.ps1
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <?define ProductName = "PA-Converter" ?>
+  <?define ProductVersion = "5.45.6" ?>
+  <?define Manufacturer = "Tufail Ahmed Sheikh" ?>
+  <?define UpgradeCode = "8F3E2A1B-4C5D-6E7F-8091-A2B3C4D5E6F7" ?>
+
+  <Package
+      Name="$(var.ProductName)"
+      Manufacturer="$(var.Manufacturer)"
+      Version="$(var.ProductVersion)"
+      UpgradeCode="$(var.UpgradeCode)"
+      Scope="perMachine"
+      Language="1033">
+
+    <SummaryInformation
+        Description="PA-Converter — Dockerized Palo Alto Expedition for Windows"
+        Manufacturer="$(var.Manufacturer)" />
+
+    <MajorUpgrade
+        DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+        Schedule="afterInstallInitialize" />
+
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Feature Id="Main" Title="$(var.ProductName)" Level="1" ConfigurableDirectory="INSTALLFOLDER">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="AddToPath" />
+    </Feature>
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+              Value="Configure GitHub auth and install the package now" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+
+    <!-- Launch Configure-PAConverter.cmd when Finish is clicked (if checkbox set) -->
+    <CustomAction
+        Id="StartConfigure"
+        Directory="INSTALLFOLDER"
+        ExeCommand="cmd.exe /c Configure-PAConverter.cmd"
+        Execute="immediate"
+        Impersonate="yes"
+        Return="asyncNoWait" />
+
+    <UI>
+      <Publish
+          Dialog="ExitDialog"
+          Control="Finish"
+          Event="DoAction"
+          Value="StartConfigure"
+          Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="PA-Converter" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ProgramMenuDir" Name="PA-Converter" />
+    </StandardDirectory>
+
+  </Package>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="Cmp_PaConverterCmd" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678901">
+        <File Id="PaConverterCmd" Source="payload\pa-converter.cmd" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_Start" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678902">
+        <File Id="StartCmd" Source="payload\Start-PAConverter.cmd" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_Stop" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678903">
+        <File Id="StopCmd" Source="payload\Stop-PAConverter.cmd" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_Status" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678904">
+        <File Id="StatusCmd" Source="payload\Status-PAConverter.cmd" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_ConfigureCmd" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678905">
+        <File Id="ConfigureCmd" Source="payload\Configure-PAConverter.cmd" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_ConfigurePs1" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678906">
+        <File Id="ConfigurePs1" Source="payload\Configure-PAConverter.ps1" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_Readme" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678907">
+        <File Id="ReadmeTxt" Source="payload\README.txt" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="ApplicationShortcut" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678910" Directory="ProgramMenuDir">
+      <Shortcut Id="ScConfigure"
+                Name="1. Configure PA-Converter"
+                Description="Set GitHub Packages auth and install the npm package"
+                Target="[INSTALLFOLDER]Configure-PAConverter.cmd"
+                WorkingDirectory="INSTALLFOLDER" />
+      <Shortcut Id="ScStart"
+                Name="2. Start PA-Converter"
+                Description="Start Expedition Docker stack"
+                Target="[INSTALLFOLDER]Start-PAConverter.cmd"
+                WorkingDirectory="INSTALLFOLDER" />
+      <Shortcut Id="ScStatus"
+                Name="Status"
+                Target="[INSTALLFOLDER]Status-PAConverter.cmd"
+                WorkingDirectory="INSTALLFOLDER" />
+      <Shortcut Id="ScStop"
+                Name="Stop PA-Converter"
+                Target="[INSTALLFOLDER]Stop-PAConverter.cmd"
+                WorkingDirectory="INSTALLFOLDER" />
+      <Shortcut Id="ScReadme"
+                Name="README"
+                Target="[INSTALLFOLDER]README.txt"
+                WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="RemoveProgramMenuDir" On="uninstall" />
+      <RegistryValue Root="HKCU"
+                     Key="Software\PA-Converter"
+                     Name="installed"
+                     Type="integer"
+                     Value="1"
+                     KeyPath="yes" />
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="AddToPath" Guid="B1C2D3E4-F5A6-7890-BCDE-F12345678920" Directory="INSTALLFOLDER">
+      <Environment Id="PATH"
+                   Name="PATH"
+                   Value="[INSTALLFOLDER]"
+                   Permanent="no"
+                   Part="last"
+                   Action="set"
+                   System="yes" />
+      <RegistryValue Root="HKLM"
+                     Key="Software\PA-Converter"
+                     Name="InstallDir"
+                     Type="string"
+                     Value="[INSTALLFOLDER]"
+                     KeyPath="yes" />
+    </Component>
+  </Fragment>
+
+</Wix>

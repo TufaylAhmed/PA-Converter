@@ -4,7 +4,7 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.45.5-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.45.6-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![License](https://img.shields.io/badge/License-Private-red?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Platform](https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
@@ -74,7 +74,7 @@ PAT scopes: `read:packages` (and `repo` if needed for the private GitHub repo).
 # 1) One-time auth (see ~/.npmrc above)
 
 # 2) Start Docker Desktop, then:
-npx @tufaylahmed/pa-converter@5.45.5 start
+npx @tufaylahmed/pa-converter@5.45.6 start
 
 # Day-to-day:
 npx @tufaylahmed/pa-converter status
@@ -87,39 +87,45 @@ First `start` builds the web image (several minutes). Then open **https://localh
 Optional global install:
 
 ```bash
-npm install -g @tufaylahmed/pa-converter@5.45.5 --registry=https://npm.pkg.github.com
+npm install -g @tufaylahmed/pa-converter@5.45.6 --registry=https://npm.pkg.github.com
 pa-converter start
 ```
 
 ---
 
-### 🪟 Windows — installer (recommended) or npx
+### 🪟 Windows — `.msi` installer (recommended)
 
-**Option A — PowerShell installer** (checks Node/Docker, configures npm auth, installs globally):
+1. Install [Node.js 18+](https://nodejs.org/) and [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/) (WSL2).
+2. Download **`PA-Converter-5.45.6.msi`** from [GitHub Releases](https://github.com/TufaylAhmed/PA-Converter/releases) (or build it — see `installer/windows/README.md`).
+3. Run the MSI → leave **Configure GitHub auth…** checked on Finish (paste a PAT with `read:packages`).
+4. Start Menu → **PA-Converter** → **2. Start PA-Converter**.
+5. Open https://localhost:18443 → `admin` / `paloalto`.
+
+Build the MSI on Windows (or CI):
 
 ```powershell
-# From a git clone:
+cd installer\windows
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.45.6
+# → dist\PA-Converter-5.45.6.msi
+```
+
+**PowerShell bootstrap** (no MSI):
+
+```powershell
 git clone https://github.com/TufaylAhmed/PA-Converter.git
 cd PA-Converter
 powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Start
 ```
 
-Or with a token in the environment:
+**npx** (after `%USERPROFILE%\.npmrc` is set):
 
 ```powershell
-$env:GITHUB_TOKEN = "ghp_your_token"
-powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Start
-```
-
-**Option B — npx (same as macOS)** after `\.npmrc` is set:
-
-```powershell
-npx @tufaylahmed/pa-converter@5.45.5 start
+npx @tufaylahmed/pa-converter@5.45.6 start
 npx @tufaylahmed/pa-converter status
 npx @tufaylahmed/pa-converter stop
 ```
 
-> There is no separate `.msi` yet — Docker Desktop is the heavy dependency, so the PowerShell bootstrap is the practical “installer.” A real MSI would still require Docker.
+> The MSI is a thin launcher layer. Docker Desktop is still required for the Expedition stack.
 
 ---
 

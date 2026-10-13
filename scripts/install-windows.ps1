@@ -15,7 +15,7 @@
 [CmdletBinding()]
 param(
   [string]$Token = $env:GITHUB_TOKEN,
-  [string]$Version = "5.45.5",
+  [string]$Version = "5.45.6",
   [switch]$Start,
   [switch]$SkipInstall
 )
