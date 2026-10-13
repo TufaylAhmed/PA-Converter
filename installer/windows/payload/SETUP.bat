@@ -5,19 +5,31 @@ cd /d "%~dp0"
 echo.
 echo  PA-Converter Setup
 echo  ------------------
-echo  This window will request Administrator access.
 echo.
 
-REM Always launch PowerShell elevated with ExecutionPolicy Bypass
+if not exist "%~dp0engine.zip" (
+  echo ERROR: engine.zip not found next to SETUP.bat
+  echo.
+  echo Extract the portable ZIP to a folder first, then run SETUP.bat
+  echo from that folder. Do not run from inside the .zip window.
+  echo.
+  echo Looking in: %~dp0
+  pause
+  exit /b 1
+)
+
+echo Found engine.zip — starting setup (Administrator prompt next^)...
+echo.
+
 powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
-  "Start-Process -FilePath 'powershell.exe' -Verb RunAs -Wait -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File \"\"%~dp0Bootstrap-PAConverter.ps1\"\"'"
+  "Start-Process -FilePath 'powershell.exe' -Verb RunAs -Wait -WorkingDirectory '%~dp0' -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File \"\"%~dp0Bootstrap-PAConverter.ps1\"\"'"
 
 if errorlevel 1 (
   echo.
   echo Setup reported an error.
-  echo Log folder: %ProgramData%\PA-Converter\logs
+  echo Log: %ProgramData%\PA-Converter\logs\setup.log
   echo.
-  notepad "%ProgramData%\PA-Converter\logs\setup.log" 2>nul
+  if exist "%ProgramData%\PA-Converter\logs\setup.log" notepad "%ProgramData%\PA-Converter\logs\setup.log"
   pause
   exit /b 1
 )
