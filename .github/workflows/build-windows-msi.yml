@@ -34,7 +34,7 @@ jobs:
         id: ver
         shell: pwsh
         run: |
-          $v = "5.46.0"
+          $v = "5.46.1"
           if ($env:GITHUB_REF_TYPE -eq "tag") {
             $v = $env:GITHUB_REF_NAME.TrimStart("v")
           }
@@ -52,26 +52,42 @@ jobs:
           Set-Location installer/windows
           ./build.ps1 -Version "${{ steps.ver.outputs.version }}"
 
-      - name: Upload MSI artifact
+      - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: PA-Converter-msi
-          path: installer/windows/dist/*.msi
+          name: PA-Converter-windows
+          path: |
+            installer/windows/dist/*.msi
+            installer/windows/dist/*-portable.zip
 
-      - name: Attach MSI to GitHub Release
+      - name: Attach installers to GitHub Release
         if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: installer/windows/dist/*.msi
+          files: |
+            installer/windows/dist/*.msi
+            installer/windows/dist/*-portable.zip
           tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
           name: PA-Converter ${{ steps.ver.outputs.version }}
           body: |
-            ## Self-contained Windows installer
-            1. Run `PA-Converter-${{ steps.ver.outputs.version }}.msi`
-            2. Allow UAC / finish setup (enables WSL; may reboot once)
-            3. Open https://localhost:18443 → `admin` / `paloalto`
+            ## Windows install (self-contained)
 
-            No Docker Desktop, Node.js, or GitHub token required.
+            **You must be logged into GitHub** to download (private repo). Expected MSI size is ~50MB+.
+            If the file is only a few KB, the download failed (HTML error page) — re-download while signed in.
+
+            ### Option A — MSI
+            1. Download `PA-Converter-${{ steps.ver.outputs.version }}.msi`
+            2. Right-click → **Properties** → check **Unblock** if shown → OK
+            3. Double-click (or: `msiexec /i PA-Converter-${{ steps.ver.outputs.version }}.msi`)
+            4. Allow UAC; leave Finish setup checked (may reboot once for WSL)
+
+            ### Option B — Portable ZIP (if MSI will not open)
+            1. Download `PA-Converter-${{ steps.ver.outputs.version }}-portable.zip`
+            2. Extract → right-click `Install.cmd` → **Run as administrator**
+
+            Then open https://localhost:18443 → `admin` / `paloalto`
+
+            No Docker Desktop, Node.js, or GitHub token required on the PC.
           draft: false
           generate_release_notes: true
         env:

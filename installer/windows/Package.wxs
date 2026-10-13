@@ -8,7 +8,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
   <?define ProductName = "PA-Converter" ?>
-  <?define ProductVersion = "5.46.0" ?>
+  <?define ProductVersion = "5.46.1" ?>
   <?define Manufacturer = "Tufail Ahmed Sheikh" ?>
   <?define UpgradeCode = "8F3E2A1B-4C5D-6E7F-8091-A2B3C4D5E6F7" ?>
 
@@ -20,8 +20,9 @@
       Scope="perMachine"
       Language="1033">
 
+    <!-- ASCII-only summary: Unicode dashes break CP1252 MSI summary on some PCs -->
     <SummaryInformation
-        Description="PA-Converter — self-contained Expedition appliance for Windows (WSL2)"
+        Description="PA-Converter - self-contained Expedition appliance for Windows (WSL2)"
         Manufacturer="$(var.Manufacturer)" />
 
     <MajorUpgrade
