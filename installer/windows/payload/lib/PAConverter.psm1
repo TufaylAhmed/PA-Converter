@@ -105,19 +105,90 @@ function Install-PAWslKernel {
   try { & wsl.exe --set-default-version 2 2>&1 | Out-Null } catch {}
 }
 
+function ConvertFrom-PAWslText {
+  param([object]$Raw)
+  # wsl.exe writes UTF-16LE; PowerShell often turns it into null-padded ASCII ("U b u n t u")
+  if ($null -eq $Raw) { return "" }
+  $s = if ($Raw -is [Array]) { ($Raw | ForEach-Object { "$_" }) -join "`n" } else { [string]$Raw }
+  $s = $s -replace "`0", ""
+  # Collapse "U b u n t u" style spacing between letters
+  if ($s -match '(\w ){3,}\w') {
+    $s = [regex]::Replace($s, '(?<=\S) (?=\S)', '')
+  }
+  return $s
+}
+
+function Invoke-PAWslExe {
+  param([Parameter(ValueFromRemainingArguments = $true)][string[]]$WslArgs)
+  $prev = [Console]::OutputEncoding
+  try {
+    [Console]::OutputEncoding = [System.Text.Encoding]::Unicode
+    $out = & wsl.exe @WslArgs 2>&1
+    $code = $LASTEXITCODE
+    $text = ConvertFrom-PAWslText $out
+    return [pscustomobject]@{ ExitCode = $code; Text = $text; Raw = $out }
+  } finally {
+    [Console]::OutputEncoding = $prev
+  }
+}
+
 function Get-PAWslDistroNames {
   $names = @()
-  $raw = & wsl.exe -l -q 2>$null
-  if (-not $raw) { return $names }
-  foreach ($line in @($raw)) {
-    $n = (($line -replace "`0", "") -replace "[^\x20-\x7E]", "").Trim()
-    if ($n) { $names += $n }
+  # --utf8 is available on recent WSL; also decode UTF-16 safely
+  $r = Invoke-PAWslExe -WslArgs @("-l", "-q")
+  $text = $r.Text
+  if (-not $text) {
+    # Fallback: read bytes via cmd redirection
+    $tmp = Join-Path $env:TEMP "pa-wsl-list.txt"
+    cmd.exe /c "wsl -l -q > `"$tmp`" 2>nul"
+    if (Test-Path $tmp) {
+      $bytes = [IO.File]::ReadAllBytes($tmp)
+      if ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) {
+        $text = [Text.Encoding]::Unicode.GetString($bytes)
+      } else {
+        $text = [Text.Encoding]::UTF8.GetString($bytes)
+      }
+      $text = ConvertFrom-PAWslText $text
+    }
   }
+  foreach ($line in ($text -split "(`r`n|`n|`r)")) {
+    $n = $line.Trim()
+    if (-not $n) { continue }
+    if ($n -match '^(Windows Subsystem|Subsistema|docker-desktop)') { continue }
+    $names += $n
+  }
+  Write-PALog ("WSL distros detected: " + ($(if ($names.Count) { $names -join ", " } else { "(none)" })))
   return $names
 }
 
 function Test-PADistroExists {
-  return (Get-PAWslDistroNames) -contains $script:DistroName
+  $names = Get-PAWslDistroNames
+  return ($names -contains $script:DistroName)
+}
+
+function Set-PAActiveDistro {
+  param([string]$InstallRoot, [string]$Name)
+  $script:DistroName = $Name
+  Set-Content -Path (Join-Path $InstallRoot "distro-name.txt") -Value $Name -Encoding ascii
+  Write-PALog "Active WSL distro set to '$Name'"
+}
+
+function Find-PAUsableDistro {
+  param([string]$InstallRoot)
+  $names = Get-PAWslDistroNames
+  foreach ($candidate in @("PA-Converter", "Ubuntu-22.04", "Ubuntu-24.04", "Ubuntu", "Ubuntu-20.04")) {
+    if ($names -contains $candidate) {
+      Set-PAActiveDistro -InstallRoot $InstallRoot -Name $candidate
+      return $candidate
+    }
+  }
+  # Any Ubuntu* distro
+  $ubuntu = $names | Where-Object { $_ -like "Ubuntu*" } | Select-Object -First 1
+  if ($ubuntu) {
+    Set-PAActiveDistro -InstallRoot $InstallRoot -Name $ubuntu
+    return $ubuntu
+  }
+  return $null
 }
 
 function Get-PARootfsUrl {
@@ -126,6 +197,16 @@ function Get-PARootfsUrl {
     return "https://cloud-images.ubuntu.com/wsl/releases/22.04/current/ubuntu-jammy-wsl-arm64-wsl.rootfs.tar.gz"
   }
   return "https://cloud-images.ubuntu.com/wsl/releases/22.04/current/ubuntu-jammy-wsl-amd64-wsl.rootfs.tar.gz"
+}
+
+function Test-PAGzipFile {
+  param([string]$Path)
+  if (-not (Test-Path $Path)) { return $false }
+  $fs = [IO.File]::OpenRead($Path)
+  try {
+    $b0 = $fs.ReadByte(); $b1 = $fs.ReadByte()
+    return ($b0 -eq 0x1F -and $b1 -eq 0x8B)
+  } finally { $fs.Close() }
 }
 
 function Save-PAWebFile {
@@ -137,60 +218,113 @@ function Save-PAWebFile {
   New-Item -ItemType Directory -Force -Path $parent | Out-Null
   if (Test-Path $OutFile) { Remove-Item $OutFile -Force }
 
-  # Prefer BITS for large files; fall back to Invoke-WebRequest
   try {
     Start-BitsTransfer -Source $Url -Destination $OutFile -ErrorAction Stop
   } catch {
-    Write-PALog "BITS failed ($_); using Invoke-WebRequest..." "WARN"
-    Invoke-WebRequest -Uri $Url -OutFile $OutFile -UseBasicParsing
+    Write-PALog "BITS failed ($_); using curl.exe / Invoke-WebRequest..." "WARN"
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+      & curl.exe -L --fail --retry 3 -o $OutFile $Url
+      if ($LASTEXITCODE -ne 0) { throw "curl download failed ($LASTEXITCODE)" }
+    } else {
+      Invoke-WebRequest -Uri $Url -OutFile $OutFile -UseBasicParsing
+    }
   }
 
-  if (-not (Test-Path $OutFile) -or ((Get-Item $OutFile).Length -lt 1MB)) {
+  if (-not (Test-Path $OutFile) -or ((Get-Item $OutFile).Length -lt 10MB)) {
     throw "Download failed or file too small: $OutFile"
   }
-  Write-PALog ("Download OK ({0:N1} MB)" -f ((Get-Item $OutFile).Length / 1MB))
+  if (-not (Test-PAGzipFile $OutFile)) {
+    throw "Downloaded file is not a gzip rootfs (got HTML/error page?). Delete cache and retry: $OutFile"
+  }
+  Write-PALog ("Download OK ({0:N1} MB, gzip verified)" -f ((Get-Item $OutFile).Length / 1MB))
 }
 
 function Install-PADistro {
   param([string]$InstallRoot)
 
-  if (Test-PADistroExists) {
-    Write-PALog "WSL distro '$script:DistroName' already exists."
+  # Already have something usable?
+  $existing = Find-PAUsableDistro -InstallRoot $InstallRoot
+  if ($existing) {
+    Write-PALog "Reusing existing WSL distro '$existing'."
     return
   }
 
-  # Prefer Microsoft's distro install when available (more reliable than rootfs import)
-  $existing = Get-PAWslDistroNames
-  Write-PALog ("Existing WSL distros: " + ($(if ($existing) { $existing -join ", " } else { "(none)" })))
-
   $wslDir = Join-Path $InstallRoot "wsl-distro"
+  if (Test-Path $wslDir) {
+    # Clean failed previous import VHDs
+    Write-PALog "Cleaning previous wsl-distro folder..."
+    try { & wsl.exe --unregister PA-Converter 2>$null } catch {}
+    Remove-Item $wslDir -Recurse -Force -ErrorAction SilentlyContinue
+  }
   New-Item -ItemType Directory -Force -Path $wslDir | Out-Null
-  $tar = Join-Path $InstallRoot "cache\ubuntu-jammy-wsl.rootfs.tar.gz"
 
-  if (-not (Test-Path $tar) -or ((Get-Item $tar).Length -lt 1MB)) {
-    Save-PAWebFile -Url (Get-PARootfsUrl) -OutFile $tar
+  $tarGz = Join-Path $InstallRoot "cache\ubuntu-jammy-wsl.rootfs.tar.gz"
+  $tar = Join-Path $InstallRoot "cache\ubuntu-jammy-wsl.rootfs.tar"
+
+  if (-not (Test-PAGzipFile $tarGz)) {
+    Save-PAWebFile -Url (Get-PARootfsUrl) -OutFile $tarGz
   } else {
-    Write-PALog "Using cached rootfs tar."
+    Write-PALog "Using cached rootfs tar.gz."
   }
 
-  Write-PALog "Importing WSL distro '$script:DistroName'..."
-  $out = & wsl.exe --import $script:DistroName $wslDir $tar --version 2 2>&1 | Out-String
-  Write-PALog $out
-  if ($LASTEXITCODE -ne 0) {
-    Write-PALog "wsl --import failed; trying Ubuntu-22.04 from Microsoft..." "WARN"
-    & wsl.exe --install -d Ubuntu-22.04 --no-launch 2>&1 | ForEach-Object { Write-PALog "$_" }
-    Start-Sleep -Seconds 5
-    # If Ubuntu-22.04 exists, export/import as PA-Converter OR just retarget DistroName
-    $names = Get-PAWslDistroNames
-    if ($names -contains "Ubuntu-22.04") {
-      Write-PALog "Using distro Ubuntu-22.04 as runtime."
-      $script:DistroName = "Ubuntu-22.04"
-      Set-Content -Path (Join-Path $InstallRoot "distro-name.txt") -Value $script:DistroName -Encoding ascii
-      return
-    }
-    throw "wsl --import failed and Ubuntu-22.04 install did not produce a distro. Exit=$LASTEXITCODE Output=$out"
+  # Some WSL builds import .tar more reliably than .tar.gz — gunzip first
+  if (-not (Test-Path $tar) -or ((Get-Item $tar).Length -lt 10MB)) {
+    Write-PALog "Decompressing rootfs to .tar for import..."
+    if (Test-Path $tar) { Remove-Item $tar -Force }
+    $in = [IO.File]::OpenRead($tarGz)
+    $gzip = New-Object IO.Compression.GzipStream($in, [IO.Compression.CompressionMode]::Decompress)
+    $outFs = [IO.File]::Create($tar)
+    try { $gzip.CopyTo($outFs) } finally { $outFs.Close(); $gzip.Close(); $in.Close() }
+    Write-PALog ("Decompressed tar size: {0:N1} MB" -f ((Get-Item $tar).Length / 1MB))
   }
-  Set-Content -Path (Join-Path $InstallRoot "distro-name.txt") -Value $script:DistroName -Encoding ascii
+
+  Write-PALog "Importing WSL distro 'PA-Converter' from tar..."
+  $import = Invoke-PAWslExe "--import", "PA-Converter", "$wslDir", "$tar", "--version", "2"
+  Write-PALog ("wsl --import exit=$($import.ExitCode) output=$($import.Text)")
+
+  if ($import.ExitCode -ne 0) {
+    Write-PALog "Import with .tar failed; trying .tar.gz directly..." "WARN"
+    $import = Invoke-PAWslExe "--import", "PA-Converter", "$wslDir", "$tarGz", "--version", "2"
+    Write-PALog ("wsl --import (gz) exit=$($import.ExitCode) output=$($import.Text)")
+  }
+
+  if ((Find-PAUsableDistro -InstallRoot $InstallRoot) -eq "PA-Converter") {
+    return
+  }
+
+  # Microsoft Store / wsl --install fallbacks (may need reboot after)
+  foreach ($distroId in @("Ubuntu-22.04", "Ubuntu", "Ubuntu-24.04")) {
+    Write-PALog "Trying: wsl --install -d $distroId --no-launch"
+    $inst = Invoke-PAWslExe "--install", "-d", $distroId, "--no-launch"
+    Write-PALog ("install $distroId exit=$($inst.ExitCode) output=$($inst.Text)")
+    Start-Sleep -Seconds 8
+    $found = Find-PAUsableDistro -InstallRoot $InstallRoot
+    if ($found) { return }
+
+    # Online install variant
+    $inst2 = Invoke-PAWslExe "--install", "-d", $distroId, "--no-launch", "--web-download"
+    Write-PALog ("web-download $distroId exit=$($inst2.ExitCode) output=$($inst2.Text)")
+    Start-Sleep -Seconds 8
+    $found = Find-PAUsableDistro -InstallRoot $InstallRoot
+    if ($found) { return }
+  }
+
+  $names = Get-PAWslDistroNames
+  $hint = @"
+Could not create a WSL Linux distro automatically.
+
+Detected distros: $(if ($names.Count) { $names -join ', ' } else { '(none)' })
+Import output: $($import.Text)
+
+Try manually in an elevated PowerShell, then re-run SETUP.bat:
+
+  wsl --install -d Ubuntu-22.04
+  # reboot if asked, then:
+  wsl -l -v
+
+Also ensure virtualization is enabled in BIOS/UEFI.
+"@
+  throw $hint
 }
 
 function Get-PADistroName {

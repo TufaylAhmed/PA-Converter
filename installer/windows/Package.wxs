@@ -8,7 +8,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
   <?define ProductName = "PA-Converter" ?>
-  <?define ProductVersion = "5.46.3" ?>
+  <?define ProductVersion = "5.46.4" ?>
   <?define Manufacturer = "Tufail Ahmed Sheikh" ?>
   <?define UpgradeCode = "8F3E2A1B-4C5D-6E7F-8091-A2B3C4D5E6F7" ?>
 
