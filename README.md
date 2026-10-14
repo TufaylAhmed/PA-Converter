@@ -4,7 +4,7 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.46.15-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.46.16-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![npm](https://img.shields.io/badge/npm-@sequr3/pa--converter-CB3837?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sequr3/pa-converter)
 [![GitHub](https://img.shields.io/badge/GitHub-public-181717?style=for-the-badge&logo=github)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
@@ -69,7 +69,7 @@
 
 ```bash
 # Start Docker Desktop, then:
-npx @sequr3/pa-converter@5.46.15 start
+npx @sequr3/pa-converter@5.46.16 start
 
 # Day-to-day:
 npx @sequr3/pa-converter status
@@ -87,7 +87,7 @@ First `start` builds the web image (several minutes). Then open **https://localh
 
 **End users only need the MSI** — no Docker Desktop, Node.js, or npm account.
 
-1. Download **`PA-Converter-5.46.15.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
+1. Download **`PA-Converter-5.46.16.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
 2. Run the MSI (allow UAC). Leave **Finish setup** checked.
 3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
 4. Wait for first-time provisioning (downloads Ubuntu/Docker packages and builds images).
@@ -101,7 +101,7 @@ Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.15
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.16
 ```
 
 ---
