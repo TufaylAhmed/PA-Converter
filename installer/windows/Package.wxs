@@ -2,13 +2,13 @@
 <!--
   Self-contained PA-Converter MSI (WiX v4).
   Ships launchers + engine.zip. First-run Bootstrap enables WSL and provisions
-  Docker Engine inside a private Ubuntu distro — no Docker Desktop / Node / PAT.
+  the native stack (Apache/PHP/MariaDB/RabbitMQ/Spark) — no Docker / Node / PAT.
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
   <?define ProductName = "PA-Converter" ?>
-  <?define ProductVersion = "5.46.7" ?>
+  <?define ProductVersion = "5.46.18" ?>
   <?define Manufacturer = "Tufail Ahmed Sheikh" ?>
   <?define UpgradeCode = "8F3E2A1B-4C5D-6E7F-8091-A2B3C4D5E6F7" ?>
 

@@ -573,9 +573,11 @@ function ConvertTo-PAWslMountPath {
 function Test-PAEngineInWsl {
   param([string]$Distro)
   # Prefer exit code only — wsl UTF-16 text is often mojibake in Windows PowerShell 5.1
+  # Native marker preferred; docker-compose kept as legacy fallback
   $r = Invoke-PAWslExe -WslArgs @(
     "-d", $Distro, "-u", "root", "--",
-    "test", "-f", "/opt/pa-converter/docker/docker-compose.yml"
+    "bash", "-lc",
+    "test -f /opt/pa-converter/native/install.sh || test -f /opt/pa-converter/docker/docker-compose.yml"
   )
   return ($r.ExitCode -eq 0)
 }
@@ -583,8 +585,10 @@ function Test-PAEngineInWsl {
 function Sync-PAEngineIntoWsl {
   param([string]$InstallRoot)
   $engine = Join-Path $InstallRoot "engine"
-  if (-not (Test-Path (Join-Path $engine "docker\docker-compose.yml"))) {
-    throw "Engine payload missing at $engine (docker-compose.yml not found)."
+  $hasNative = Test-Path (Join-Path $engine "native\install.sh")
+  $hasCompose = Test-Path (Join-Path $engine "docker\docker-compose.yml")
+  if (-not $hasNative -and -not $hasCompose) {
+    throw "Engine payload missing at $engine (native/install.sh not found)."
   }
 
   $distro = Get-PADistroName
@@ -618,7 +622,7 @@ function Sync-PAEngineIntoWsl {
         $extract = Invoke-PAWslExe -WslArgs @(
           "-d", $distro, "-u", "root", "--",
           "bash", "-lc",
-          "tar -C /opt/pa-converter -xf '$mntTar' && test -f /opt/pa-converter/docker/docker-compose.yml"
+          "tar -C /opt/pa-converter -xf '$mntTar' && (test -f /opt/pa-converter/native/install.sh || test -f /opt/pa-converter/docker/docker-compose.yml)"
         )
         Write-PALog ("temp tar extract exit=$($extract.ExitCode) $($extract.Text)")
         if (Test-PAEngineInWsl -Distro $distro) {
@@ -670,7 +674,7 @@ function Sync-PAEngineIntoWsl {
       $copy = Invoke-PAWslExe -WslArgs @(
         "-d", $distro, "-u", "root", "--",
         "bash", "-lc",
-        "mkdir -p /opt/pa-converter /data /home/userSpace && find /opt/pa-converter -mindepth 1 -maxdepth 1 -exec rm -rf {} + && ls -la '$mnt' && cp -a '$mnt'/. /opt/pa-converter/ && test -f /opt/pa-converter/docker/docker-compose.yml"
+        "mkdir -p /opt/pa-converter /data /home/userSpace && find /opt/pa-converter -mindepth 1 -maxdepth 1 -exec rm -rf {} + && ls -la '$mnt' && cp -a '$mnt'/. /opt/pa-converter/ && (test -f /opt/pa-converter/native/install.sh || test -f /opt/pa-converter/docker/docker-compose.yml)"
       )
       Write-PALog ("mnt copy exit=$($copy.ExitCode) $($copy.Text)")
       if (Test-PAEngineInWsl -Distro $distro) {
@@ -729,8 +733,9 @@ function Expand-PAEngine {
   param([string]$InstallRoot)
   $zip = Join-Path $InstallRoot "engine.zip"
   $engine = Join-Path $InstallRoot "engine"
+  $nativeMarker = Join-Path $engine "native\install.sh"
   $compose = Join-Path $engine "docker\docker-compose.yml"
-  if (Test-Path $compose) {
+  if ((Test-Path $nativeMarker) -or (Test-Path $compose)) {
     Write-PALog "Engine already extracted."
     return
   }
@@ -749,17 +754,20 @@ function Expand-PAEngine {
     Expand-Archive -Path $zip -DestinationPath $engine -Force
   }
 
-  if (-not (Test-Path $compose)) {
+  if (-not (Test-Path $nativeMarker) -and -not (Test-Path $compose)) {
     # Sometimes zip has a single top-level folder
     $sub = Get-ChildItem $engine -Directory | Select-Object -First 1
-    if ($sub -and (Test-Path (Join-Path $sub.FullName "docker\docker-compose.yml"))) {
+    if ($sub -and (
+        (Test-Path (Join-Path $sub.FullName "native\install.sh")) -or
+        (Test-Path (Join-Path $sub.FullName "docker\docker-compose.yml"))
+      )) {
       Write-PALog "Flattening nested engine folder $($sub.Name)"
       Get-ChildItem $sub.FullName | Move-Item -Destination $engine -Force
       Remove-Item $sub.FullName -Recurse -Force
     }
   }
-  if (-not (Test-Path $compose)) {
-    throw "After extract, docker-compose.yml still missing under $engine"
+  if (-not (Test-Path $nativeMarker) -and -not (Test-Path $compose)) {
+    throw "After extract, native/install.sh (or docker-compose.yml) still missing under $engine"
   }
   Write-PALog "Engine extract OK."
 }

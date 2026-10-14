@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-  Bootstrap PA-Converter on Windows (Node + Docker Desktop + public npm).
+  Bootstrap PA-Converter on Windows via npx (WSL2 native runtime).
 
 .DESCRIPTION
-  Checks prerequisites, installs @sequr3/pa-converter globally from npmjs
-  (no GitHub token), and optionally starts the stack.
+  Checks Node + WSL, installs @sequr3/pa-converter from npmjs, and optionally starts.
+  Does not require Docker Desktop.
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File scripts/install-windows.ps1
@@ -14,7 +14,7 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$Version = "5.46.17",
+  [string]$Version = "5.46.18",
   [switch]$Start,
   [switch]$SkipInstall
 )
@@ -23,7 +23,7 @@ $ErrorActionPreference = "Stop"
 $Package = "@sequr3/pa-converter@$Version"
 
 Write-Host ""
-Write-Host "  PA-Converter Windows installer" -ForegroundColor Cyan
+Write-Host "  PA-Converter Windows installer (native / WSL)" -ForegroundColor Cyan
 Write-Host "  Package: $Package" -ForegroundColor DarkGray
 Write-Host ""
 
@@ -37,7 +37,7 @@ function Assert-Command($Name, $Hint) {
 
 Assert-Command node "Install Node.js 18+ LTS: https://nodejs.org/"
 Assert-Command npm  "npm should ship with Node.js."
-Assert-Command docker "Install Docker Desktop for Windows: https://docs.docker.com/desktop/setup/install/windows-install/`nEnable WSL2 backend, then start Docker Desktop."
+Assert-Command wsl  "Install WSL2: wsl --install -d Ubuntu  (then reboot if prompted)."
 
 $nodeMajor = [int]((node -v) -replace '^v','' -split '\.')[0]
 if ($nodeMajor -lt 18) {
@@ -45,9 +45,9 @@ if ($nodeMajor -lt 18) {
   exit 1
 }
 
-docker info 2>$null | Out-Null
-if ($LASTEXITCODE -ne 0) {
-  Write-Host "Docker is installed but not running. Start Docker Desktop and retry." -ForegroundColor Red
+$distros = & wsl.exe -l -q 2>$null
+if (-not $distros) {
+  Write-Host "No WSL distro found. Run: wsl --install -d Ubuntu" -ForegroundColor Red
   exit 1
 }
 
@@ -59,17 +59,20 @@ if (Test-Path $npmrc) {
     $_ -notmatch '^@sequr3:registry=https://npm\.pkg\.github\.com' -and
     $_ -notmatch '^//npm\.pkg\.github\.com/:_authToken='
   }
-  Set-Content -Path $npmrc -Value $lines -Encoding utf8
+  Set-Content -Path $npmrc -Value $lines
 }
 
 if (-not $SkipInstall) {
-  Write-Host "Installing $Package from public npm …" -ForegroundColor Cyan
-  npm install -g $Package --registry=https://registry.npmjs.org
+  Write-Host "Installing $Package globally…" -ForegroundColor Cyan
+  npm install -g $Package
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-Write-Host ""
-Write-Host "Installed. Run: pa-converter start" -ForegroundColor Green
 if ($Start) {
+  Write-Host "Starting PA-Converter (first run may take several minutes)…" -ForegroundColor Cyan
   pa-converter start
+  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  Start-Process "https://localhost:18443"
 }
+
+Write-Host "Done. UI: https://localhost:18443  (admin / paloalto)" -ForegroundColor Green

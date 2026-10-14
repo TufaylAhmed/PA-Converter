@@ -1,63 +1,65 @@
 <div align="center">
 
-# 🛡️ PA-Converter
+# PA-Converter
 
-### Palo Alto Expedition · Firewall Config Converter (Docker)
+### Palo Alto Expedition · Firewall Config Converter (native)
 
-[![Version](https://img.shields.io/badge/Expedition-5.46.17-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.46.18-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![npm](https://img.shields.io/badge/npm-@sequr3/pa--converter-CB3837?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sequr3/pa-converter)
 [![GitHub](https://img.shields.io/badge/GitHub-public-181717?style=for-the-badge&logo=github)](https://github.com/TufaylAhmed/PA-Converter)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![Platform](https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Platform](https://img.shields.io/badge/macOS%20%7C%20Windows%20WSL%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![Node](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 
-**Convert · Import · Optimize · ML-assist** firewall configurations with Expedition, packaged for modern Docker Desktop.
+**Convert · Import · Optimize · ML-assist** firewall configurations with Expedition — **no Docker Desktop**.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║   🔥  Vendor configs  ──►  PA-Converter  ──►  PAN-OS XML   ║
+║   Vendor configs  ──►  PA-Converter  ──►  PAN-OS XML         ║
 ║       Fortinet · Cisco · Checkpoint · Palo Alto · more       ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
-[Quick Start](#-quick-start) · [Architecture](#-architecture) · [Features](#-features) · [ML / Spark](#-machine-learning--spark) · [CLI](#-cli-commands)
+[Quick Start](#quick-start) · [Architecture](#architecture) · [CLI](#cli-commands)
 
 </div>
 
 ---
 
-## ✨ Overview
+## Overview
 
-**PA-Converter** is a Dockerized packaging of **Palo Alto Networks Expedition 5.45.4** for **macOS, Windows, and Linux**. It runs the Expedition web UI in Docker so you can migrate and convert firewall configurations without a dedicated Ubuntu VM.
+**PA-Converter** packages **Palo Alto Networks Expedition 5.45.4** for **macOS, Windows (WSL2), and Linux** using a **native** runtime: Apache + PHP 7.4, MariaDB, RabbitMQ, OpenJDK 11, and Spark 2.4.3. No containers required.
 
 | Capability | Status |
 |:-----------|:------:|
-| 🌐 Expedition web UI (HTTPS) | ✅ |
-| 🔐 Seed login (`admin` / `paloalto`) | ✅ |
-| 📥 Palo Alto `running-config.xml` import | ✅ |
-| 📥 Fortinet config import | ✅ |
-| 🐇 Background jobs (RabbitMQ + PanOrders) | ✅ |
-| 🧠 Machine Learning / Spark 2.4 | ✅ |
-| 🍎 Apple Silicon (ARM64) Docker | ✅ |
-| 🪟 Windows + Docker Desktop (WSL2) | ✅ |
+| Expedition web UI (HTTPS) | ✅ |
+| Seed login (`admin` / `paloalto`) | ✅ |
+| Palo Alto `running-config.xml` import | ✅ |
+| Fortinet config import | ✅ |
+| Background jobs (RabbitMQ + PanOrders) | ✅ |
+| Machine Learning / Spark 2.4 | ✅ |
+| Windows WSL2 (no Docker Engine) | ✅ |
+| macOS Homebrew + PHP 7.4 tap | ✅ |
 
-> ⚠️ For engineering / lab use. Expedition itself remains Palo Alto Networks software.
+> For engineering / lab use. Expedition itself remains Palo Alto Networks software.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### Prerequisites (all platforms)
+### Prerequisites
 
-- ✅ **Node.js 18+** (macOS / Linux `npx` path)
-- ✅ **Docker Desktop** with Compose v2 ([macOS](https://docs.docker.com/desktop/) · [Windows](https://docs.docker.com/desktop/setup/install/windows-install/) · Linux) — *not* required for the Windows MSI
-- 🪟 **Windows MSI:** BIOS virtualization / WSL2 (setup enables features for you)
+| Platform | Requirement |
+|----------|-------------|
+| **All (npx)** | Node.js 18+ |
+| **Windows** | WSL2 Ubuntu (or the MSI, which imports a distro) — **not** Docker Desktop |
+| **macOS** | [Homebrew](https://brew.sh) (installs MariaDB, RabbitMQ, httpd, OpenJDK 11, PHP 7.4) |
+| **Linux** | Ubuntu 20.04/22.04 recommended; `sudo` for apt |
 
 **No login, token, or `.npmrc` required** for end users.
 
 | Path | Who | Command / download |
 |------|-----|-------------------|
-| **npm / npx** | macOS / Linux | `npx @sequr3/pa-converter start` |
+| **npm / npx** | macOS / Linux / Windows+WSL | `npx @sequr3/pa-converter start` |
 | **MSI / portable ZIP** | Windows | [GitHub Releases](https://github.com/TufaylAhmed/PA-Converter/releases) |
 | **git clone** | contributors | clone this repo, then `npm start` |
 
@@ -65,32 +67,38 @@
 
 ---
 
-### 🍎 macOS / Linux — npx (public npm, no auth)
+### macOS / Linux / Windows (npx)
 
 ```bash
-# Start Docker Desktop, then:
-npx @sequr3/pa-converter@5.46.17 start
+npx @sequr3/pa-converter@5.46.18 start
 
-# Day-to-day:
 npx @sequr3/pa-converter status
 npx @sequr3/pa-converter logs -f
 npx @sequr3/pa-converter stop
 ```
 
-Package: [`@sequr3/pa-converter`](https://www.npmjs.com/package/@sequr3/pa-converter) on **npmjs.org**.
+If npm is still validating a new version, run from GitHub (same native CLI):
 
-First `start` builds the web image (several minutes). Then open **https://localhost:18443** (accept the self-signed cert) → `admin` / `paloalto`.
+```bash
+npx --yes github:TufaylAhmed/PA-Converter#v5.46.18 start
+```
+
+First `start` installs packages and Spark (several minutes). Then open **https://localhost:18443** (accept the self-signed cert) → `admin` / `paloalto`.
+
+On Windows, the CLI runs install/start **inside WSL** (`wsl.exe`). Install WSL first if needed: `wsl --install -d Ubuntu`.
+
+Optional legacy Docker path: `PA_CONVERTER_RUNTIME=docker npx @sequr3/pa-converter start`.
 
 ---
 
-### 🪟 Windows — self-contained `.msi` (recommended)
+### Windows — self-contained `.msi` (recommended)
 
 **End users only need the MSI** — no Docker Desktop, Node.js, or npm account.
 
-1. Download **`PA-Converter-5.46.17.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
+1. Download **`PA-Converter-5.46.18.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
 2. Run the MSI (allow UAC). Leave **Finish setup** checked.
 3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
-4. Wait for first-time provisioning (downloads Ubuntu/Docker packages and builds images).
+4. Wait for first-time provisioning (apt packages + Spark inside WSL — **no Docker Engine**).
 5. Open **https://localhost:18443** → `admin` / `paloalto`.
 
 Later: Start Menu → **PA-Converter** → **Start / Stop / Status**.
@@ -101,7 +109,7 @@ Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.17
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.18
 ```
 
 ---
@@ -111,175 +119,105 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.17
 ```bash
 git clone https://github.com/TufaylAhmed/PA-Converter.git
 cd PA-Converter
-git lfs pull             # optional offline Spark bundle for Docker build
-
-npm start                # or: npm link && pa-converter start
+npm start
 ```
-Open the UI:
 
 | Protocol | URL |
 |:---------|:----|
-| 🔒 HTTPS | **https://localhost:18443** |
-| 🌐 HTTP  | http://localhost:18080 |
-
-Accept the self-signed certificate, then sign in:
+| HTTPS | **https://localhost:18443** |
+| HTTP  | http://localhost:18080 |
 
 ```
-👤  admin
-🔑  paloalto
-```
-
-```bash
-expedition status
-expedition logs -f
-expedition stop
+admin / paloalto
 ```
 
 ### Ports
 
-| Environment variable | Default | Maps to |
-|:---------------------|:-------:|:--------|
-| `EXPEDITION_PORT` | `18443` | Container `443` (HTTPS) |
-| `EXPEDITION_HTTP_PORT` | `18080` | Container `80` (HTTP) |
+| Environment variable | Default | Role |
+|:---------------------|:-------:|:-----|
+| `EXPEDITION_PORT` | `18443` | HTTPS |
+| `EXPEDITION_HTTP_PORT` | `18080` | HTTP |
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```mermaid
 flowchart LR
-  U[👤 Engineer] -->|HTTPS :18443| W[🌐 Expedition Web<br/>Apache + PHP 7.4]
-  W --> D[(🗄️ MariaDB 10.11)]
-  W --> R[[🐇 RabbitMQ]]
-  R --> A[⚙️ PanOrders Agent]
-  A --> S[✨ Spark 2.4 / ML]
-  S --> P[(📦 /data parquet)]
+  npx[npx pa-converter start] --> mgr[Native runtime manager]
+  mgr --> http[Apache PHP 7.4]
+  mgr --> db[MariaDB]
+  mgr --> mq[RabbitMQ]
+  mgr --> spark[Java11 Spark 2.4]
+  http --> db
+  http --> mq
+  http --> spark
 ```
 
-| Service | Role |
-|:--------|:-----|
-| **web** | Expedition UI + APIs + Spark/ML runtime |
-| **db** | MariaDB with Expedition seed schemas |
-| **rabbitmq** | Job queue for PanOrders / background tasks |
+| Component | Role |
+|:----------|:-----|
+| Apache + PHP 7.4 | Expedition UI + APIs |
+| MariaDB | Seed schemas (`databases/`) |
+| RabbitMQ | Job queue for PanOrders |
+| OpenJDK 11 + Spark 2.4.3 | ML jobs |
 
 ---
 
-## 🎯 Features
-
-### 📂 Configuration conversion & import
-
-- Import **Palo Alto** running configs (`running-config.xml`)
-- Import **Fortinet** and other vendor configs supported by Expedition parsers
-- Project-based workflow inside the Expedition UI
-
-### 🧠 Machine Learning & Spark
-
-- OpenJDK 11 + **Spark 2.4.3** baked into the web image
-- ML server IP auto-wired to the container on start
-- Parquet / temp paths default to **`/data`**
-- PanOrders agent started with Compose-aware `RABBITMQ_HOST`
-
-### 🧰 Ops-friendly packaging
-
-- One CLI: `expedition start | stop | status | logs | build`
-- Persistent volumes for DB, user space, and ML data
-- Health checks aligned with Expedition’s ML dashboard
-
----
-
-## 🖥 CLI Commands
+## CLI Commands
 
 ```bash
-expedition start      # ▶️  Build (if needed) and start Compose stack
-expedition stop       # ⏹  Stop containers
-expedition status     # 📡  Show stack status
-expedition logs       # 📜  Tail logs (add -f to follow)
-expedition build      # 🔨  Rebuild the web image
+pa-converter start      # Install (if needed) and start native services
+pa-converter stop       # Stop Apache / MariaDB / RabbitMQ / agent
+pa-converter status     # Service status
+pa-converter logs [-f]  # Apache + agent logs
+pa-converter url        # Print UI URL
 ```
-
-Optional environment overrides:
 
 ```bash
 export EXPEDITION_PORT=18443
 export EXPEDITION_HTTP_PORT=18080
-export EXPEDITION_IMAGE=panw/expedition-web:5.45.4
-export EXPEDITION_PROJECT=panw-expedition
+# Optional: PA_CONVERTER_RUNTIME=docker
 ```
 
 ---
 
-## 📁 Repository layout
+## Repository layout
 
 ```
 PA-Converter/
-├── 📜 README.md
-├── 📦 package.json              # @panw/expedition private package
-├── 🚀 bin/expedition.js         # CLI entrypoint
-├── 🌐 app/                      # Expedition web root → /var/www/html
-├── 🗄️ databases/                # Seed SQL (pandb, pandbRBAC, …)
-├── 🐳 docker/
-│   ├── docker-compose.yml
-│   ├── web/                     # Dockerfile + entrypoint
-│   ├── initdb/                  # DB bootstrap
-│   └── spark/                   # Spark 2.4 bundle (Git LFS)
-└── 🧪 tests/                    # Playwright smoke tests
+├── README.md
+├── package.json
+├── bin/expedition.js         # CLI (native primary; Docker opt-in)
+├── app/                      # Expedition web root
+├── databases/                # Seed SQL
+├── native/                   # install / start / stop (Linux+WSL, macOS)
+├── docker/                   # Legacy Compose (PA_CONVERTER_RUNTIME=docker)
+└── installer/windows/        # MSI + WSL provision (native)
 ```
 
 ---
 
-## 🧪 Smoke tests
-
-With the stack running:
-
-```bash
-cd tests
-npm install
-npx playwright install chromium
-
-node login.spec.mjs
-node import-paloalto.spec.mjs
-node import-fortinet.spec.mjs
-node ml-health.spec.mjs
-```
-
-Default test base URL: `https://localhost:18443` (override with `EXPEDITION_URL`).
-
----
-
-## 📦 Publish (maintainers)
-
-### Docker image
-
-```bash
-docker build -t <private-registry>/expedition-web:5.45.4 -f docker/web/Dockerfile .
-docker push <private-registry>/expedition-web:5.45.4
-
-EXPEDITION_IMAGE=<private-registry>/expedition-web:5.45.4 expedition start
-```
-
-### Public npm (`@sequr3/pa-converter`)
+## Publish (maintainers)
 
 ```bash
 npm login   # account sequr3
 npm publish --access public
-# If the version is staged: approve with 2FA / recovery codes, then it goes live.
 ```
 
-Package page: https://www.npmjs.com/package/@sequr3/pa-converter  
-2FA / recovery codes: https://www.npmjs.com/settings/sequr3/tfa/list
+Windows MSI: `installer\windows\build.ps1 -Version 5.46.18`
 
 ---
 
-## 📝 Notes
+## Notes
 
-- ⏱️ First `start` builds the image and initializes the DB volume (several minutes).
-- 💾 DB data lives in Docker volume `expedition-db` until `docker compose down -v`.
-- 🧠 Spark/ML assets under `docker/spark/` use **Git LFS** — run `git lfs install` && `git lfs pull` after clone if needed.
-- 🏷️ This project packages Expedition for **engineering / lab** workflows.
+- First `start` may take several minutes (apt/brew + Spark download).
+- PHP 7.4 is EOL — pinned via ondrej PPA (Linux) or `shivammathur/php` (macOS).
+- Apple Silicon: Spark 2.4 / PHP 7.4 may need Rosetta for some bits.
+- Engineering / lab packaging of Expedition only.
 
 ---
 
-## 👤 Maintainer
+## Maintainer
 
 **Tufail Ahmed Sheikh** ([@TufaylAhmed](https://github.com/TufaylAhmed)) · npm **[@sequr3](https://www.npmjs.com/~sequr3)**
 

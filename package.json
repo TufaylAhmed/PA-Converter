@@ -1,7 +1,7 @@
 {
   "name": "@sequr3/pa-converter",
-  "version": "5.46.17",
-  "description": "PA-Converter — Dockerized Palo Alto Expedition for firewall config conversion (macOS / Windows / Linux)",
+  "version": "5.46.18",
+  "description": "PA-Converter — native Palo Alto Expedition for firewall config conversion (macOS / Windows WSL / Linux, no Docker required)",
   "license": "UNLICENSED",
   "bin": {
     "pa-converter": "bin/expedition.js",
@@ -13,6 +13,7 @@
     "app",
     "README.md",
     "scripts",
+    "native",
     "docker/docker-compose.yml",
     "docker/initdb",
     "docker/web",

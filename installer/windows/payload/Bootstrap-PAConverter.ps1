@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
-  One-click appliance setup: enable WSL2, import Ubuntu, install Docker Engine,
-  sync Expedition, and start the stack.
+  One-click appliance setup: enable WSL2, import Ubuntu, install native stack
+  (Apache/PHP/MariaDB/RabbitMQ/Spark — no Docker), and start the stack.
 #>
 [CmdletBinding()]
 param(
@@ -181,7 +181,7 @@ try {
   $state.Phase = "provision"
   Set-PAState $state
 
-  Write-PALog "Provisioning Docker + Expedition inside WSL (first run downloads packages/images)..."
+  Write-PALog "Provisioning native Expedition inside WSL (apt packages + Spark; no Docker)..."
   $code = Invoke-PAWsl -ScriptName "provision.sh"
   if ($code -ne 0) {
     throw "Provisioning failed (exit $code). See $(Get-PALogPath) and transcript $transcript"

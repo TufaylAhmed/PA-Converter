@@ -5,7 +5,7 @@
 #>
 [CmdletBinding()]
 param(
-  # installer/windows → repo root (contains app/, docker/, databases/)
+  # installer/windows → repo root (contains app/, native/, databases/)
   [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
   [string]$OutZip = (Join-Path $PSScriptRoot "payload\engine.zip")
 )
@@ -21,6 +21,7 @@ $copyMap = @(
   @{ Src = "app"; Dst = "app" },
   @{ Src = "databases"; Dst = "databases" },
   @{ Src = "bin"; Dst = "bin" },
+  @{ Src = "native"; Dst = "native" },
   @{ Src = "docker\docker-compose.yml"; Dst = "docker\docker-compose.yml" },
   @{ Src = "docker\initdb"; Dst = "docker\initdb" },
   @{ Src = "docker\web"; Dst = "docker\web" },
