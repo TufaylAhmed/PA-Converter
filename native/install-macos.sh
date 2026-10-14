@@ -87,35 +87,58 @@ do_install() {
   pa_link_classic_paths
   mkdir -p "$PREFIX/opt" "$PA_LOG_DIR"
 
+  # Never prompt in brew (npx / CI)
+  export NONINTERACTIVE=1
+  export HOMEBREW_NO_AUTO_UPDATE=1
+  export HOMEBREW_NO_ENV_HINTS=1
+  export HOMEBREW_NO_INSTALL_CLEANUP=1
+
   pa_log "Installing Homebrew packages (MariaDB, RabbitMQ, OpenJDK 11, httpd)…"
   brew update || true
-  brew install mariadb rabbitmq openjdk@11 httpd curl || true
+  brew install --quiet mariadb rabbitmq openjdk@11 httpd curl || true
 
-  # PHP 7.4 via shivammathur/php
-  if ! brew list php@7.4 >/dev/null 2>&1; then
+  # PHP 7.4 via shivammathur/php (EOL but required by Expedition)
+  if ! brew list php@7.4 >/dev/null 2>&1 && [ ! -x "$(brew_prefix)/opt/php@7.4/bin/php" ]; then
     pa_log "Tapping shivammathur/php for PHP 7.4…"
     brew tap shivammathur/php || true
-    brew install shivammathur/php/php@7.4 || brew install php@7.4 || true
+    brew install --quiet shivammathur/php/php@7.4 || brew install --quiet php@7.4 || true
+  else
+    pa_log "PHP 7.4 already installed."
   fi
 
-  # Link php 7.4 for CLI
+  # Prefer php@7.4 binaries without unlinking system php
   if [ -x "$(brew_prefix)/opt/php@7.4/bin/php" ]; then
-    export PATH="$(brew_prefix)/opt/php@7.4/bin:$PATH"
+    export PATH="$(brew_prefix)/opt/php@7.4/bin:$(brew_prefix)/opt/php@7.4/sbin:$PATH"
   fi
 
-  if ! php -v 2>/dev/null | grep -qE 'PHP 7\.4'; then
-    pa_log "WARN: PHP 7.4 not on PATH — enable with: brew link php@7.4 --force --overwrite"
+  if ! "$(brew_prefix)/opt/php@7.4/bin/php" -v 2>/dev/null | grep -qE 'PHP 7\.4'; then
+    pa_log "WARN: PHP 7.4 binary missing at $(brew_prefix)/opt/php@7.4/bin/php"
   fi
 
-  # Spark
+  # Spark (~230MB) — show progress; continue without ML if download fails
   mkdir -p "$PREFIX/opt/Spark"
   if [ ! -x "$PREFIX/opt/Spark/spark/bin/spark-submit" ]; then
-    pa_log "Downloading Spark 2.4.3…"
-    curl -fsSL "https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz" \
-      -o /tmp/spark-2.4.3.tgz
-    tar -xzf /tmp/spark-2.4.3.tgz -C "$PREFIX/opt/Spark"
-    rm -f /tmp/spark-2.4.3.tgz
-    ln -sfn "$PREFIX/opt/Spark/spark-2.4.3-bin-hadoop2.7" "$PREFIX/opt/Spark/spark"
+    if [ "${PA_SKIP_SPARK:-}" = "1" ]; then
+      pa_log "Skipping Spark (PA_SKIP_SPARK=1). UI will start; ML jobs won't work until Spark is installed."
+    else
+      local spark_tgz="$PREFIX/opt/spark-2.4.3-bin-hadoop2.7.tgz"
+      local spark_url="https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz"
+      pa_log "Downloading Spark 2.4.3 (~230MB) — this can take several minutes…"
+      pa_log "  URL: $spark_url"
+      pa_log "  To skip ML for now: Ctrl+C then  PA_SKIP_SPARK=1 npx … start"
+      if curl -fL --retry 3 --retry-delay 5 --connect-timeout 30 \
+          --progress-bar -o "$spark_tgz" "$spark_url"
+      then
+        pa_log "Extracting Spark…"
+        tar -xzf "$spark_tgz" -C "$PREFIX/opt/Spark"
+        rm -f "$spark_tgz"
+        ln -sfn "$PREFIX/opt/Spark/spark-2.4.3-bin-hadoop2.7" "$PREFIX/opt/Spark/spark"
+        pa_log "Spark installed."
+      else
+        pa_log "WARN: Spark download failed — continuing without ML/Spark."
+        rm -f "$spark_tgz"
+      fi
+    fi
   fi
   export SPARK_HOME="$PREFIX/opt/Spark/spark"
 
