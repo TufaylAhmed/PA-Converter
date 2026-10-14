@@ -10,8 +10,16 @@ source "$SCRIPT_DIR/lib/common.sh"
 ACTION="${1:-install}"
 shift || true
 
+# Prefer the real user home when invoked via `sudo npx` (do NOT install into /var/root).
+_PA_REAL_HOME="$HOME"
+if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ]; then
+  _PA_REAL_HOME="$(eval echo "~${SUDO_USER}")"
+  pa_log "Running as root — using ${SUDO_USER} home: ${_PA_REAL_HOME}"
+fi
+
 # Force macOS paths (common.sh may already have set Linux FHS defaults).
-PREFIX="${PA_MAC_PREFIX:-$HOME/Library/Application Support/PA-Converter}"
+# Note: macOS seals /home — cannot symlink /home/userSpace; we rewrite PHP instead.
+PREFIX="${PA_MAC_PREFIX:-$_PA_REAL_HOME/Library/Application Support/PA-Converter}"
 export PA_DATA_ROOT="$PREFIX/var"
 export PA_WWW="$PREFIX/www"
 export PA_USERSPACE="$PREFIX/userSpace"
@@ -30,31 +38,43 @@ need_brew() {
     pa_log "ERROR: Homebrew is required. Install from https://brew.sh" >&2
     exit 1
   fi
+  # brew as root is unsupported — drop to SUDO_USER when needed
+  if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ]; then
+    BREW_AS=(sudo -u "$SUDO_USER" -H)
+  else
+    BREW_AS=()
+  fi
 }
 
-# Expedition PHP hardcodes /home/userSpace, /data, /PALogs — symlink those to PREFIX (needs sudo once).
+# Best-effort root symlinks for /data and /PALogs (never /home — sealed on macOS).
 pa_link_classic_paths() {
   pa_ensure_dirs
-  local need_sudo=0
-  for link in /home/userSpace /data /PALogs; do
-    if [ -L "$link" ] || [ -d "$link" ]; then
-      continue
-    fi
-    need_sudo=1
-    break
-  done
-  if [ "$need_sudo" -eq 0 ]; then
-    return 0
+  if [ -L /data ] || [ -d /data ]; then
+    :
+  elif command -v sudo >/dev/null 2>&1; then
+    sudo ln -sfn "$PA_DATA" /data 2>/dev/null \
+      || pa_log "WARN: could not link /data (ok — PHP paths are rewritten)"
   fi
-  pa_log "Linking Expedition paths (/home/userSpace, /data, /PALogs) → $PREFIX (sudo once)…"
-  if ! command -v sudo >/dev/null 2>&1; then
-    pa_log "WARN: sudo missing — UI may fail until classic paths exist." >&2
-    return 0
+  if [ -L /PALogs ] || [ -d /PALogs ]; then
+    :
+  elif command -v sudo >/dev/null 2>&1; then
+    sudo ln -sfn "$PA_PALOGS" /PALogs 2>/dev/null \
+      || pa_log "WARN: could not link /PALogs (ok — PHP paths are rewritten)"
   fi
-  sudo mkdir -p /home
-  sudo ln -sfn "$PA_USERSPACE" /home/userSpace
-  sudo ln -sfn "$PA_DATA" /data
-  sudo ln -sfn "$PA_PALOGS" /PALogs
+}
+
+# Rewrite hardcoded Linux paths inside the served app copy (not the package source).
+pa_rewrite_php_paths() {
+  [ -d "$PA_WWW" ] || return 0
+  pa_log "Rewriting Expedition paths in $PA_WWW for macOS…"
+  export PA_USERSPACE PA_DATA PA_PALOGS
+  find "$PA_WWW" -type f \( -name '*.php' -o -name '*.inc' \) -print0 2>/dev/null \
+    | xargs -0 perl -pi -e '
+      s{/home/userSpace}{$ENV{PA_USERSPACE}}g;
+      s{/PALogs}{$ENV{PA_PALOGS}}g;
+      s{(["'\''])/data\1}{$1.$ENV{PA_DATA}.$1}ge;
+      s{(["'\''])/data/}{$1.$ENV{PA_DATA}."/"}ge;
+    ' 2>/dev/null || true
 }
 
 brew_prefix() {
@@ -115,6 +135,7 @@ do_install() {
     rm -rf "$PA_WWW"/* 2>/dev/null || true
     cp -a "$PA_CONVERTER_ROOT/app/." "$PA_WWW/"
   fi
+  pa_rewrite_php_paths
 
   # Configure Homebrew httpd for Expedition ports + PHP
   local bp
@@ -273,17 +294,26 @@ EOF
 }
 
 do_start() {
+  if [ "$(id -u)" -eq 0 ] && [ -z "${PA_ALLOW_ROOT:-}" ]; then
+    pa_log "Do not use sudo with npx — run as your user (Homebrew refuses root)."
+    pa_log "Retry:  npx --yes github:TufaylAhmed/PA-Converter#v5.46.20 start"
+    exit 1
+  fi
   if [ ! -f "$PA_MARKER" ]; then
     do_install
   else
     pa_ensure_dirs
     pa_link_classic_paths
+    # Re-sync path rewrites if www exists but still has Linux paths
+    if [ -d "$PA_WWW" ] && grep -Rql '/home/userSpace' "$PA_WWW" 2>/dev/null; then
+      pa_rewrite_php_paths
+    fi
   fi
   need_brew
   write_user_defs
 
-  brew services start mariadb || true
-  brew services start rabbitmq || true
+  "${BREW_AS[@]}" brew services start mariadb || true
+  "${BREW_AS[@]}" brew services start rabbitmq || true
 
   # PHP-FPM
   if [ -x "$(brew_prefix)/opt/php@7.4/sbin/php-fpm" ]; then
@@ -296,7 +326,7 @@ do_start() {
   if [ -x "$(brew_prefix)/bin/httpd" ]; then
     "$(brew_prefix)/bin/httpd" -k restart 2>/dev/null || "$(brew_prefix)/bin/httpd" -k start || true
   else
-    brew services start httpd || true
+    "${BREW_AS[@]}" brew services start httpd || true
   fi
 
   # panReadOrders
@@ -314,6 +344,7 @@ do_start() {
   fi
 
   pa_log "Started. HTTPS https://localhost:${EXPEDITION_PORT}  (admin / paloalto)"
+  pa_log "Data: $PREFIX"
 }
 
 do_stop() {
