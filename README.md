@@ -4,8 +4,8 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.46.10-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
-[![License](https://img.shields.io/badge/License-Private-red?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.46.11-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![GitHub](https://img.shields.io/badge/GitHub-public-181717?style=for-the-badge&logo=github)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Platform](https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![Node](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -27,7 +27,7 @@
 
 ## ✨ Overview
 
-**PA-Converter** is a private, Dockerized packaging of **Palo Alto Networks Expedition 5.45.4** for **macOS, Windows, and Linux**. It runs the Expedition web UI in Docker so you can migrate and convert firewall configurations without a dedicated Ubuntu VM.
+**PA-Converter** is a Dockerized packaging of **Palo Alto Networks Expedition 5.45.4** for **macOS, Windows, and Linux**. It runs the Expedition web UI in Docker so you can migrate and convert firewall configurations without a dedicated Ubuntu VM.
 
 | Capability | Status |
 |:-----------|:------:|
@@ -40,7 +40,7 @@
 | 🍎 Apple Silicon (ARM64) Docker | ✅ |
 | 🪟 Windows + Docker Desktop (WSL2) | ✅ |
 
-> ⚠️ **Internal / private use only.** This repository is **not** for public npm or public distribution of Expedition.
+> ⚠️ For engineering / lab use. Expedition itself remains Palo Alto Networks software.
 
 ---
 
@@ -48,47 +48,36 @@
 
 ### Prerequisites (all platforms)
 
-- ✅ **Node.js 18+**
-- ✅ **Docker Desktop** with Compose v2 ([macOS](https://docs.docker.com/desktop/) · [Windows](https://docs.docker.com/desktop/setup/install/windows-install/) · Linux)
-- ✅ GitHub Packages auth (private package — **not** on public npmjs)
-- 🪟 **Windows:** WSL2 backend enabled in Docker Desktop
+- ✅ **Node.js 18+** (macOS / Linux `npx` path)
+- ✅ **Docker Desktop** with Compose v2 ([macOS](https://docs.docker.com/desktop/) · [Windows](https://docs.docker.com/desktop/setup/install/windows-install/) · Linux) — *not* required for the Windows MSI
+- 🪟 **Windows MSI:** BIOS virtualization / WSL2 (setup enables features for you)
 
-### Auth (once)
+**No GitHub token or `.npmrc` required** — the repo and Releases are public.
 
-**macOS / Linux** — add to `~/.npmrc`:
-
-```ini
-@tufaylahmed:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
-```
-
-**Windows** — same content in `%USERPROFILE%\.npmrc`, or use the installer below (it writes this for you).
-
-PAT scopes: `read:packages` (and `repo` if needed for the private GitHub repo).
+> If an old `~/.npmrc` still has `@tufaylahmed:registry=https://npm.pkg.github.com`, **delete that line** or npx will demand a GitHub PAT.
 
 ---
 
-### 🍎 macOS — run with npx
+### 🍎 macOS / Linux — run with npx (no auth)
 
 ```bash
-# 1) One-time auth (see ~/.npmrc above)
+# Start Docker Desktop, then (public GitHub — no login):
+npx --yes github:TufaylAhmed/PA-Converter#v5.46.11 start
 
-# 2) Start Docker Desktop, then:
-npx @tufaylahmed/pa-converter@5.46.10 start
-
-# Day-to-day:
-npx @tufaylahmed/pa-converter status
-npx @tufaylahmed/pa-converter logs -f
-npx @tufaylahmed/pa-converter stop
+# Day-to-day (after first install, same form):
+npx --yes github:TufaylAhmed/PA-Converter#v5.46.11 status
+npx --yes github:TufaylAhmed/PA-Converter#v5.46.11 logs -f
+npx --yes github:TufaylAhmed/PA-Converter#v5.46.11 stop
 ```
 
 First `start` builds the web image (several minutes). Then open **https://localhost:18443** (accept the self-signed cert) → `admin` / `paloalto`.
 
-Optional global install:
+Optional — clone instead of npx:
 
 ```bash
-npm install -g @tufaylahmed/pa-converter@5.46.10 --registry=https://npm.pkg.github.com
-pa-converter start
+git clone https://github.com/TufaylAhmed/PA-Converter.git
+cd PA-Converter
+npm start
 ```
 
 ---
@@ -97,7 +86,7 @@ pa-converter start
 
 **End users only need the MSI** — no Docker Desktop, Node.js, or GitHub token.
 
-1. Download **`PA-Converter-5.46.10.msi`** from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
+1. Download **`PA-Converter-5.46.11.msi`** from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases) (public).
 2. Run the MSI (allow UAC). Leave **Finish setup** checked.
 3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
 4. Wait for first-time provisioning (downloads Ubuntu/Docker packages and builds images).
@@ -111,7 +100,7 @@ Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.10
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.11
 ```
 
 **macOS/Linux developers** can still use `npx` (see above) with Docker Desktop.
@@ -260,7 +249,7 @@ Default test base URL: `https://localhost:18443` (override with `EXPEDITION_URL`
 
 ---
 
-## 📦 Private publish (optional)
+## 📦 Publish (maintainers)
 
 ### Docker image
 
@@ -271,14 +260,14 @@ docker push <private-registry>/expedition-web:5.45.4
 EXPEDITION_IMAGE=<private-registry>/expedition-web:5.45.4 expedition start
 ```
 
-### GitHub Packages / private npm
+### Public npm (optional)
 
 ```bash
-# configure .npmrc from .npmrc.example, then:
-npm publish
+# requires a valid npmjs login (npm login)
+npm publish --access public
 ```
 
-`package.json` sets `"private": true` — do **not** publish to public npmjs.org.
+`publishConfig` targets `registry.npmjs.org`. Until published there, prefer `npx github:TufaylAhmed/PA-Converter#v…` (no auth).
 
 ---
 

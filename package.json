@@ -1,6 +1,6 @@
 {
   "name": "@tufaylahmed/pa-converter",
-  "version": "5.46.10",
+  "version": "5.46.11",
   "description": "PA-Converter — Dockerized Palo Alto Expedition for firewall config conversion (macOS / Windows / Linux)",
   "license": "UNLICENSED",
   "bin": {
@@ -29,7 +29,8 @@
     "build": "node bin/expedition.js build"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "repository": {
     "type": "git",
