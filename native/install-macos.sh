@@ -288,6 +288,73 @@ define('SparkRAM', '${SUGG_RAM_MB}m');
 EOF
 }
 
+# Post-install tuning: ML paths/IP, RabbitMQ 4.x compat, PHP/MariaDB knobs.
+pa_tune_macos_runtime() {
+  local bp ml_ip conf mycnf php_ini
+  bp="$(brew_prefix)"
+  ml_ip="$(ipconfig getifaddr en0 2>/dev/null || true)"
+  [ -z "$ml_ip" ] && ml_ip="$(ipconfig getifaddr en1 2>/dev/null || true)"
+  [ -z "$ml_ip" ] && ml_ip="$(route get 1.1.1.1 2>/dev/null | awk '/interface:/{iface=$2} END{print iface}')"
+  if [ -n "$ml_ip" ] && [ "$ml_ip" != "en0" ] && [ "$ml_ip" != "en1" ]; then
+    :
+  else
+    ml_ip="$(ifconfig en0 2>/dev/null | awk '/inet /{print $2; exit}')"
+  fi
+  [ -z "$ml_ip" ] && ml_ip="127.0.0.1"
+
+  # RabbitMQ 4.x blocks Expedition's old php-amqplib queues unless permitted
+  conf="$bp/etc/rabbitmq/rabbitmq.conf"
+  mkdir -p "$(dirname "$conf")"
+  if [ -f "$conf" ] && ! grep -q 'transient_nonexcl_queues' "$conf" 2>/dev/null; then
+    cat >> "$conf" <<'EOF'
+
+# Expedition / old php-amqplib compatibility (RabbitMQ 4.x)
+deprecated_features.permit.transient_nonexcl_queues = true
+EOF
+  elif [ ! -f "$conf" ]; then
+    cat > "$conf" <<'EOF'
+# Expedition / old php-amqplib compatibility (RabbitMQ 4.x)
+deprecated_features.permit.transient_nonexcl_queues = true
+EOF
+  fi
+
+  # MariaDB listen on localhost TCP (health check + PHP mysqli)
+  mycnf="$bp/etc/my.cnf"
+  if [ ! -f "$mycnf" ] || ! grep -q 'bind-address' "$mycnf" 2>/dev/null; then
+    mkdir -p "$(dirname "$mycnf")"
+    cat >> "$mycnf" <<'EOF'
+
+[mysqld]
+bind-address = 127.0.0.1
+EOF
+  fi
+
+  # PHP mysqli reconnect
+  php_ini="$bp/etc/php/7.4/conf.d/99-pa-converter.ini"
+  mkdir -p "$(dirname "$php_ini")"
+  if [ -f "$php_ini" ]; then
+    grep -q 'mysqli.reconnect' "$php_ini" 2>/dev/null || echo 'mysqli.reconnect = On' >> "$php_ini"
+  else
+    cat > "$php_ini" <<'EOF'
+upload_max_filesize = 200M
+post_max_size = 200M
+memory_limit = 1G
+max_execution_time = 10000
+mysqli.reconnect = On
+EOF
+  fi
+
+  # ML settings: non-loopback IP (checkAlive treats 127.0.0.1 as unset) + writable parquet paths
+  mkdir -p "$PA_DATA"
+  chmod u+rwx "$PA_DATA" "$PA_USERSPACE" "$PA_PALOGS" 2>/dev/null || true
+  mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -h127.0.0.1 pandbRBAC -e "
+INSERT INTO ml_settings (id, server, parquetPath, tempDataPath)
+VALUES (1, '${ml_ip}', '${PA_DATA}', '${PA_DATA}')
+ON DUPLICATE KEY UPDATE server='${ml_ip}', parquetPath='${PA_DATA}', tempDataPath='${PA_DATA}';
+" 2>/dev/null || true
+  pa_log "ML server=${ml_ip} parquet=${PA_DATA}"
+}
+
 do_start() {
   if [ "$(id -u)" -eq 0 ] && [ -z "${PA_ALLOW_ROOT:-}" ]; then
     pa_log "Do not use sudo with npx — run as your user (Homebrew refuses root)."
@@ -304,9 +371,11 @@ do_start() {
   fi
   need_brew
   write_user_defs
+  pa_tune_macos_runtime
 
   brew services start mariadb || true
-  brew services start rabbitmq || true
+  brew services restart rabbitmq 2>/dev/null || brew services start rabbitmq || true
+  sleep 2
 
   # PHP-FPM 7.4 (explicit path — do not use shadowed brew php)
   if [ -x "$(brew_prefix)/opt/php@7.4/sbin/php-fpm" ]; then
@@ -322,22 +391,29 @@ do_start() {
     brew services start httpd || true
   fi
 
-  # panReadOrders
+  # panReadOrders (after RabbitMQ permit is applied)
   if [ -f "$PA_WWW/console/messaging/readOrders.php" ]; then
-    pkill -f 'php .*readOrders.php' 2>/dev/null || true
+    pkill -f 'readOrders.php' 2>/dev/null || true
+    : > "$PA_USERSPACE/panReadOrders.log"
     (
-      export RABBITMQ_HOST=127.0.0.1 JAVA_HOME SPARK_HOME PATH
-      if [ -x "$(brew_prefix)/opt/php@7.4/bin/php" ]; then
-        exec "$(brew_prefix)/opt/php@7.4/bin/php" "$PA_WWW/console/messaging/readOrders.php"
-      else
-        exec php "$PA_WWW/console/messaging/readOrders.php"
-      fi
+      export RABBITMQ_HOST=127.0.0.1
+      pa_detect_java || true
+      export JAVA_HOME SPARK_HOME
+      export PATH="$(brew_prefix)/opt/php@7.4/bin:${PATH}"
+      exec "$(brew_prefix)/opt/php@7.4/bin/php" "$PA_WWW/console/messaging/readOrders.php"
     ) >>"$PA_USERSPACE/panReadOrders.log" 2>&1 &
     echo $! > "$PA_DATA_ROOT/panReadOrders.pid"
+    sleep 1
+    if pgrep -f 'readOrders.php' >/dev/null 2>&1; then
+      pa_log "PanOrders agent running."
+    else
+      pa_log "WARN: PanOrders failed — see $PA_USERSPACE/panReadOrders.log"
+    fi
   fi
 
   pa_log "Started. HTTPS https://localhost:${EXPEDITION_PORT}  (admin / paloalto)"
   pa_log "Data: $PREFIX"
+  pa_log "Note: Ubuntu-only packages (expedition-beta / BPA apt) are N/A on macOS — some health checks will still fail."
 }
 
 do_stop() {
