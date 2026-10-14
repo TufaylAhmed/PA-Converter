@@ -4,7 +4,7 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.46.12-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.46.13-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![npm](https://img.shields.io/badge/npm-@sas3/pa--converter-CB3837?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sas3/pa-converter)
 [![GitHub](https://img.shields.io/badge/GitHub-public-181717?style=for-the-badge&logo=github)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
@@ -63,7 +63,7 @@
 
 ```bash
 # Start Docker Desktop, then:
-npx @sas3/pa-converter@5.46.12 start
+npx @sas3/pa-converter@5.46.13 start
 
 # Day-to-day:
 npx @sas3/pa-converter status
@@ -76,7 +76,7 @@ First `start` builds the web image (several minutes). Then open **https://localh
 Fallback (GitHub, also no auth):
 
 ```bash
-npx --yes github:TufaylAhmed/PA-Converter#v5.46.12 start
+npx --yes github:TufaylAhmed/PA-Converter#v5.46.13 start
 ```
 
 ---
@@ -85,7 +85,7 @@ npx --yes github:TufaylAhmed/PA-Converter#v5.46.12 start
 
 **End users only need the MSI** — no Docker Desktop, Node.js, or GitHub token.
 
-1. Download **`PA-Converter-5.46.12.msi`** from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases) (public).
+1. Download **`PA-Converter-5.46.13.msi`** from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases) (public).
 2. Run the MSI (allow UAC). Leave **Finish setup** checked.
 3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
 4. Wait for first-time provisioning (downloads Ubuntu/Docker packages and builds images).
@@ -99,7 +99,7 @@ Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.12
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.13
 ```
 
 **macOS/Linux developers** can still use `npx` (see above) with Docker Desktop.
