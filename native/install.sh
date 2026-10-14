@@ -159,32 +159,15 @@ fi
 # RabbitMQ
 pa_service start rabbitmq-server || true
 
-# Spark 2.4.3
+# Spark 2.4.3 (GitHub CDN preferred; Apache archive last)
 pa_detect_java
-mkdir -p /opt/Spark
-if [ ! -e /opt/Spark/spark/bin/spark-submit ]; then
-  pa_log "Installing Spark 2.4.3…"
-  if [ -f "$PA_CONVERTER_ROOT/docker/spark/opt-Spark.tar.gz" ]; then
-    tar -xzf "$PA_CONVERTER_ROOT/docker/spark/opt-Spark.tar.gz" -C / || true
-  fi
-  if [ ! -e /opt/Spark/spark/bin/spark-submit ]; then
-    curl -fsSL "https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz" \
-      -o /tmp/spark-2.4.3.tgz
-    mkdir -p /opt/Spark
-    tar -xzf /tmp/spark-2.4.3.tgz -C /opt/Spark
-    rm -f /tmp/spark-2.4.3.tgz
-    ln -sfn /opt/Spark/spark-2.4.3-bin-hadoop2.7 /opt/Spark/spark
-  fi
-  if [ ! -e /opt/Spark/spark ] && [ -d /opt/Spark/spark-2.4.3-bin-hadoop2.7 ]; then
-    ln -sfn /opt/Spark/spark-2.4.3-bin-hadoop2.7 /opt/Spark/spark
-  fi
-  mkdir -p /opt/Spark/extraLibraries
-  if [ -d "$PA_WWW/OS/spark/extraLibraries" ]; then
-    cp -an "$PA_WWW/OS/spark/extraLibraries/." /opt/Spark/extraLibraries/ 2>/dev/null || true
-  fi
-  chmod -R a+rX /opt/Spark
-  rm -f /opt/Spark/spark/jars/log4j-1.2.17.jar 2>/dev/null || true
+pa_install_spark "/" || true
+mkdir -p /opt/Spark/extraLibraries
+if [ -d "$PA_WWW/OS/spark/extraLibraries" ]; then
+  cp -an "$PA_WWW/OS/spark/extraLibraries/." /opt/Spark/extraLibraries/ 2>/dev/null || true
 fi
+chmod -R a+rX /opt/Spark 2>/dev/null || true
+rm -f /opt/Spark/spark/jars/log4j-1.2.17.jar 2>/dev/null || true
 
 # BPA pip helpers (best-effort)
 pip3 install --no-cache-dir 'lxml' 2>/dev/null || true

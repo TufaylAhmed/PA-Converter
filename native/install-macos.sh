@@ -115,32 +115,9 @@ do_install() {
     pa_log "WARN: PHP 7.4 binary missing at $(brew_prefix)/opt/php@7.4/bin/php"
   fi
 
-  # Spark (~230MB) — show progress; continue without ML if download fails
-  mkdir -p "$PREFIX/opt/Spark"
-  if [ ! -x "$PREFIX/opt/Spark/spark/bin/spark-submit" ]; then
-    if [ "${PA_SKIP_SPARK:-}" = "1" ]; then
-      pa_log "Skipping Spark (PA_SKIP_SPARK=1). UI will start; ML jobs won't work until Spark is installed."
-    else
-      local spark_tgz="$PREFIX/opt/spark-2.4.3-bin-hadoop2.7.tgz"
-      local spark_url="https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz"
-      pa_log "Downloading Spark 2.4.3 (~230MB) — this can take several minutes…"
-      pa_log "  URL: $spark_url"
-      pa_log "  To skip ML for now: Ctrl+C then  PA_SKIP_SPARK=1 npx … start"
-      if curl -fL --retry 3 --retry-delay 5 --connect-timeout 30 \
-          --progress-bar -o "$spark_tgz" "$spark_url"
-      then
-        pa_log "Extracting Spark…"
-        tar -xzf "$spark_tgz" -C "$PREFIX/opt/Spark"
-        rm -f "$spark_tgz"
-        ln -sfn "$PREFIX/opt/Spark/spark-2.4.3-bin-hadoop2.7" "$PREFIX/opt/Spark/spark"
-        pa_log "Spark installed."
-      else
-        pa_log "WARN: Spark download failed — continuing without ML/Spark."
-        rm -f "$spark_tgz"
-      fi
-    fi
-  fi
-  export SPARK_HOME="$PREFIX/opt/Spark/spark"
+  # Spark via GitHub CDN (fast) — Apache archive is last resort only
+  pa_install_spark "$PREFIX" || true
+  export SPARK_HOME="${SPARK_HOME:-$PREFIX/opt/Spark/spark}"
 
   pa_detect_java
   if [ -z "${JAVA_HOME:-}" ]; then
