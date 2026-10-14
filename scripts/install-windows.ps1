@@ -1,27 +1,26 @@
 <#
 .SYNOPSIS
-  Bootstrap PA-Converter on Windows (Node + Docker Desktop + GitHub Packages).
+  Bootstrap PA-Converter on Windows (Node + Docker Desktop + public npm).
 
 .DESCRIPTION
-  Checks prerequisites, configures ~/.npmrc for @tufaylahmed GitHub Packages,
-  installs @tufaylahmed/pa-converter globally, and optionally starts the stack.
+  Checks prerequisites, installs @sas3/pa-converter globally from npmjs
+  (no GitHub token), and optionally starts the stack.
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File scripts/install-windows.ps1
 
 .EXAMPLE
-  .\scripts\install-windows.ps1 -Token ghp_xxx -Start
+  .\scripts\install-windows.ps1 -Start
 #>
 [CmdletBinding()]
 param(
-  [string]$Token = $env:GITHUB_TOKEN,
-  [string]$Version = "5.45.6",
+  [string]$Version = "5.46.12",
   [switch]$Start,
   [switch]$SkipInstall
 )
 
 $ErrorActionPreference = "Stop"
-$Package = "@tufaylahmed/pa-converter@$Version"
+$Package = "@sas3/pa-converter@$Version"
 
 Write-Host ""
 Write-Host "  PA-Converter Windows installer" -ForegroundColor Cyan
@@ -52,51 +51,25 @@ if ($LASTEXITCODE -ne 0) {
   exit 1
 }
 
-if (-not $Token) {
-  Write-Host "GitHub Packages needs a Personal Access Token (classic) with:" -ForegroundColor Yellow
-  Write-Host "  read:packages   (and repo if the linked repo is private)"
-  Write-Host "Create one: https://github.com/settings/tokens"
-  Write-Host ""
-  $secure = Read-Host "Paste GitHub PAT" -AsSecureString
-  $Token = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
-    [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-  )
-}
-
-if (-not $Token) {
-  Write-Host "No token provided." -ForegroundColor Red
-  exit 1
-}
-
+# Remove legacy GitHub Packages remap that forces auth for installs
 $npmrc = Join-Path $HOME ".npmrc"
-$lines = @()
 if (Test-Path $npmrc) {
   $lines = Get-Content $npmrc | Where-Object {
     $_ -notmatch '^@tufaylahmed:registry=' -and
+    $_ -notmatch '^@sas3:registry=https://npm\.pkg\.github\.com' -and
     $_ -notmatch '^//npm\.pkg\.github\.com/:_authToken='
   }
+  Set-Content -Path $npmrc -Value $lines -Encoding utf8
 }
-$lines += "@tufaylahmed:registry=https://npm.pkg.github.com"
-$lines += "//npm.pkg.github.com/:_authToken=$Token"
-Set-Content -Path $npmrc -Value $lines -Encoding utf8
-Write-Host "Wrote GitHub Packages auth to $npmrc" -ForegroundColor Green
 
 if (-not $SkipInstall) {
-  Write-Host "Installing $Package …" -ForegroundColor Cyan
-  npm install -g $Package --registry=https://npm.pkg.github.com
+  Write-Host "Installing $Package from public npm …" -ForegroundColor Cyan
+  npm install -g $Package --registry=https://registry.npmjs.org
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
 Write-Host ""
-Write-Host "Installed. Commands:" -ForegroundColor Green
-Write-Host "  pa-converter start"
-Write-Host "  pa-converter status"
-Write-Host "  pa-converter stop"
-Write-Host "  npx $Package start"
-Write-Host ""
-Write-Host "UI: https://localhost:18443   login admin / paloalto" -ForegroundColor DarkGray
-Write-Host ""
-
+Write-Host "Installed. Run: pa-converter start" -ForegroundColor Green
 if ($Start) {
   pa-converter start
 }

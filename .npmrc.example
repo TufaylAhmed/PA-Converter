@@ -1,5 +1,2 @@
 # Optional. Public installs from npmjs need no auth / no .npmrc.
-# Only needed if you publish or pull the legacy GitHub Packages copy:
-#
-# @tufaylahmed:registry=https://npm.pkg.github.com
-# //npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
+# Package: @sas3/pa-converter

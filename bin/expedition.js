@@ -117,8 +117,8 @@ function cmdStart() {
 Expedition is starting.
   Open:  https://localhost:${DEFAULT_PORT}
   Login: admin / paloalto
-  Logs:  npx @tufaylahmed/pa-converter logs
-  Stop:  npx @tufaylahmed/pa-converter stop
+  Logs:  npx @sas3/pa-converter logs
+  Stop:  npx @sas3/pa-converter stop
 
 Note: accept the self-signed TLS warning in your browser.
 `);
@@ -180,20 +180,14 @@ Host: ${os.platform()} ${os.arch()} | package root: ${ROOT}
 
 function cmdPublishHelp() {
   console.log(`
-Private publish (do NOT use public npmjs.org)
+Public npm (@sas3):
+  npm publish --access public
 
-GitHub Packages:
-  npm login --registry=https://npm.pkg.github.com
-  npm publish --registry=https://npm.pkg.github.com
-
-Install / run:
-  npx @tufaylahmed/pa-converter@5.45.6 start
+Install / run (no auth):
+  npx @sas3/pa-converter@5.46.12 start
 
 Windows MSI:
-  installer\\windows\\build.ps1   →  dist\\PA-Converter-5.45.6.msi
-
-Windows bootstrap:
-  powershell -ExecutionPolicy Bypass -File scripts/install-windows.ps1
+  installer\\windows\\build.ps1   →  dist\\PA-Converter-5.46.12.msi
 
 Host: ${os.platform()} ${os.arch()} | package root: ${ROOT}
 `);
