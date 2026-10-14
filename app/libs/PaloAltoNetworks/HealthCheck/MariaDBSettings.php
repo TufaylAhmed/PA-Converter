@@ -50,13 +50,29 @@ class MariaDBSettings extends HealthCheck
                 $remediation = "Verify DB_HOST / MariaDB container is running and accepting connections.";
             }
         } else {
-            $command = "netstat -pnuat | grep 3306 | grep LISTEN | awk '{ print $4 }'";
-            $response = exec($command);
+            // Linux
+            $command = "netstat -pnuat 2>/dev/null | grep 3306 | grep LISTEN | awk '{ print \$4 }'";
+            $response = trim((string)@exec($command));
+            // macOS / BSD (Homebrew MariaDB)
+            if ($response === '') {
+                $command = "lsof -nP -iTCP:3306 -sTCP:LISTEN 2>/dev/null | awk 'NR>1{print \$9; exit}'";
+                $response = trim((string)@exec($command));
+            }
+            // Fallback: TCP connect
+            if ($response === '') {
+                $errno = 0;
+                $errstr = '';
+                $fp = @fsockopen('127.0.0.1', 3306, $errno, $errstr, 2);
+                if ($fp) {
+                    fclose($fp);
+                    $response = '127.0.0.1:3306';
+                }
+            }
 
-            if($response == ":::3306" || $response == "0.0.0.0:3306"){
+            if($response == ":::3306" || $response == "0.0.0.0:3306" || $response == "127.0.0.1:3306" || $response == "*:3306"){
                 $success = true;
                 $code = 0;
-                $msg = "Your database is listening for incomming connections from 0.0.0.0:3306";
+                $msg = "Your database is listening for incomming connections from ".$response;
                 $remediation = "N/A";
             }
             else{

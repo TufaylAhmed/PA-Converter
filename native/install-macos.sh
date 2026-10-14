@@ -198,6 +198,7 @@ upload_max_filesize = 200M
 post_max_size = 200M
 memory_limit = 1G
 max_execution_time = 10000
+mysqli.reconnect = On
 EOF
   fi
   local fpm_conf="$php_ini_dir/php-fpm.d/pa-converter.conf"
@@ -329,30 +330,35 @@ bind-address = 127.0.0.1
 EOF
   fi
 
-  # PHP mysqli reconnect
-  php_ini="$bp/etc/php/7.4/conf.d/99-pa-converter.ini"
-  mkdir -p "$(dirname "$php_ini")"
+  # PHP mysqli reconnect (must be in main php.ini — PHP_INI_SYSTEM)
+  php_ini="$bp/etc/php/7.4/php.ini"
   if [ -f "$php_ini" ]; then
-    grep -q 'mysqli.reconnect' "$php_ini" 2>/dev/null || echo 'mysqli.reconnect = On' >> "$php_ini"
-  else
-    cat > "$php_ini" <<'EOF'
+    if grep -qE '^;?mysqli\.reconnect' "$php_ini"; then
+      perl -pi -e 's/^;?mysqli\.reconnect\s*=.*/mysqli.reconnect = On/' "$php_ini"
+    else
+      echo 'mysqli.reconnect = On' >> "$php_ini"
+    fi
+  fi
+  mkdir -p "$bp/etc/php/7.4/conf.d"
+  cat > "$bp/etc/php/7.4/conf.d/99-pa-converter.ini" <<'EOF'
 upload_max_filesize = 200M
 post_max_size = 200M
 memory_limit = 1G
 max_execution_time = 10000
 mysqli.reconnect = On
 EOF
-  fi
 
-  # ML settings: non-loopback IP (checkAlive treats 127.0.0.1 as unset) + writable parquet paths
+  # ML settings: checkAlive curls https://$server/API/... (default port 443).
+  # Our UI is on EXPEDITION_PORT, so store host:port. Also reject bare 127.0.0.1.
   mkdir -p "$PA_DATA"
   chmod u+rwx "$PA_DATA" "$PA_USERSPACE" "$PA_PALOGS" 2>/dev/null || true
+  local ml_server="${ml_ip}:${EXPEDITION_PORT}"
   mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -h127.0.0.1 pandbRBAC -e "
 INSERT INTO ml_settings (id, server, parquetPath, tempDataPath)
-VALUES (1, '${ml_ip}', '${PA_DATA}', '${PA_DATA}')
-ON DUPLICATE KEY UPDATE server='${ml_ip}', parquetPath='${PA_DATA}', tempDataPath='${PA_DATA}';
+VALUES (1, '${ml_server}', '${PA_DATA}', '${PA_DATA}')
+ON DUPLICATE KEY UPDATE server='${ml_server}', parquetPath='${PA_DATA}', tempDataPath='${PA_DATA}';
 " 2>/dev/null || true
-  pa_log "ML server=${ml_ip} parquet=${PA_DATA}"
+  pa_log "ML server=${ml_server} parquet=${PA_DATA}"
 }
 
 do_start() {
@@ -384,11 +390,26 @@ do_start() {
     echo $! > "$PA_DATA_ROOT/php-fpm.pid"
   fi
 
-  # httpd
+  # httpd — prefer brew services so it stays up across sessions
   if [ -x "$(brew_prefix)/bin/httpd" ]; then
+    # Ensure ServerName to silence FQDN warning
+    local httpd_conf
+    httpd_conf="$(brew_prefix)/etc/httpd/httpd.conf"
+    if [ -f "$httpd_conf" ] && ! grep -qE '^ServerName ' "$httpd_conf" 2>/dev/null; then
+      echo 'ServerName localhost' >> "$httpd_conf"
+    fi
+    brew services start httpd 2>/dev/null || true
     "$(brew_prefix)/bin/httpd" -k restart 2>/dev/null || "$(brew_prefix)/bin/httpd" -k start || true
   else
     brew services start httpd || true
+  fi
+  # Wait briefly for listeners
+  for _i in 1 2 3 4 5; do
+    lsof -nP -iTCP:"${EXPEDITION_PORT}" -sTCP:LISTEN >/dev/null 2>&1 && break
+    sleep 1
+  done
+  if ! lsof -nP -iTCP:"${EXPEDITION_PORT}" -sTCP:LISTEN >/dev/null 2>&1; then
+    pa_log "WARN: HTTPS port ${EXPEDITION_PORT} not listening — check $PA_LOG_DIR/httpd-ssl-error.log"
   fi
 
   # panReadOrders (after RabbitMQ permit is applied)
