@@ -59,6 +59,7 @@ pa_rewrite_php_paths() {
   export PA_USERSPACE PA_DATA PA_PALOGS
   find "$PA_WWW" -type f \( -name '*.php' -o -name '*.inc' \) -print0 2>/dev/null \
     | xargs -0 perl -pi -e '
+      s{/var/www/html}{$ENV{PA_WWW}}g;
       s{/home/userSpace}{$ENV{PA_USERSPACE}}g;
       s{/PALogs}{$ENV{PA_PALOGS}}g;
       s{(["'\''])/data\1}{$1.$ENV{PA_DATA}.$1}ge;
@@ -298,6 +299,8 @@ do_start() {
   else
     pa_ensure_dirs
     pa_link_classic_paths
+    # Package updates / fresh sync can restore Docker paths — always rewrite.
+    pa_rewrite_php_paths
   fi
   need_brew
   write_user_defs
