@@ -13,7 +13,7 @@ export PATH="${SPARK_HOME}/bin:${PATH}"
 export DB_HOST="${DB_HOST:-127.0.0.1}"
 export RABBITMQ_HOST="${RABBITMQ_HOST:-127.0.0.1}"
 
-chown -R www-data:www-data "$PA_USERSPACE" "$PA_DATA" /PALogs 2>/dev/null || true
+chown -R www-data:www-data "$PA_USERSPACE" "$PA_DATA" "$PA_PALOGS" 2>/dev/null || true
 
 cat > "$PA_USERSPACE/userDefinitions.php" <<EOF
 <?php

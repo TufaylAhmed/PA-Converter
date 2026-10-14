@@ -1,6 +1,6 @@
 {
   "name": "@sequr3/pa-converter",
-  "version": "5.46.18",
+  "version": "5.46.19",
   "description": "PA-Converter — native Palo Alto Expedition for firewall config conversion (macOS / Windows WSL / Linux, no Docker required)",
   "license": "UNLICENSED",
   "bin": {

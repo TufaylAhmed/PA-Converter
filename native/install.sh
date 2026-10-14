@@ -93,7 +93,7 @@ if [ -d "$PA_CONVERTER_ROOT/app" ]; then
   rsync -a --delete "$PA_CONVERTER_ROOT/app/" "$PA_WWW/" 2>/dev/null \
     || (rm -rf "$PA_WWW"/* && cp -a "$PA_CONVERTER_ROOT/app/." "$PA_WWW/")
 fi
-chown -R www-data:www-data "$PA_WWW" "$PA_USERSPACE" "$PA_DATA" /PALogs 2>/dev/null || true
+chown -R www-data:www-data "$PA_WWW" "$PA_USERSPACE" "$PA_DATA" "$PA_PALOGS" 2>/dev/null || true
 
 # Apache site on Expedition ports
 APACHE_LOG_DIR="${APACHE_LOG_DIR:-/var/log/apache2}"

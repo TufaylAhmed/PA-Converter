@@ -10,13 +10,15 @@ source "$SCRIPT_DIR/lib/common.sh"
 ACTION="${1:-install}"
 shift || true
 
+# Force macOS paths (common.sh may already have set Linux FHS defaults).
 PREFIX="${PA_MAC_PREFIX:-$HOME/Library/Application Support/PA-Converter}"
-export PA_DATA_ROOT="${PA_DATA_ROOT:-$PREFIX/var}"
-export PA_WWW="${PA_WWW:-$PREFIX/www}"
-export PA_USERSPACE="${PA_USERSPACE:-$PREFIX/userSpace}"
-export PA_DATA="${PA_DATA:-$PREFIX/data}"
-export PA_LOG_DIR="${PA_LOG_DIR:-$PA_DATA_ROOT/logs}"
-export PA_MARKER="${PA_MARKER:-$PA_DATA_ROOT/installed}"
+export PA_DATA_ROOT="$PREFIX/var"
+export PA_WWW="$PREFIX/www"
+export PA_USERSPACE="$PREFIX/userSpace"
+export PA_DATA="$PREFIX/data"
+export PA_PALOGS="$PREFIX/PALogs"
+export PA_LOG_DIR="$PA_DATA_ROOT/logs"
+export PA_MARKER="$PA_DATA_ROOT/installed"
 export SPARK_HOME="${SPARK_HOME:-$PREFIX/opt/Spark/spark}"
 
 # Homebrew Apache often listens on 8080; we bind Expedition ports separately.
@@ -30,6 +32,31 @@ need_brew() {
   fi
 }
 
+# Expedition PHP hardcodes /home/userSpace, /data, /PALogs — symlink those to PREFIX (needs sudo once).
+pa_link_classic_paths() {
+  pa_ensure_dirs
+  local need_sudo=0
+  for link in /home/userSpace /data /PALogs; do
+    if [ -L "$link" ] || [ -d "$link" ]; then
+      continue
+    fi
+    need_sudo=1
+    break
+  done
+  if [ "$need_sudo" -eq 0 ]; then
+    return 0
+  fi
+  pa_log "Linking Expedition paths (/home/userSpace, /data, /PALogs) → $PREFIX (sudo once)…"
+  if ! command -v sudo >/dev/null 2>&1; then
+    pa_log "WARN: sudo missing — UI may fail until classic paths exist." >&2
+    return 0
+  fi
+  sudo mkdir -p /home
+  sudo ln -sfn "$PA_USERSPACE" /home/userSpace
+  sudo ln -sfn "$PA_DATA" /data
+  sudo ln -sfn "$PA_PALOGS" /PALogs
+}
+
 brew_prefix() {
   brew --prefix 2>/dev/null || echo /usr/local
 }
@@ -37,6 +64,7 @@ brew_prefix() {
 do_install() {
   need_brew
   pa_ensure_dirs
+  pa_link_classic_paths
   mkdir -p "$PREFIX/opt" "$PA_LOG_DIR"
 
   pa_log "Installing Homebrew packages (MariaDB, RabbitMQ, OpenJDK 11, httpd)…"
@@ -247,6 +275,9 @@ EOF
 do_start() {
   if [ ! -f "$PA_MARKER" ]; then
     do_install
+  else
+    pa_ensure_dirs
+    pa_link_classic_paths
   fi
   need_brew
   write_user_defs

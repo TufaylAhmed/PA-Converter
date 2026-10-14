@@ -5,10 +5,32 @@ set -euo pipefail
 NATIVE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Package / appliance root (app/, databases/, native/)
 export PA_CONVERTER_ROOT="${PA_CONVERTER_ROOT:-$(cd "$NATIVE_DIR/.." && pwd)}"
+
+# Platform defaults: Linux/WSL uses FHS paths; macOS uses a user-writable prefix.
+if [ -z "${PA_DATA_ROOT:-}" ] || [ -z "${PA_WWW:-}" ]; then
+  if [ "$(uname -s)" = "Darwin" ]; then
+    _PA_PREFIX="${PA_MAC_PREFIX:-$HOME/Library/Application Support/PA-Converter}"
+    : "${PA_DATA_ROOT:=$_PA_PREFIX/var}"
+    : "${PA_WWW:=$_PA_PREFIX/www}"
+    : "${PA_USERSPACE:=$_PA_PREFIX/userSpace}"
+    : "${PA_DATA:=$_PA_PREFIX/data}"
+    : "${PA_PALOGS:=$_PA_PREFIX/PALogs}"
+    : "${SPARK_HOME:=$_PA_PREFIX/opt/Spark/spark}"
+  else
+    : "${PA_DATA_ROOT:=/var/lib/pa-converter}"
+    : "${PA_WWW:=/var/www/pa-converter}"
+    : "${PA_USERSPACE:=/home/userSpace}"
+    : "${PA_DATA:=/data}"
+    : "${PA_PALOGS:=/PALogs}"
+    : "${SPARK_HOME:=/opt/Spark/spark}"
+  fi
+fi
+
 export PA_DATA_ROOT="${PA_DATA_ROOT:-/var/lib/pa-converter}"
 export PA_WWW="${PA_WWW:-/var/www/pa-converter}"
 export PA_USERSPACE="${PA_USERSPACE:-/home/userSpace}"
 export PA_DATA="${PA_DATA:-/data}"
+export PA_PALOGS="${PA_PALOGS:-/PALogs}"
 export PA_LOG_DIR="${PA_LOG_DIR:-$PA_DATA_ROOT/logs}"
 export PA_MARKER="${PA_MARKER:-$PA_DATA_ROOT/installed}"
 
@@ -26,8 +48,7 @@ export JAVA_HOME="${JAVA_HOME:-}"
 pa_log() { echo "[pa-converter] $*"; }
 
 pa_ensure_dirs() {
-  mkdir -p "$PA_DATA_ROOT" "$PA_LOG_DIR" "$PA_USERSPACE" "$PA_DATA" /PALogs
-  mkdir -p "$PA_WWW"
+  mkdir -p "$PA_DATA_ROOT" "$PA_LOG_DIR" "$PA_USERSPACE" "$PA_DATA" "$PA_PALOGS" "$PA_WWW"
 }
 
 pa_detect_java() {
