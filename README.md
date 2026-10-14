@@ -4,8 +4,8 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.46.14-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
-[![npm](https://img.shields.io/badge/npm-@sas3/pa--converter-CB3837?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sas3/pa-converter)
+[![Version](https://img.shields.io/badge/Expedition-5.46.15-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![npm](https://img.shields.io/badge/npm-@sequr3/pa--converter-CB3837?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sequr3/pa-converter)
 [![GitHub](https://img.shields.io/badge/GitHub-public-181717?style=for-the-badge&logo=github)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Platform](https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
@@ -57,7 +57,7 @@
 
 | Path | Who | Command / download |
 |------|-----|-------------------|
-| **npm / npx** | macOS / Linux | `npx @sas3/pa-converter start` |
+| **npm / npx** | macOS / Linux | `npx @sequr3/pa-converter start` |
 | **MSI / portable ZIP** | Windows | [GitHub Releases](https://github.com/TufaylAhmed/PA-Converter/releases) |
 | **git clone** | contributors | clone this repo, then `npm start` |
 
@@ -69,15 +69,15 @@
 
 ```bash
 # Start Docker Desktop, then:
-npx @sas3/pa-converter@5.46.14 start
+npx @sequr3/pa-converter@5.46.15 start
 
 # Day-to-day:
-npx @sas3/pa-converter status
-npx @sas3/pa-converter logs -f
-npx @sas3/pa-converter stop
+npx @sequr3/pa-converter status
+npx @sequr3/pa-converter logs -f
+npx @sequr3/pa-converter stop
 ```
 
-Package: [`@sas3/pa-converter`](https://www.npmjs.com/package/@sas3/pa-converter) on **npmjs.org**.
+Package: [`@sequr3/pa-converter`](https://www.npmjs.com/package/@sequr3/pa-converter) on **npmjs.org**.
 
 First `start` builds the web image (several minutes). Then open **https://localhost:18443** (accept the self-signed cert) → `admin` / `paloalto`.
 
@@ -87,7 +87,7 @@ First `start` builds the web image (several minutes). Then open **https://localh
 
 **End users only need the MSI** — no Docker Desktop, Node.js, or npm account.
 
-1. Download **`PA-Converter-5.46.14.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
+1. Download **`PA-Converter-5.46.15.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
 2. Run the MSI (allow UAC). Leave **Finish setup** checked.
 3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
 4. Wait for first-time provisioning (downloads Ubuntu/Docker packages and builds images).
@@ -101,7 +101,7 @@ Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.14
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.15
 ```
 
 ---
@@ -257,16 +257,16 @@ docker push <private-registry>/expedition-web:5.45.4
 EXPEDITION_IMAGE=<private-registry>/expedition-web:5.45.4 expedition start
 ```
 
-### Public npm (`@sas3/pa-converter`)
+### Public npm (`@sequr3/pa-converter`)
 
 ```bash
-npm login   # account causq / org sas3
+npm login   # account sequr3
 npm publish --access public
 # If the version is staged: approve with 2FA / recovery codes, then it goes live.
 ```
 
-Package page: https://www.npmjs.com/package/@sas3/pa-converter  
-2FA / recovery codes: https://www.npmjs.com/settings/causq/tfa/list
+Package page: https://www.npmjs.com/package/@sequr3/pa-converter  
+2FA / recovery codes: https://www.npmjs.com/settings/sequr3/tfa/list
 
 ---
 
@@ -281,12 +281,12 @@ Package page: https://www.npmjs.com/package/@sas3/pa-converter
 
 ## 👤 Maintainer
 
-**Tufail Ahmed Sheikh** ([@TufaylAhmed](https://github.com/TufaylAhmed)) · npm org **[@sas3](https://www.npmjs.com/org/sas3)**
+**Tufail Ahmed Sheikh** ([@TufaylAhmed](https://github.com/TufaylAhmed)) · npm **[@sequr3](https://www.npmjs.com/~sequr3)**
 
 ---
 
 <div align="center">
 
-**PA-Converter** · Expedition 5.45.4 · [`@sas3/pa-converter`](https://www.npmjs.com/package/@sas3/pa-converter) · [GitHub](https://github.com/TufaylAhmed/PA-Converter)
+**PA-Converter** · Expedition 5.45.4 · [`@sequr3/pa-converter`](https://www.npmjs.com/package/@sequr3/pa-converter) · [GitHub](https://github.com/TufaylAhmed/PA-Converter)
 
 </div>

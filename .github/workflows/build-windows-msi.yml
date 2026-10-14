@@ -34,7 +34,7 @@ jobs:
         id: ver
         shell: pwsh
         run: |
-          $v = "5.46.14"
+          $v = "5.46.15"
           if ($env:GITHUB_REF_TYPE -eq "tag") {
             $v = $env:GITHUB_REF_NAME.TrimStart("v")
           }
@@ -88,7 +88,7 @@ jobs:
 
             ### macOS / Linux (npx, no auth)
             ```bash
-            npx @sas3/pa-converter@${{ steps.ver.outputs.version }} start
+            npx @sequr3/pa-converter@${{ steps.ver.outputs.version }} start
             ```
 
             No Docker Desktop, Node.js, or GitHub token required on the Windows PC (MSI path).

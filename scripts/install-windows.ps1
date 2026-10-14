@@ -3,7 +3,7 @@
   Bootstrap PA-Converter on Windows (Node + Docker Desktop + public npm).
 
 .DESCRIPTION
-  Checks prerequisites, installs @sas3/pa-converter globally from npmjs
+  Checks prerequisites, installs @sequr3/pa-converter globally from npmjs
   (no GitHub token), and optionally starts the stack.
 
 .EXAMPLE
@@ -14,13 +14,13 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$Version = "5.46.14",
+  [string]$Version = "5.46.15",
   [switch]$Start,
   [switch]$SkipInstall
 )
 
 $ErrorActionPreference = "Stop"
-$Package = "@sas3/pa-converter@$Version"
+$Package = "@sequr3/pa-converter@$Version"
 
 Write-Host ""
 Write-Host "  PA-Converter Windows installer" -ForegroundColor Cyan
@@ -56,7 +56,7 @@ $npmrc = Join-Path $HOME ".npmrc"
 if (Test-Path $npmrc) {
   $lines = Get-Content $npmrc | Where-Object {
     $_ -notmatch '^@tufaylahmed:registry=' -and
-    $_ -notmatch '^@sas3:registry=https://npm\.pkg\.github\.com' -and
+    $_ -notmatch '^@sequr3:registry=https://npm\.pkg\.github\.com' -and
     $_ -notmatch '^//npm\.pkg\.github\.com/:_authToken='
   }
   Set-Content -Path $npmrc -Value $lines -Encoding utf8
