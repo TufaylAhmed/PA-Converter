@@ -4,7 +4,7 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.46.13-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.46.14-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![npm](https://img.shields.io/badge/npm-@sas3/pa--converter-CB3837?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sas3/pa-converter)
 [![GitHub](https://img.shields.io/badge/GitHub-public-181717?style=for-the-badge&logo=github)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
@@ -53,17 +53,23 @@
 - ✅ **Docker Desktop** with Compose v2 ([macOS](https://docs.docker.com/desktop/) · [Windows](https://docs.docker.com/desktop/setup/install/windows-install/) · Linux) — *not* required for the Windows MSI
 - 🪟 **Windows MSI:** BIOS virtualization / WSL2 (setup enables features for you)
 
-**No GitHub token or `.npmrc` required** — public npm + public GitHub Releases.
+**No login, token, or `.npmrc` required** for end users.
 
-> If an old `~/.npmrc` still has `@tufaylahmed:registry=https://npm.pkg.github.com`, **delete that line**.
+| Path | Who | Command / download |
+|------|-----|-------------------|
+| **npm / npx** | macOS / Linux | `npx @sas3/pa-converter start` |
+| **MSI / portable ZIP** | Windows | [GitHub Releases](https://github.com/TufaylAhmed/PA-Converter/releases) |
+| **git clone** | contributors | clone this repo, then `npm start` |
+
+> If an old `~/.npmrc` still has `@tufaylahmed:registry=https://npm.pkg.github.com`, **delete that line** or installs may ask for a GitHub PAT.
 
 ---
 
-### 🍎 macOS / Linux — run with npx (no auth)
+### 🍎 macOS / Linux — npx (public npm, no auth)
 
 ```bash
 # Start Docker Desktop, then:
-npx @sas3/pa-converter@5.46.13 start
+npx @sas3/pa-converter@5.46.14 start
 
 # Day-to-day:
 npx @sas3/pa-converter status
@@ -71,21 +77,17 @@ npx @sas3/pa-converter logs -f
 npx @sas3/pa-converter stop
 ```
 
+Package: [`@sas3/pa-converter`](https://www.npmjs.com/package/@sas3/pa-converter) on **npmjs.org**.
+
 First `start` builds the web image (several minutes). Then open **https://localhost:18443** (accept the self-signed cert) → `admin` / `paloalto`.
-
-Fallback (GitHub, also no auth):
-
-```bash
-npx --yes github:TufaylAhmed/PA-Converter#v5.46.13 start
-```
 
 ---
 
 ### 🪟 Windows — self-contained `.msi` (recommended)
 
-**End users only need the MSI** — no Docker Desktop, Node.js, or GitHub token.
+**End users only need the MSI** — no Docker Desktop, Node.js, or npm account.
 
-1. Download **`PA-Converter-5.46.13.msi`** from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases) (public).
+1. Download **`PA-Converter-5.46.14.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
 2. Run the MSI (allow UAC). Leave **Finish setup** checked.
 3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
 4. Wait for first-time provisioning (downloads Ubuntu/Docker packages and builds images).
@@ -99,24 +101,20 @@ Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.13
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.14
 ```
-
-**macOS/Linux developers** can still use `npx` (see above) with Docker Desktop.
 
 ---
 
 ### Run from git clone
 
 ```bash
-git clone git@github.com:TufaylAhmed/PA-Converter.git
+git clone https://github.com/TufaylAhmed/PA-Converter.git
 cd PA-Converter
 git lfs pull             # optional offline Spark bundle for Docker build
 
-npm link                 # exposes `expedition` / `pa-converter` on your PATH
-pa-converter start       # builds image + starts stack (first run takes a few minutes)
+npm start                # or: npm link && pa-converter start
 ```
-
 Open the UI:
 
 | Protocol | URL |
@@ -259,14 +257,16 @@ docker push <private-registry>/expedition-web:5.45.4
 EXPEDITION_IMAGE=<private-registry>/expedition-web:5.45.4 expedition start
 ```
 
-### Public npm (optional)
+### Public npm (`@sas3/pa-converter`)
 
 ```bash
-# requires a valid npmjs login (npm login)
+npm login   # account causq / org sas3
 npm publish --access public
+# If the version is staged: approve with 2FA / recovery codes, then it goes live.
 ```
 
-`publishConfig` targets `registry.npmjs.org` as **`@sas3/pa-converter`**.
+Package page: https://www.npmjs.com/package/@sas3/pa-converter  
+2FA / recovery codes: https://www.npmjs.com/settings/causq/tfa/list
 
 ---
 
@@ -275,20 +275,18 @@ npm publish --access public
 - ⏱️ First `start` builds the image and initializes the DB volume (several minutes).
 - 💾 DB data lives in Docker volume `expedition-db` until `docker compose down -v`.
 - 🧠 Spark/ML assets under `docker/spark/` use **Git LFS** — run `git lfs install` && `git lfs pull` after clone if needed.
-- 🏷️ This project packages Expedition for **internal engineering** workflows only.
+- 🏷️ This project packages Expedition for **engineering / lab** workflows.
 
 ---
 
 ## 👤 Maintainer
 
-**Tufail Ahmed Sheikh** ([@TufaylAhmed](https://github.com/TufaylAhmed))
+**Tufail Ahmed Sheikh** ([@TufaylAhmed](https://github.com/TufaylAhmed)) · npm org **[@sas3](https://www.npmjs.com/org/sas3)**
 
 ---
 
 <div align="center">
 
-**PA-Converter** · Expedition 5.45.4 · Dockerized for macOS & Linux
-
-`⭐` Star the private repo if this saves you a VM.
+**PA-Converter** · Expedition 5.45.4 · [`@sas3/pa-converter`](https://www.npmjs.com/package/@sas3/pa-converter) · [GitHub](https://github.com/TufaylAhmed/PA-Converter)
 
 </div>

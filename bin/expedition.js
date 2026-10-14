@@ -184,10 +184,10 @@ Public npm (@sas3):
   npm publish --access public
 
 Install / run (no auth):
-  npx @sas3/pa-converter@5.46.13 start
+  npx @sas3/pa-converter@5.46.14 start
 
 Windows MSI:
-  installer\\windows\\build.ps1   →  dist\\PA-Converter-5.46.13.msi
+  installer\\windows\\build.ps1   →  dist\\PA-Converter-5.46.14.msi
 
 Host: ${os.platform()} ${os.arch()} | package root: ${ROOT}
 `);

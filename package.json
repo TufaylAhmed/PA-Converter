@@ -1,6 +1,6 @@
 {
   "name": "@sas3/pa-converter",
-  "version": "5.46.13",
+  "version": "5.46.14",
   "description": "PA-Converter — Dockerized Palo Alto Expedition for firewall config conversion (macOS / Windows / Linux)",
   "license": "UNLICENSED",
   "bin": {
