@@ -38,28 +38,17 @@ need_brew() {
     pa_log "ERROR: Homebrew is required. Install from https://brew.sh" >&2
     exit 1
   fi
-  # brew as root is unsupported — drop to SUDO_USER when needed
-  if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ]; then
-    BREW_AS=(sudo -u "$SUDO_USER" -H)
-  else
-    BREW_AS=()
-  fi
 }
 
 # Best-effort root symlinks for /data and /PALogs (never /home — sealed on macOS).
+# Use sudo -n so we never block on a password prompt (PHP paths are rewritten anyway).
 pa_link_classic_paths() {
   pa_ensure_dirs
-  if [ -L /data ] || [ -d /data ]; then
-    :
-  elif command -v sudo >/dev/null 2>&1; then
-    sudo ln -sfn "$PA_DATA" /data 2>/dev/null \
-      || pa_log "WARN: could not link /data (ok — PHP paths are rewritten)"
+  if [ ! -e /data ] && command -v sudo >/dev/null 2>&1; then
+    sudo -n ln -sfn "$PA_DATA" /data 2>/dev/null || true
   fi
-  if [ -L /PALogs ] || [ -d /PALogs ]; then
-    :
-  elif command -v sudo >/dev/null 2>&1; then
-    sudo ln -sfn "$PA_PALOGS" /PALogs 2>/dev/null \
-      || pa_log "WARN: could not link /PALogs (ok — PHP paths are rewritten)"
+  if [ ! -e /PALogs ] && command -v sudo >/dev/null 2>&1; then
+    sudo -n ln -sfn "$PA_PALOGS" /PALogs 2>/dev/null || true
   fi
 }
 
@@ -301,7 +290,7 @@ EOF
 do_start() {
   if [ "$(id -u)" -eq 0 ] && [ -z "${PA_ALLOW_ROOT:-}" ]; then
     pa_log "Do not use sudo with npx — run as your user (Homebrew refuses root)."
-    pa_log "Retry:  npx --yes github:TufaylAhmed/PA-Converter#v5.46.20 start"
+    pa_log "Retry:  npx --yes github:TufaylAhmed/PA-Converter#v5.46.24 start"
     exit 1
   fi
   if [ ! -f "$PA_MARKER" ]; then
@@ -309,18 +298,14 @@ do_start() {
   else
     pa_ensure_dirs
     pa_link_classic_paths
-    # Re-sync path rewrites if www exists but still has Linux paths
-    if [ -d "$PA_WWW" ] && grep -Rql '/home/userSpace' "$PA_WWW" 2>/dev/null; then
-      pa_rewrite_php_paths
-    fi
   fi
   need_brew
   write_user_defs
 
-  "${BREW_AS[@]}" brew services start mariadb || true
-  "${BREW_AS[@]}" brew services start rabbitmq || true
+  brew services start mariadb || true
+  brew services start rabbitmq || true
 
-  # PHP-FPM
+  # PHP-FPM 7.4 (explicit path — do not use shadowed brew php)
   if [ -x "$(brew_prefix)/opt/php@7.4/sbin/php-fpm" ]; then
     pkill -f 'php-fpm.*7.4' 2>/dev/null || true
     "$(brew_prefix)/opt/php@7.4/sbin/php-fpm" --nodaemonize >>"$PA_LOG_DIR/php-fpm.log" 2>&1 &
@@ -331,7 +316,7 @@ do_start() {
   if [ -x "$(brew_prefix)/bin/httpd" ]; then
     "$(brew_prefix)/bin/httpd" -k restart 2>/dev/null || "$(brew_prefix)/bin/httpd" -k start || true
   else
-    "${BREW_AS[@]}" brew services start httpd || true
+    brew services start httpd || true
   fi
 
   # panReadOrders
