@@ -1,6 +1,6 @@
 {
   "name": "@tufaylahmed/pa-converter",
-  "version": "5.46.9",
+  "version": "5.46.10",
   "description": "PA-Converter — Dockerized Palo Alto Expedition for firewall config conversion (macOS / Windows / Linux)",
   "license": "UNLICENSED",
   "bin": {

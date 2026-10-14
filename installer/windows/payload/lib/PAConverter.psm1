@@ -547,6 +547,27 @@ function Get-PADistroName {
   return $script:DistroName
 }
 
+function ConvertTo-PAWslMountPath {
+  param([Parameter(Mandatory)][string]$WindowsPath)
+  $full = [IO.Path]::GetFullPath($WindowsPath)
+  if ($full -notmatch '^[A-Za-z]:') {
+    throw "Unexpected install path (need drive letter): $full"
+  }
+  $drive = $full.Substring(0, 1).ToLowerInvariant()
+  # Substring(2) keeps a leading '\' after 'C:' — trim it or we get /mnt/c//ProgramData/...
+  $rest = $full.Substring(2).TrimStart('\', '/') -replace '\\', '/'
+  return "/mnt/$drive/$rest"
+}
+
+function Test-PAEngineInWsl {
+  param([string]$Distro)
+  $r = Invoke-PAWslExe -WslArgs @(
+    "-d", $Distro, "-u", "root", "--",
+    "bash", "-lc", "test -f /opt/pa-converter/docker/docker-compose.yml && echo OK || echo MISSING"
+  )
+  return ($r.ExitCode -eq 0 -and $r.Text -match '\bOK\b')
+}
+
 function Sync-PAEngineIntoWsl {
   param([string]$InstallRoot)
   $engine = Join-Path $InstallRoot "engine"
@@ -557,17 +578,103 @@ function Sync-PAEngineIntoWsl {
   $distro = Get-PADistroName
   Write-PALog "Syncing Expedition engine into WSL distro '$distro' (/opt/pa-converter)..."
 
-  if ($engine -notmatch '^[A-Za-z]:\\') {
-    throw "Unexpected install path: $engine"
+  $prevEap = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try {
+    $prep = Invoke-PAWslExe -WslArgs @(
+      "-d", $distro, "-u", "root", "--",
+      "bash", "-lc",
+      "mkdir -p /opt/pa-converter /data /home/userSpace && rm -rf /opt/pa-converter/* && echo ready"
+    )
+    Write-PALog ("WSL prep exit=$($prep.ExitCode) $($prep.Text)")
+    if ($prep.ExitCode -ne 0) {
+      throw "Could not start WSL distro '$distro' (exit $($prep.ExitCode)): $($prep.Text)"
+    }
+
+    $synced = $false
+
+    # 1) Tar pipe — does not require /mnt/c automount (common failure on fresh --import)
+    Write-PALog "Engine copy method 1/3: tar pipe (Windows tar -> WSL tar)..."
+    $tarLine = "tar -C `"$engine`" -cf - . | wsl.exe -d `"$distro`" -u root -- tar -C /opt/pa-converter -xf -"
+    $tarOut = cmd.exe /c $tarLine 2>&1 | Out-String
+    $tarCode = $LASTEXITCODE
+    if ($tarOut.Trim()) { Write-PALog ("tar pipe output: " + (ConvertFrom-PAWslText $tarOut.Trim())) }
+    Write-PALog "tar pipe exit=$tarCode"
+    if ($tarCode -eq 0 -and (Test-PAEngineInWsl -Distro $distro)) {
+      $synced = $true
+      Write-PALog "Engine copy via tar pipe OK."
+    }
+
+    # 2) \\wsl$\ UNC copy from Windows into the distro filesystem
+    if (-not $synced) {
+      Write-PALog "Engine copy method 2/3: \\wsl$\$distro\ ..." "WARN"
+      $uncRoot = "\\wsl$\$distro"
+      $deadline = (Get-Date).AddSeconds(45)
+      while (-not (Test-Path -LiteralPath $uncRoot) -and (Get-Date) -lt $deadline) {
+        Start-Sleep -Milliseconds 500
+        try { & wsl.exe -d $distro -u root -- echo ping 1>$null 2>$null } catch {}
+      }
+      if (Test-Path -LiteralPath $uncRoot) {
+        $dest = Join-Path $uncRoot "opt\pa-converter"
+        New-Item -ItemType Directory -Force -Path $dest | Out-Null
+        try {
+          Copy-Item -Path (Join-Path $engine "*") -Destination $dest -Recurse -Force -ErrorAction Stop
+        } catch {
+          Write-PALog "UNC Copy-Item failed: $_" "WARN"
+        }
+        if (Test-PAEngineInWsl -Distro $distro) {
+          $synced = $true
+          Write-PALog "Engine copy via \\wsl$ OK."
+        }
+      } else {
+        Write-PALog "UNC path $uncRoot not available after wait." "WARN"
+      }
+    }
+
+    # 3) /mnt/<drive>/... with corrected slash handling + automount config
+    if (-not $synced) {
+      $mnt = ConvertTo-PAWslMountPath $engine
+      Write-PALog "Engine copy method 3/3: cp -a from $mnt ..." "WARN"
+      $null = Invoke-PAWslExe -WslArgs @(
+        "-d", $distro, "-u", "root", "--",
+        "bash", "-lc",
+        "printf '%s\n' '[boot]' 'systemd=true' '' '[automount]' 'enabled=true' 'root=/mnt/' 'options=metadata,umask=22,fmask=11' '' '[interop]' 'enabled=true' 'appendWindowsPath=true' '' '[user]' 'default=root' > /etc/wsl.conf"
+      )
+      try { & wsl.exe -t $distro 2>$null } catch {}
+      Start-Sleep -Seconds 2
+      $copy = Invoke-PAWslExe -WslArgs @(
+        "-d", $distro, "-u", "root", "--",
+        "bash", "-lc",
+        "mkdir -p /opt/pa-converter /data /home/userSpace && rm -rf /opt/pa-converter/* && (ls -la '$mnt' || ls -la /mnt) && cp -a '$mnt'/. /opt/pa-converter/ && test -f /opt/pa-converter/docker/docker-compose.yml && echo OK"
+      )
+      Write-PALog ("mnt copy exit=$($copy.ExitCode) $($copy.Text)")
+      if (Test-PAEngineInWsl -Distro $distro) {
+        $synced = $true
+        Write-PALog "Engine copy via /mnt OK."
+      }
+    }
+
+    if (-not $synced) {
+      $mntHint = ConvertTo-PAWslMountPath $engine
+      throw @"
+Failed to copy engine into WSL distro '$distro'.
+
+Windows engine: $engine
+WSL mount hint: $mntHint
+
+Tried: tar pipe, \\wsl$\$distro\, and cp from /mnt.
+See $(Get-PALogPath) for details.
+"@
+    }
+
+    $null = Invoke-PAWslExe -WslArgs @(
+      "-d", $distro, "-u", "root", "--",
+      "bash", "-lc",
+      "chmod +x /opt/pa-converter/wsl/*.sh 2>/dev/null; printf '%s\n' '[boot]' 'systemd=true' '' '[automount]' 'enabled=true' 'root=/mnt/' 'options=metadata,umask=22,fmask=11' '' '[user]' 'default=root' > /etc/wsl.conf; echo done"
+    )
+  } finally {
+    $ErrorActionPreference = $prevEap
   }
-  $drive = $engine.Substring(0, 1).ToLower()
-  $rest = $engine.Substring(2) -replace '\\', '/'
-  $mnt = "/mnt/$drive/$rest"
-
-  & wsl.exe -d $distro -u root -- bash -lc "mkdir -p /opt/pa-converter /data /home/userSpace && rm -rf /opt/pa-converter/* && cp -a '$mnt'/. /opt/pa-converter/ && chmod +x /opt/pa-converter/wsl/*.sh"
-  if ($LASTEXITCODE -ne 0) { throw "Failed to copy engine into WSL (exit $LASTEXITCODE). Mount path was $mnt" }
-
-  & wsl.exe -d $distro -u root -- bash -lc "printf '%s\n' '[boot]' 'systemd=true' '' '[user]' 'default=root' > /etc/wsl.conf"
 }
 
 function Invoke-PAWsl {
