@@ -112,6 +112,15 @@ try {
     throw "engine.zip missing at $engineZip`r`nExtract the portable ZIP fully, then run SETUP.bat from the extracted folder (not from inside the .zip)."
   }
 
+  # Prevent overlapping SETUP runs (they terminate WSL / corrupt engine copy)
+  $lockPath = Join-Path $InstallRoot "logs\setup.lock"
+  New-Item -ItemType Directory -Force -Path (Split-Path $lockPath) | Out-Null
+  try {
+    $script:PASetupLock = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
+  } catch {
+    throw "Another PA-Converter setup is already running. Wait for it to finish (or reboot), then retry SETUP.bat."
+  }
+
   Expand-PAEngine -InstallRoot $InstallRoot
 
   # Tell the user about BIOS virtualization BEFORE long downloads
@@ -194,10 +203,12 @@ try {
   }
 
   Stop-Transcript | Out-Null
+  try { if ($script:PASetupLock) { $script:PASetupLock.Close() } } catch {}
   exit 0
 }
 catch {
   try { Stop-Transcript | Out-Null } catch {}
+  try { if ($script:PASetupLock) { $script:PASetupLock.Close() } } catch {}
   $msg = $_.Exception.Message
   if (Get-Command Show-PAError -ErrorAction SilentlyContinue) {
     Show-PAError $msg

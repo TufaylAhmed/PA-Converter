@@ -296,6 +296,7 @@ function Install-PAWslKernel {
 function ConvertFrom-PAWslText {
   param([object]$Raw)
   # wsl.exe writes UTF-16LE; PowerShell often turns it into null-padded ASCII ("U b u n t u")
+  # or CJK mojibake when UTF-16LE bytes are misread as a Unicode string.
   if ($null -eq $Raw) { return "" }
   $s = if ($Raw -is [Array]) { ($Raw | ForEach-Object { "$_" }) -join "`n" } else { [string]$Raw }
   $s = $s -replace "`0", ""
@@ -303,7 +304,17 @@ function ConvertFrom-PAWslText {
   if ($s -match '(\w ){3,}\w') {
     $s = [regex]::Replace($s, '(?<=\S) (?=\S)', '')
   }
-  return $s
+  # Recover ASCII/UTF-8 hidden inside UTF-16LE-as-Unicode mojibake (e.g. "ready" -> "敲摡…")
+  if ($s -match '[\u0100-\uFFFF]' -and $s -notmatch '[A-Za-z]{4,}') {
+    try {
+      $bytes = [Text.Encoding]::Unicode.GetBytes($s)
+      $fixed = [Text.Encoding]::UTF8.GetString($bytes) -replace "`0", ""
+      if ($fixed -match '[\x09\x0A\x0D\x20-\x7E]{3,}') {
+        $s = $fixed
+      }
+    } catch {}
+  }
+  return $s.Trim()
 }
 
 function Invoke-PAWslExe {
@@ -561,11 +572,12 @@ function ConvertTo-PAWslMountPath {
 
 function Test-PAEngineInWsl {
   param([string]$Distro)
+  # Prefer exit code only — wsl UTF-16 text is often mojibake in Windows PowerShell 5.1
   $r = Invoke-PAWslExe -WslArgs @(
     "-d", $Distro, "-u", "root", "--",
-    "bash", "-lc", "test -f /opt/pa-converter/docker/docker-compose.yml && echo OK || echo MISSING"
+    "test", "-f", "/opt/pa-converter/docker/docker-compose.yml"
   )
-  return ($r.ExitCode -eq 0 -and $r.Text -match '\bOK\b')
+  return ($r.ExitCode -eq 0)
 }
 
 function Sync-PAEngineIntoWsl {
@@ -584,7 +596,7 @@ function Sync-PAEngineIntoWsl {
     $prep = Invoke-PAWslExe -WslArgs @(
       "-d", $distro, "-u", "root", "--",
       "bash", "-lc",
-      "mkdir -p /opt/pa-converter /data /home/userSpace && rm -rf /opt/pa-converter/* && echo ready"
+      "mkdir -p /opt/pa-converter /data /home/userSpace && find /opt/pa-converter -mindepth 1 -maxdepth 1 -exec rm -rf {} + && echo ready"
     )
     Write-PALog ("WSL prep exit=$($prep.ExitCode) $($prep.Text)")
     if ($prep.ExitCode -ne 0) {
@@ -593,16 +605,31 @@ function Sync-PAEngineIntoWsl {
 
     $synced = $false
 
-    # 1) Tar pipe — does not require /mnt/c automount (common failure on fresh --import)
-    Write-PALog "Engine copy method 1/3: tar pipe (Windows tar -> WSL tar)..."
-    $tarLine = "tar -C `"$engine`" -cf - . | wsl.exe -d `"$distro`" -u root -- tar -C /opt/pa-converter -xf -"
-    $tarOut = cmd.exe /c $tarLine 2>&1 | Out-String
-    $tarCode = $LASTEXITCODE
-    if ($tarOut.Trim()) { Write-PALog ("tar pipe output: " + (ConvertFrom-PAWslText $tarOut.Trim())) }
-    Write-PALog "tar pipe exit=$tarCode"
-    if ($tarCode -eq 0 -and (Test-PAEngineInWsl -Distro $distro)) {
-      $synced = $true
-      Write-PALog "Engine copy via tar pipe OK."
+    # 1) Temp tar on Windows + extract via /mnt (avoids fragile cmd.exe pipes / distro-not-found races)
+    Write-PALog "Engine copy method 1/3: temp tar + wsl extract..."
+    $tmpTar = Join-Path $env:TEMP ("pa-converter-engine-{0}.tar" -f $PID)
+    try {
+      if (Test-Path $tmpTar) { Remove-Item $tmpTar -Force -ErrorAction SilentlyContinue }
+      & tar.exe -C $engine -cf $tmpTar .
+      $tarWrite = $LASTEXITCODE
+      Write-PALog "temp tar write exit=$tarWrite size=$([math]::Round((Get-Item $tmpTar).Length/1MB,1))MB"
+      if ($tarWrite -eq 0 -and (Test-Path $tmpTar)) {
+        $mntTar = ConvertTo-PAWslMountPath $tmpTar
+        $extract = Invoke-PAWslExe -WslArgs @(
+          "-d", $distro, "-u", "root", "--",
+          "bash", "-lc",
+          "tar -C /opt/pa-converter -xf '$mntTar' && test -f /opt/pa-converter/docker/docker-compose.yml"
+        )
+        Write-PALog ("temp tar extract exit=$($extract.ExitCode) $($extract.Text)")
+        if (Test-PAEngineInWsl -Distro $distro) {
+          $synced = $true
+          Write-PALog "Engine copy via temp tar OK."
+        }
+      }
+    } catch {
+      Write-PALog "temp tar method failed: $_" "WARN"
+    } finally {
+      Remove-Item $tmpTar -Force -ErrorAction SilentlyContinue
     }
 
     # 2) \\wsl$\ UNC copy from Windows into the distro filesystem
@@ -631,7 +658,7 @@ function Sync-PAEngineIntoWsl {
       }
     }
 
-    # 3) /mnt/<drive>/... with corrected slash handling + automount config
+    # 3) /mnt/<drive>/... copy (no wsl --terminate; that races concurrent setup / provision)
     if (-not $synced) {
       $mnt = ConvertTo-PAWslMountPath $engine
       Write-PALog "Engine copy method 3/3: cp -a from $mnt ..." "WARN"
@@ -640,12 +667,10 @@ function Sync-PAEngineIntoWsl {
         "bash", "-lc",
         "printf '%s\n' '[boot]' 'systemd=true' '' '[automount]' 'enabled=true' 'root=/mnt/' 'options=metadata,umask=22,fmask=11' '' '[interop]' 'enabled=true' 'appendWindowsPath=true' '' '[user]' 'default=root' > /etc/wsl.conf"
       )
-      try { & wsl.exe -t $distro 2>$null } catch {}
-      Start-Sleep -Seconds 2
       $copy = Invoke-PAWslExe -WslArgs @(
         "-d", $distro, "-u", "root", "--",
         "bash", "-lc",
-        "mkdir -p /opt/pa-converter /data /home/userSpace && rm -rf /opt/pa-converter/* && (ls -la '$mnt' || ls -la /mnt) && cp -a '$mnt'/. /opt/pa-converter/ && test -f /opt/pa-converter/docker/docker-compose.yml && echo OK"
+        "mkdir -p /opt/pa-converter /data /home/userSpace && find /opt/pa-converter -mindepth 1 -maxdepth 1 -exec rm -rf {} + && ls -la '$mnt' && cp -a '$mnt'/. /opt/pa-converter/ && test -f /opt/pa-converter/docker/docker-compose.yml"
       )
       Write-PALog ("mnt copy exit=$($copy.ExitCode) $($copy.Text)")
       if (Test-PAEngineInWsl -Distro $distro) {
@@ -662,7 +687,7 @@ Failed to copy engine into WSL distro '$distro'.
 Windows engine: $engine
 WSL mount hint: $mntHint
 
-Tried: tar pipe, \\wsl$\$distro\, and cp from /mnt.
+Tried: temp tar, \\wsl$\$distro\, and cp from /mnt.
 See $(Get-PALogPath) for details.
 "@
     }
@@ -682,8 +707,14 @@ function Invoke-PAWsl {
   $distro = Get-PADistroName
   $envLine = "export PA_CONVERTER_ROOT=/opt/pa-converter EXPEDITION_PORT=18443 EXPEDITION_HTTP_PORT=18080"
   Write-PALog "WSL[$distro] running $ScriptName ..."
-  & wsl.exe -d $distro -u root -- bash -lc "$envLine; bash /opt/pa-converter/wsl/$ScriptName"
-  return $LASTEXITCODE
+  # Capture stdout so PowerShell does not treat wsl output as the function return value
+  $r = Invoke-PAWslExe -WslArgs @(
+    "-d", $distro, "-u", "root", "--",
+    "bash", "-lc",
+    "$envLine; bash /opt/pa-converter/wsl/$ScriptName"
+  )
+  if ($r.Text) { Write-PALog $r.Text }
+  return [int]$r.ExitCode
 }
 
 function Register-PARunOnce {

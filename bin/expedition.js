@@ -184,10 +184,10 @@ Public npm (@sequr3):
   npm publish --access public
 
 Install / run (no auth):
-  npx @sequr3/pa-converter@5.46.16 start
+  npx @sequr3/pa-converter@5.46.17 start
 
 Windows MSI:
-  installer\\windows\\build.ps1   →  dist\\PA-Converter-5.46.16.msi
+  installer\\windows\\build.ps1   →  dist\\PA-Converter-5.46.17.msi
 
 Host: ${os.platform()} ${os.arch()} | package root: ${ROOT}
 `);
