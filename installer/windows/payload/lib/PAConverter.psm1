@@ -307,16 +307,38 @@ function ConvertFrom-PAWslText {
 }
 
 function Invoke-PAWslExe {
-  param([Parameter(ValueFromRemainingArguments = $true)][string[]]$WslArgs)
-  $prev = [Console]::OutputEncoding
+  param(
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [object[]]$WslArgs
+  )
+  # Flatten nested arrays from PowerShell comma-binding
+  # (Invoke-X "a","b" can arrive as a single nested Object[]).
+  $flat = [System.Collections.Generic.List[string]]::new()
+  foreach ($a in @($WslArgs)) {
+    if ($null -eq $a) { continue }
+    if ($a -is [System.Array] -and -not ($a -is [string])) {
+      foreach ($b in $a) {
+        if ($null -ne $b) { $flat.Add([string]$b) }
+      }
+    } else {
+      $flat.Add([string]$a)
+    }
+  }
+  $argv = $flat.ToArray()
+
+  $prevEnc = [Console]::OutputEncoding
+  $prevEap = $ErrorActionPreference
   try {
+    # Native wsl.exe stderr must not terminate when caller uses Stop
+    $ErrorActionPreference = "Continue"
     [Console]::OutputEncoding = [System.Text.Encoding]::Unicode
-    $out = & wsl.exe @WslArgs 2>&1
+    $out = & wsl.exe @argv 2>&1
     $code = $LASTEXITCODE
     $text = ConvertFrom-PAWslText $out
     return [pscustomobject]@{ ExitCode = $code; Text = $text; Raw = $out }
   } finally {
-    [Console]::OutputEncoding = $prev
+    [Console]::OutputEncoding = $prevEnc
+    $ErrorActionPreference = $prevEap
   }
 }
 
@@ -467,12 +489,12 @@ function Install-PADistro {
   }
 
   Write-PALog "Importing WSL distro 'PA-Converter' from tar..."
-  $import = Invoke-PAWslExe "--import", "PA-Converter", "$wslDir", "$tar", "--version", "2"
+  $import = Invoke-PAWslExe -WslArgs @("--import", "PA-Converter", $wslDir, $tar, "--version", "2")
   Write-PALog ("wsl --import exit=$($import.ExitCode) output=$($import.Text)")
 
   if ($import.ExitCode -ne 0) {
     Write-PALog "Import with .tar failed; trying .tar.gz directly..." "WARN"
-    $import = Invoke-PAWslExe "--import", "PA-Converter", "$wslDir", "$tarGz", "--version", "2"
+    $import = Invoke-PAWslExe -WslArgs @("--import", "PA-Converter", $wslDir, $tarGz, "--version", "2")
     Write-PALog ("wsl --import (gz) exit=$($import.ExitCode) output=$($import.Text)")
   }
 
@@ -483,14 +505,14 @@ function Install-PADistro {
   # Microsoft Store / wsl --install fallbacks (may need reboot after)
   foreach ($distroId in @("Ubuntu-22.04", "Ubuntu", "Ubuntu-24.04")) {
     Write-PALog "Trying: wsl --install -d $distroId --no-launch"
-    $inst = Invoke-PAWslExe "--install", "-d", $distroId, "--no-launch"
+    $inst = Invoke-PAWslExe -WslArgs @("--install", "-d", $distroId, "--no-launch")
     Write-PALog ("install $distroId exit=$($inst.ExitCode) output=$($inst.Text)")
     Start-Sleep -Seconds 8
     $found = Find-PAUsableDistro -InstallRoot $InstallRoot
     if ($found) { return }
 
     # Online install variant
-    $inst2 = Invoke-PAWslExe "--install", "-d", $distroId, "--no-launch", "--web-download"
+    $inst2 = Invoke-PAWslExe -WslArgs @("--install", "-d", $distroId, "--no-launch", "--web-download")
     Write-PALog ("web-download $distroId exit=$($inst2.ExitCode) output=$($inst2.Text)")
     Start-Sleep -Seconds 8
     $found = Find-PAUsableDistro -InstallRoot $InstallRoot
