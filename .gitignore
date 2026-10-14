@@ -1,6 +1,10 @@
 node_modules/
 tests/node_modules/
 tests/artifacts/
+wave2/node_modules/
+wave2/dist/
+wave2/playwright-report/
+wave2/test-results/
 .DS_Store
 *.log
 .env

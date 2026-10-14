@@ -4,7 +4,7 @@
 
 ### Palo Alto Expedition · Firewall Config Converter (Docker)
 
-[![Version](https://img.shields.io/badge/Expedition-5.46.0-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
+[![Version](https://img.shields.io/badge/Expedition-5.46.8-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![License](https://img.shields.io/badge/License-Private-red?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Platform](https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
@@ -74,7 +74,7 @@ PAT scopes: `read:packages` (and `repo` if needed for the private GitHub repo).
 # 1) One-time auth (see ~/.npmrc above)
 
 # 2) Start Docker Desktop, then:
-npx @tufaylahmed/pa-converter@5.45.6 start
+npx @tufaylahmed/pa-converter@5.46.8 start
 
 # Day-to-day:
 npx @tufaylahmed/pa-converter status
@@ -87,7 +87,7 @@ First `start` builds the web image (several minutes). Then open **https://localh
 Optional global install:
 
 ```bash
-npm install -g @tufaylahmed/pa-converter@5.45.6 --registry=https://npm.pkg.github.com
+npm install -g @tufaylahmed/pa-converter@5.46.8 --registry=https://npm.pkg.github.com
 pa-converter start
 ```
 
@@ -97,7 +97,7 @@ pa-converter start
 
 **End users only need the MSI** — no Docker Desktop, Node.js, or GitHub token.
 
-1. Download **`PA-Converter-5.46.0.msi`** from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
+1. Download **`PA-Converter-5.46.8.msi`** from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
 2. Run the MSI (allow UAC). Leave **Finish setup** checked.
 3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
 4. Wait for first-time provisioning (downloads Ubuntu/Docker packages and builds images).
@@ -111,7 +111,7 @@ Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.0
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.8
 ```
 
 **macOS/Linux developers** can still use `npx` (see above) with Docker Desktop.

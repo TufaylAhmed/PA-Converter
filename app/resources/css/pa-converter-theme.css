@@ -1,0 +1,4353 @@
+/**
+ * PA-Converter — Apple-style glass shell for Expedition (ExtJS)
+ * Left rails · flat icons · translucent materials
+ */
+
+:root {
+  /* Cool slate + crisp blue — flat modern palette */
+  --pa-accent: #0b6bcb;
+  --pa-accent-soft: rgba(11, 107, 203, 0.12);
+  --pa-accent-strong: #0958a8;
+  --pa-bg: #eef2f7;
+  --pa-wash-1: rgba(11, 107, 203, 0.14);
+  --pa-wash-2: rgba(100, 140, 190, 0.1);
+  --pa-wash-3: rgba(60, 100, 160, 0.08);
+  --pa-glass: rgba(255, 255, 255, 0.66);
+  --pa-glass-strong: rgba(255, 255, 255, 0.86);
+  --pa-glass-border: rgba(255, 255, 255, 0.7);
+  --pa-hairline: rgba(15, 23, 42, 0.08);
+  --pa-text: #0f172a;
+  --pa-text-secondary: rgba(15, 23, 42, 0.62);
+  --pa-text-tertiary: rgba(15, 23, 42, 0.4);
+  --pa-sidebar-w: 228px;
+  --pa-radius: 0;
+  --pa-radius-left: 0;
+  --pa-font: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+    Helvetica, Arial, sans-serif;
+  --pa-font-display: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --pa-icon: url("../images/expedition/icons/dashboard.svg");
+}
+
+html,
+body,
+.x-body,
+.x-panel,
+.x-btn,
+.x-tab,
+.x-grid,
+.x-form-field,
+.x-form-text,
+.x-toolbar,
+.x-menu,
+.x-window,
+.x-component {
+  font-family: var(--pa-font) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
+}
+html,
+body {
+  color: var(--pa-text);
+  font-size: 13px;
+  font-weight: 450;
+}
+
+/* Visible atmosphere so glass can frost over it */
+html,
+body,
+.x-viewport,
+.x-body,
+#mainviewport,
+#mainpanelcard,
+#mainpanelcard-body,
+#MainPanel,
+#MainPanel-body,
+#mainpaneltabs,
+#mainpaneltabs-body,
+#projectOptions,
+#projectOptions-body {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+body {
+  background: transparent !important;
+}
+
+/* Fixed atmosphere layer — survives Ext body style overrides */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 640px at 12% 0%, var(--pa-wash-1), transparent 58%),
+    radial-gradient(800px 520px at 88% 8%, var(--pa-wash-2), transparent 52%),
+    radial-gradient(700px 480px at 50% 100%, var(--pa-wash-3), transparent 55%),
+    linear-gradient(180deg, #f4f7fb 0%, #e8eef6 100%);
+}
+
+/* Kill opaque legacy surfaces that block glass */
+#DevicesView,
+#DevicesView2,
+#LoadImportProject,
+#UsersView,
+#LdapView,
+#RadiusView,
+#DevicesView3,
+.mypanbg,
+.mypanbgsmall,
+.speed,
+.bgimport_full,
+.panbar,
+.danger_toolbar {
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--pa-text) !important;
+}
+
+img[src*="panlogo"],
+img[src*="logo1024"],
+img[src*="mypanbar"],
+img[src*="footprint"] {
+  display: none !important;
+}
+
+@font-face {
+  font-family: "panw-logo";
+  src: local("Arial");
+  size-adjust: 0%;
+}
+
+/* ── Preload ────────────────────────────────────────────────────── */
+.sencha-region-north,
+#preload .preload-north {
+  background: rgba(28, 28, 30, 0.85) !important;
+  backdrop-filter: blur(20px);
+  border: 0 !important;
+}
+#preload .preload-center { background: transparent !important; }
+#preload #loading-mask,
+#preload #loading-mask:before,
+#preload #loading-mask:after { background: var(--pa-accent) !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   LOGIN — AOA-style glass split card
+   Left: login-banner · logo-bg · Right: sign-in panel
+   ══════════════════════════════════════════════════════════════════ */
+html.pa-login-theme-light,
+:root {
+  --pa-login-accent: #0071e3;
+  --pa-login-accent-strong: #0077ed;
+  --pa-login-accent-soft: rgba(0, 113, 227, 0.14);
+  --pa-login-bg: #e8ecf3;
+  --pa-login-panel: rgba(255, 255, 255, 0.55);
+  --pa-login-field: rgba(120, 120, 128, 0.12);
+  --pa-login-muted: #6e6e73;
+  --pa-login-title: #1d1d1f;
+  --pa-login-text: #1d1d1f;
+  --pa-login-border: transparent;
+  --pa-login-card-border: rgba(255, 255, 255, 0.72);
+  --pa-login-shadow: 0 18px 60px rgba(20, 30, 60, 0.14);
+  --pa-login-ambient-1: rgba(170, 195, 235, 0.65);
+  --pa-login-ambient-2: rgba(210, 220, 240, 0.75);
+  --pa-login-ambient-3: rgba(190, 200, 220, 0.5);
+  --pa-login-toggle-bg: rgba(255, 255, 255, 0.55);
+  --pa-login-toggle-border: rgba(255, 255, 255, 0.7);
+  --pa-login-toggle-text: #1d1d1f;
+  --pa-login-separator: rgba(255, 255, 255, 0.28);
+  --pa-login-hero-title: #ffffff;
+  --pa-login-hero-sub: rgba(255, 255, 255, 0.92);
+  --pa-login-radius: 32px;
+  --pa-login-control-h: 50px;
+}
+
+html.pa-login-theme-dark {
+  --pa-login-accent: #0a84ff;
+  --pa-login-accent-strong: #409cff;
+  --pa-login-accent-soft: rgba(10, 132, 255, 0.22);
+  --pa-login-bg: #000000;
+  --pa-login-panel: #000000;
+  --pa-login-field: #111111;
+  --pa-login-muted: #a1a1a6;
+  --pa-login-title: #f5f5f7;
+  --pa-login-text: #f5f5f7;
+  --pa-login-border: transparent;
+  --pa-login-card-border: rgba(255, 255, 255, 0.12);
+  --pa-login-shadow: 0 24px 80px rgba(0, 0, 0, 0.85);
+  --pa-login-ambient-1: transparent;
+  --pa-login-ambient-2: transparent;
+  --pa-login-ambient-3: transparent;
+  --pa-login-toggle-bg: #111111;
+  --pa-login-toggle-border: rgba(255, 255, 255, 0.14);
+  --pa-login-toggle-text: #f5f5f7;
+  --pa-login-separator: rgba(255, 255, 255, 0.1);
+  --pa-login-hero-title: #ffffff;
+  --pa-login-hero-sub: rgba(255, 255, 255, 0.88);
+}
+
+#login.pa-login-window,
+#login.pa-login-window .x-window-body,
+#login.pa-login-window .x-window-body-default,
+#login.pa-login-window .x-window-bodyWrap {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Soft ambient page like AOA auth shell (light); dark = pure black */
+html.pa-converter-ui.pa-login-active body::before {
+  background:
+    radial-gradient(ellipse 75% 60% at 10% 5%, rgba(120, 170, 255, 0.85), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 92% 12%, rgba(255, 190, 160, 0.55), transparent 52%),
+    radial-gradient(ellipse 55% 45% at 70% 95%, rgba(160, 200, 255, 0.7), transparent 50%),
+    radial-gradient(ellipse 40% 35% at 40% 40%, rgba(255, 255, 255, 0.45), transparent 60%),
+    var(--pa-login-bg) !important;
+  z-index: 0 !important;
+}
+html.pa-converter-ui.pa-login-active.pa-login-theme-dark body::before,
+html.pa-login-theme-dark.pa-login-active body::before {
+  background: #000000 !important;
+}
+html.pa-converter-ui.pa-login-active #login.pa-login-window {
+  background: transparent !important;
+  z-index: 2 !important;
+}
+
+/* Kill Ext rectangular shadow — it creates the double-corner ghost */
+html.pa-converter-ui.pa-login-active .x-css-shadow,
+html.pa-converter-ui.pa-login-active .x-shim,
+#login.pa-login-window + .x-css-shadow,
+#login ~ .x-css-shadow,
+#login.pa-login-window .x-css-shadow {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+}
+
+/* Single clip path: radius lives on the window, not a bordered inset body */
+#login.pa-login-window.x-window,
+#login.pa-login-window {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: var(--pa-login-radius) !important;
+  overflow: hidden !important;
+  box-shadow: var(--pa-login-shadow) !important;
+}
+#login.pa-login-window .x-window-bodyWrap,
+#login #login-bodyWrap {
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: var(--pa-login-radius) !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#login-body.pa-login-card-ready,
+#login .x-window-body.pa-login-card-ready {
+  position: relative !important;
+  border-radius: var(--pa-login-radius) !important;
+  overflow: hidden !important;
+  /* No CSS border — border insets children and leaves white corner bleed */
+  border: 0 !important;
+  outline: 0 !important;
+  background: rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    inset 0 -0.5px 0 rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: saturate(200%) blur(56px);
+  -webkit-backdrop-filter: saturate(200%) blur(56px);
+  isolation: isolate;
+}
+html.pa-login-theme-dark #login-body.pa-login-card-ready,
+html.pa-login-theme-dark #login .x-window-body.pa-login-card-ready {
+  background: #000000 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 24px 80px rgba(0, 0, 0, 0.9) !important;
+}
+html.pa-login-theme-dark #login-body.pa-login-card-ready::before,
+html.pa-login-theme-dark #login .x-window-body.pa-login-card-ready::before {
+  background: none !important;
+  opacity: 0 !important;
+}
+html.pa-login-theme-dark #login .pa-login-hero {
+  /* Keep landscape banner — same layout as light */
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.35) 100%),
+    url("../images/expedition/login-banner.jpg") center / cover no-repeat !important;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.1) !important;
+  display: block !important;
+}
+html.pa-login-theme-dark #login .pa-login-form-pane,
+html.pa-login-theme-dark #login .pa-login-form-inner,
+html.pa-login-theme-dark #login #LoginForm,
+html.pa-login-theme-dark #login #LoginForm-body {
+  background: #000000 !important;
+}
+html.pa-login-theme-dark #login .x-form-text-default,
+html.pa-login-theme-dark #login input.x-form-text {
+  background: #111111 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f5f5f7 !important;
+}
+html.pa-login-theme-dark #login .pa-login-form-sub,
+html.pa-login-theme-dark #login .pa-login-form-sub * {
+  color: #a1a1a6 !important;
+  opacity: 1 !important;
+}
+#login-body.pa-login-card-ready::before,
+#login .x-window-body.pa-login-card-ready::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.06) 38%, transparent 58%),
+    linear-gradient(180deg, transparent 70%, rgba(255, 255, 255, 0.08));
+  opacity: 1;
+}
+
+/* Left brand — login-banner + glass logo plate */
+#login .pa-login-hero {
+  background:
+    linear-gradient(180deg, rgba(8, 24, 36, 0.12) 0%, rgba(8, 24, 36, 0.48) 100%),
+    url("../images/expedition/login-banner.jpg") center / cover no-repeat !important;
+  border: 0 !important;
+  border-radius: var(--pa-login-radius) 0 0 var(--pa-login-radius) !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 1;
+  /* Split hairline without layout inset */
+  box-shadow: inset -1px 0 0 var(--pa-login-separator) !important;
+}
+#login .pa-login-hero .x-box-inner,
+#login .pa-login-hero .x-box-target {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  left: 0 !important;
+  right: auto !important;
+  top: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 16px !important;
+}
+#login .pa-login-form-pane .x-box-inner,
+#login .pa-login-form-pane .x-box-target {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  left: 0 !important;
+  right: auto !important;
+  top: 0 !important;
+  box-sizing: border-box !important;
+  pointer-events: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+#login .pa-login-form-pane .x-box-item,
+#login .pa-login-form-pane .pa-login-form-inner,
+#login .pa-login-form-pane .x-form-item,
+#login .pa-login-form-pane .x-form-field,
+#login .pa-login-form-pane input,
+#login .pa-login-form-pane .x-btn,
+#login .pa-login-form-pane label,
+#login .pa-login-form-pane .x-component,
+#login .pa-login-form-pane .x-panel,
+#login .pa-login-form-pane #LoginForm {
+  pointer-events: auto !important;
+}
+/* Center form block with flex — avoid absolute + height:0 clip */
+#login .pa-login-form-inner {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  transform: none !important;
+  margin: 0 auto !important;
+  width: min(392px, calc(100% - 88px)) !important;
+  max-width: 392px !important;
+  height: auto !important;
+  overflow: visible !important;
+  float: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+}
+#login .pa-login-form-inner .x-box-inner,
+#login .pa-login-form-inner .x-box-target {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  left: 0 !important;
+  top: 0 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+#login .pa-login-form-inner .x-box-item,
+#login .pa-login-form-inner #LoginForm,
+#login .pa-login-form-inner .pa-login-form-title,
+#login .pa-login-form-inner .pa-login-form-sub,
+#login .pa-login-form-inner .pa-login-form-logo,
+#login .pa-login-form-inner .pa-login-terms {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  float: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transform: none !important;
+}
+#login .pa-login-form-inner #LoginForm {
+  height: auto !important;
+  overflow: visible !important;
+}
+#login .pa-login-form-inner #LoginForm .x-panel-body,
+#login .pa-login-form-inner #LoginForm .x-box-inner,
+#login .pa-login-form-inner #LoginForm .x-box-target {
+  position: relative !important;
+  height: auto !important;
+  width: 100% !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+#login .pa-login-form-inner #LoginForm .x-box-item,
+#login .pa-login-form-inner #LoginForm .x-form-item {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  width: 100% !important;
+  float: none !important;
+}
+#login .pa-login-brand-glass,
+#login .pa-login-hero-sub,
+#login .pa-login-hero .x-box-item {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  float: none !important;
+}
+#login .pa-login-brand-glass {
+  z-index: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: min(270px, 72%) !important;
+  max-width: 270px !important;
+  min-height: 74px !important;
+  padding: 16px 20px !important;
+  border-radius: 18px !important;
+  /* Light frost so dark logo AA edges blend clean (Apple material) */
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  outline: 0 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 14px 36px rgba(0, 16, 32, 0.22) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  overflow: visible !important;
+}
+html.pa-login-theme-dark #login .pa-login-brand-glass {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+#login .pa-login-brand-glass.x-container,
+#login .pa-login-brand-glass.x-container-default,
+#login .pa-login-brand-glass .x-box-inner,
+#login .pa-login-brand-glass .x-box-target,
+#login .pa-login-brand-glass .x-autocontainer-innerCt,
+#login .pa-login-brand-glass .x-box-item {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  overflow: visible !important;
+}
+#login .pa-login-brand-glass.x-container-default {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 14px 36px rgba(0, 16, 32, 0.22) !important;
+}
+#login .pa-login-brand,
+#login .pa-login-brand.x-img {
+  /* Ext image chrome — hide; real logo is injected as img.pa-login-brand-img */
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+#login .pa-login-brand-img {
+  display: block !important;
+  width: 228px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: auto;
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: transparent !important;
+  border: 0 !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  /* Crisp on light frost — skip heavy filters that dull edges */
+  filter: contrast(1.04) saturate(1.06) !important;
+  image-rendering: auto;
+  -webkit-user-drag: none;
+  mix-blend-mode: normal;
+}
+#login .pa-login-hero .x-label-default,
+#login .pa-login-hero label,
+#login .pa-login-hero-title,
+#login .pa-login-hero-sub {
+  color: var(--pa-login-hero-title) !important;
+  font-family: var(--pa-font) !important;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.4);
+  white-space: normal !important;
+  overflow: visible !important;
+  text-align: center !important;
+  position: relative;
+  z-index: 2;
+}
+#login .pa-login-hero-title {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.1 !important;
+}
+#login .pa-login-hero-sub {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Right form pane — frosted glass fill */
+#login .pa-login-form-pane {
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.2) 55%, rgba(255, 255, 255, 0.12) 100%) !important;
+  border: 0 !important;
+  border-radius: 0 var(--pa-login-radius) var(--pa-login-radius) 0 !important;
+  position: relative !important;
+  z-index: 1;
+  overflow: hidden !important;
+  backdrop-filter: blur(48px) saturate(200%);
+  -webkit-backdrop-filter: blur(48px) saturate(200%);
+}
+html.pa-login-theme-dark #login .pa-login-form-pane {
+  background: #000000 !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 var(--pa-login-radius) var(--pa-login-radius) 0 !important;
+}
+
+/* Light mode must win after dark inline leftovers are cleared */
+html.pa-login-theme-light #login .pa-login-hero {
+  display: block !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  background:
+    linear-gradient(180deg, rgba(8, 24, 36, 0.12) 0%, rgba(8, 24, 36, 0.48) 100%),
+    url("../images/expedition/login-banner.jpg") center / cover no-repeat !important;
+  box-shadow: inset -1px 0 0 var(--pa-login-separator) !important;
+}
+html.pa-login-theme-light #login .pa-login-form-pane {
+  display: block !important;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.2) 55%, rgba(255, 255, 255, 0.12) 100%) !important;
+  backdrop-filter: blur(48px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(48px) saturate(200%) !important;
+  border-radius: 0 var(--pa-login-radius) var(--pa-login-radius) 0 !important;
+}
+html.pa-login-theme-light #login .pa-login-form-inner,
+html.pa-login-theme-light #login #LoginForm,
+html.pa-login-theme-light #login #LoginForm-body {
+  background: transparent !important;
+  background-image: none !important;
+}
+html.pa-login-theme-light #login .pa-login-form-title {
+  color: #1d1d1f !important;
+}
+html.pa-login-theme-light #login .pa-login-form-sub,
+html.pa-login-theme-light #login .pa-login-form-sub * {
+  color: #6e6e73 !important;
+}
+#login .pa-login-form-title {
+  color: var(--pa-login-title) !important;
+  font-family: var(--pa-font) !important;
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.15 !important;
+  height: auto !important;
+  margin: 0 0 8px 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+#login .pa-login-form-sub {
+  color: var(--pa-login-muted) !important;
+  font-family: var(--pa-font) !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  height: auto !important;
+  margin: 0 0 28px 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+  white-space: normal !important;
+}
+#login .pa-login-form-inner #LoginForm {
+  margin-top: 0 !important;
+}
+#login .pa-login-form-inner .pa-login-field:first-child,
+#login .pa-login-form-inner #LoginForm .pa-login-field:first-of-type {
+  margin-top: 0 !important;
+}
+
+#login .x-label-default,
+#login label {
+  color: var(--pa-login-text) !important;
+  font-family: var(--pa-font) !important;
+}
+
+#login .x-form-text-default,
+#login input.x-form-text,
+#login .pa-login-field .x-form-text,
+#login .pa-login-field .x-form-text-wrap,
+#login .pa-login-field .x-form-trigger-wrap {
+  background: var(--pa-login-field) !important;
+  background-image: none !important;
+  border: 1px solid rgba(60, 60, 67, 0.08) !important;
+  border-radius: 16px !important;
+  color: var(--pa-login-text) !important;
+  box-shadow: none !important;
+}
+#login .x-form-text-default,
+#login input.x-form-text,
+#login .pa-login-field .x-form-text {
+  height: var(--pa-login-control-h) !important;
+  line-height: var(--pa-login-control-h) !important;
+  padding: 0 16px !important;
+  font-size: 16px !important;
+}
+#login .pa-login-field .x-form-trigger-wrap {
+  border: 0 !important;
+  background: transparent !important;
+}
+#login .pa-login-field.x-form-type-text,
+#login .pa-login-field.x-field {
+  background: transparent !important;
+  border: 0 !important;
+  margin-bottom: 14px !important;
+}
+#login .x-form-focus,
+#login .pa-login-field.x-field-focus .x-form-text,
+#login .pa-login-field.x-field-focus .x-form-trigger-wrap,
+#login input.x-form-focus {
+  border-color: var(--pa-login-accent) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 0 0 4px var(--pa-login-accent-soft) !important;
+}
+html.pa-login-theme-dark #login .x-form-focus,
+html.pa-login-theme-dark #login .pa-login-field.x-field-focus .x-form-text,
+html.pa-login-theme-dark #login input.x-form-focus {
+  background: rgba(58, 58, 60, 0.85) !important;
+}
+#login .x-form-text::placeholder,
+#login input::placeholder {
+  color: var(--pa-login-muted) !important;
+  opacity: 0.85;
+}
+
+/* Theme toggle — login: floating corner; workspace: docked in left rail footer */
+#pa-login-theme-toggle.pa-login-theme-toggle {
+  position: fixed !important;
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 100000 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  border-radius: 980px !important;
+  border: 1px solid var(--pa-login-toggle-border) !important;
+  background: var(--pa-login-toggle-bg) !important;
+  color: var(--pa-login-toggle-text) !important;
+  font-family: var(--pa-font) !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+  line-height: 1 !important;
+  pointer-events: auto !important;
+}
+/* Workspace: tiny icon-only chip — do not cover sidebar labels */
+html.pa-converter-ui:not(.pa-login-active) #pa-login-theme-toggle.pa-login-theme-toggle {
+  position: fixed !important;
+  top: auto !important;
+  right: auto !important;
+  left: 10px !important;
+  bottom: 10px !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  max-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  gap: 0 !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  color: var(--pa-text) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1) !important;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+html.pa-converter-ui:not(.pa-login-active) #pa-login-theme-toggle .pa-login-theme-label {
+  display: none !important;
+}
+/* Leave room at bottom of left rail so labels aren't under the chip */
+html.pa-converter-ui:not(.pa-login-active) #mainpaneltabs > .x-tab-bar,
+html.pa-converter-ui:not(.pa-login-active) #projectOptions > .x-tab-bar,
+html.pa-converter-ui:not(.pa-login-active) .pa-side-nav {
+  padding-bottom: 40px !important;
+}
+#pa-login-theme-toggle .pa-login-theme-label { display: none !important; }
+#pa-login-theme-toggle:hover { filter: brightness(1.04); }
+#pa-login-theme-toggle:focus-visible {
+  outline: 2px solid var(--pa-login-accent);
+  outline-offset: 2px;
+}
+#pa-login-theme-toggle .pa-login-theme-icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 3a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zm9-6a1 1 0 0 1-1 1h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1zM5 12a1 1 0 0 1-1 1H3a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1zm12.95 5.536a1 1 0 0 1 0 1.414l-.707.707a1 1 0 1 1-1.414-1.414l.707-.707a1 1 0 0 1 1.414 0zM7.464 6.05a1 1 0 0 1 0 1.414L6.757 8.17A1 1 0 0 1 5.343 6.757l.707-.707a1 1 0 0 1 1.414 0zm10.607-1.414a1 1 0 0 1 0 1.414l-.707.707A1 1 0 1 1 15.95 5.343l.707-.707a1 1 0 0 1 1.414 0zM7.464 15.95a1 1 0 0 1 0 1.414l-.707.707A1 1 0 1 1 5.343 16.657l.707-.707a1 1 0 0 1 1.414 0zM12 7.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 3a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zm9-6a1 1 0 0 1-1 1h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1zM5 12a1 1 0 0 1-1 1H3a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1zm12.95 5.536a1 1 0 0 1 0 1.414l-.707.707a1 1 0 1 1-1.414-1.414l.707-.707a1 1 0 0 1 1.414 0zM7.464 6.05a1 1 0 0 1 0 1.414L6.757 8.17A1 1 0 0 1 5.343 6.757l.707-.707a1 1 0 0 1 1.414 0zm10.607-1.414a1 1 0 0 1 0 1.414l-.707.707A1 1 0 1 1 15.95 5.343l.707-.707a1 1 0 0 1 1.414 0zM7.464 15.95a1 1 0 0 1 0 1.414l-.707.707A1 1 0 1 1 5.343 16.657l.707-.707a1 1 0 0 1 1.414 0zM12 7.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+html.pa-login-theme-light #pa-login-theme-toggle .pa-login-theme-icon {
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M21 14.3A8.5 8.5 0 0 1 9.7 3 7 7 0 1 0 21 14.3z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M21 14.3A8.5 8.5 0 0 1 9.7 3 7 7 0 1 0 21 14.3z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+#login .x-panel-default,
+#login .x-panel-body-default,
+#LoginForm,
+#LoginForm-body {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+#login .pa-login-submit,
+#login #submit_login,
+#login .green2-button.pa-login-submit {
+  background: var(--pa-login-accent) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 980px !important;
+  height: var(--pa-login-control-h) !important;
+  box-shadow: 0 8px 24px rgba(10, 132, 255, 0.28) !important;
+  margin-top: 8px !important;
+}
+#login .pa-login-submit .x-btn-inner,
+#login #submit_login .x-btn-inner {
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  letter-spacing: -0.01em;
+}
+#login .x-btn-over.pa-login-submit,
+#login .x-btn-focus.pa-login-submit,
+#login .x-btn-pressed.pa-login-submit {
+  background: var(--pa-login-accent-strong) !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: 0 10px 28px rgba(10, 132, 255, 0.34) !important;
+}
+
+/* Terms — muted link/pill */
+#login .pa-login-terms,
+#login .x-btn.pa-login-terms,
+#login .x-btn:not(.green2-button):not(.pa-login-submit):not(.blue-button):not(.pa-login-theme-toggle) {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 980px !important;
+  color: var(--pa-login-accent) !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+}
+#login .pa-login-terms .x-btn-inner,
+#login .x-btn:not(.green2-button):not(.pa-login-submit):not(.pa-login-theme-toggle) .x-btn-inner {
+  color: var(--pa-login-accent) !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+#login .logoborder { display: none !important; }
+
+/* form-inner sizing handled above with flex centering */
+
+#login #LoginForm {
+  margin: 0 !important;
+}
+#login #LoginForm .x-form-item {
+  margin-bottom: 14px !important;
+}
+#login #submit_login,
+#login #submit_login .x-btn-wrap,
+#login #submit_login .x-btn-button {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+#login #submit_login {
+  margin-top: 18px !important;
+  display: block !important;
+}
+#login #submit_login .x-btn-inner {
+  width: 100% !important;
+  text-align: center !important;
+  padding: 0 !important;
+}
+
+#login .pa-login-form-pane .x-btn:not(.pa-login-submit):not(.green2-button) {
+  max-width: 220px !important;
+  height: 32px !important;
+  margin: 8px auto 0 !important;
+  padding: 0 12px !important;
+  float: none !important;
+}
+
+
+/* ── Buttons — flat Apple blue (no gloss / heavy shadow) ───────── */
+.green2-button,
+.blue-button,
+.green-button,
+.x-btn.green2-button,
+.x-btn.blue-button,
+.x-btn.green-button {
+  background: var(--pa-accent) !important;
+  background-color: var(--pa-accent) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  font-family: var(--pa-font) !important;
+  font-weight: 600 !important;
+  filter: none !important;
+}
+.green2-button .x-btn-inner,
+.blue-button .x-btn-inner,
+.green-button .x-btn-inner {
+  color: #fff !important;
+  font-family: var(--pa-font) !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+}
+.x-btn-over.green2-button,
+.x-btn-over.blue-button,
+.x-btn-over.green-button,
+.x-btn-focus.green2-button,
+.x-btn-focus.blue-button,
+.x-btn-pressed.green2-button,
+.x-btn-pressed.blue-button,
+.x-btn-pressed.green-button {
+  background: var(--pa-accent-strong) !important;
+  background-color: var(--pa-accent-strong) !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+.white-button,
+.white2-button,
+.x-btn-default-small,
+.x-btn-default-toolbar-small {
+  background: var(--pa-glass-strong) !important;
+  background-image: none !important;
+  border: 1px solid var(--pa-hairline) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(12px);
+}
+.white-button .x-btn-inner,
+.white2-button .x-btn-inner,
+.x-btn-default-small .x-btn-inner {
+  color: var(--pa-text) !important;
+  font-weight: 600 !important;
+}
+.violet-button,
+.orange-button,
+.purple-button,
+.red-button {
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  border: 0 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   LEFT RAILS (main + project)
+   ══════════════════════════════════════════════════════════════════ */
+#mainpaneltabs > .x-tab-bar,
+#mainpaneltabs .x-tab-bar-left,
+#projectOptions > .x-tab-bar,
+#projectOptions .x-tab-bar-left,
+.pa-side-nav {
+  background: var(--pa-glass) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-right: 1px solid var(--pa-glass-border) !important;
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04) !important;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  /* Extra bottom pad so docked theme control never covers nav items */
+  padding: 10px 8px 72px !important;
+  box-sizing: border-box !important;
+}
+
+.pa-nav-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 8px 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--pa-hairline);
+}
+.pa-nav-mark {
+  width: 100%;
+  max-width: 196px;
+  height: auto;
+  max-height: 36px;
+  object-fit: contain;
+  object-position: left center;
+  border-radius: 0;
+  flex-shrink: 0;
+  background: transparent;
+  box-shadow: none;
+  filter: contrast(1.04) saturate(1.05);
+}
+.pa-nav-brand-text {
+  display: none; /* logo-bg already carries brand name */
+}
+.pa-nav-name {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--pa-text);
+  line-height: 1.1;
+}
+.pa-nav-sub {
+  font-size: 11px;
+  color: var(--pa-text-tertiary);
+  margin-top: 2px;
+}
+.pa-nav-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--pa-accent-soft);
+  color: var(--pa-accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  text-align: left;
+}
+.pa-nav-back:hover { filter: brightness(0.98); }
+.pa-nav-back-icon {
+  width: 16px;
+  height: 16px;
+  background-color: var(--pa-accent);
+  -webkit-mask: url("../images/expedition/icons/back.svg") center / 16px no-repeat;
+  mask: url("../images/expedition/icons/back.svg") center / 16px no-repeat;
+}
+
+/* Left tab rows */
+#mainpaneltabs .x-tab-bar-left .x-tab,
+#projectOptions .x-tab-bar-left .x-tab,
+.pa-side-nav .x-tab {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  margin: 2px 0 !important;
+  padding: 8px 12px !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+}
+#mainpaneltabs .x-tab .x-tab-button,
+#projectOptions .x-tab .x-tab-button,
+#mainpaneltabs .x-tab .x-tab-wrap,
+#projectOptions .x-tab .x-tab-wrap {
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  transform: none !important;
+}
+#mainpaneltabs .x-tab .x-tab-inner,
+#projectOptions .x-tab .x-tab-inner,
+#mainpaneltabs .x-tab .x-tab-inner-default,
+#projectOptions .x-tab .x-tab-inner-default {
+  color: var(--pa-text-secondary) !important;
+  font-family: var(--pa-font) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+/* Flat mask icons — hide FA glyphs / bitmaps */
+#mainpaneltabs .x-tab-bar-left .x-tab-glyph,
+#projectOptions .x-tab-bar-left .x-tab-glyph,
+#mainpaneltabs .x-tab-bar-left .x-tab-icon-el,
+#projectOptions .x-tab-bar-left .x-tab-icon-el,
+.pa-side-nav .x-tab-glyph,
+.pa-side-nav .x-tab-icon-el {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  margin-right: 10px !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
+  text-indent: -9999px !important;
+  background-color: var(--pa-text-secondary) !important;
+  background-image: none !important;
+  -webkit-mask-position: center !important;
+  mask-position: center !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+  -webkit-mask-size: 18px 18px !important;
+  mask-size: 18px 18px !important;
+  opacity: 1 !important;
+  flex-shrink: 0;
+  overflow: hidden !important;
+}
+
+/* Fallback: paint icon on the tab itself when Ext omits glyph node */
+.pa-side-nav .x-tab[data-pa-icon]::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  background-color: var(--pa-text-secondary);
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 18px 18px;
+  mask-size: 18px 18px;
+}
+.pa-side-nav .x-tab-active[data-pa-icon]::before {
+  background-color: var(--pa-accent);
+}
+.pa-side-nav .x-tab[data-pa-icon] .x-tab-glyph,
+.pa-side-nav .x-tab[data-pa-icon] .x-tab-icon-el {
+  display: none !important;
+}
+
+/* Apple glass hover / active — soft frosted pill, never a solid blue bar on text */
+#mainpaneltabs .x-tab-bar-left .x-tab-over,
+#projectOptions .x-tab-bar-left .x-tab-over,
+.pa-side-nav .x-tab-over,
+#mainpaneltabs .x-tab-bar-left .x-tab.x-tab-over,
+#projectOptions .x-tab-bar-left .x-tab.x-tab-over {
+  background: var(--pa-accent-soft) !important;
+  background-image: none !important;
+  box-shadow: inset 0 0 0 1px rgba(11, 107, 203, 0.12) !important;
+}
+#mainpaneltabs .x-tab-bar-left .x-tab-active,
+#projectOptions .x-tab-bar-left .x-tab-active,
+.pa-side-nav .x-tab-active,
+#mainpaneltabs .x-tab-bar-left .x-tab.x-tab-active,
+#projectOptions .x-tab-bar-left .x-tab.x-tab-active {
+  background: rgba(255, 255, 255, 0.62) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 12px !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+    0 1px 0 rgba(255, 255, 255, 0.5),
+    0 6px 18px rgba(11, 107, 203, 0.1) !important;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+}
+#mainpaneltabs .x-tab-active .x-tab-inner,
+#projectOptions .x-tab-active .x-tab-inner,
+.pa-side-nav .x-tab-active .x-tab-inner,
+#mainpaneltabs .x-tab-active .x-tab-inner-default,
+#projectOptions .x-tab-active .x-tab-inner-default,
+.pa-side-nav .x-tab-active .x-tab-inner-default,
+#mainpaneltabs .x-tab-active .x-tab-button,
+#projectOptions .x-tab-active .x-tab-button,
+.pa-side-nav .x-tab-active .x-tab-button {
+  color: var(--pa-accent) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+#mainpaneltabs .x-tab-active .x-tab-glyph,
+#projectOptions .x-tab-active .x-tab-glyph,
+.pa-side-nav .x-tab-active .x-tab-glyph,
+.pa-side-nav .x-tab-active[data-pa-icon]::before {
+  background-color: var(--pa-accent) !important;
+  color: transparent !important;
+}
+
+/* Icon masks by data-pa-icon (set in JS) — glyph + ::before fallback */
+.x-tab[data-pa-icon="dashboard"] .x-tab-glyph,
+.x-tab[data-pa-icon="dashboard"] .x-tab-icon-el,
+.x-tab[data-pa-icon="dashboard"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/dashboard.svg");
+  mask-image: url("../images/expedition/icons/dashboard.svg");
+}
+.x-tab[data-pa-icon="projects"] .x-tab-glyph,
+.x-tab[data-pa-icon="projects"] .x-tab-icon-el,
+.x-tab[data-pa-icon="projects"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/projects.svg");
+  mask-image: url("../images/expedition/icons/projects.svg");
+}
+.x-tab[data-pa-icon="devices"] .x-tab-glyph,
+.x-tab[data-pa-icon="devices"] .x-tab-icon-el,
+.x-tab[data-pa-icon="devices"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/devices.svg");
+  mask-image: url("../images/expedition/icons/devices.svg");
+}
+.x-tab[data-pa-icon="snippets"] .x-tab-glyph,
+.x-tab[data-pa-icon="snippets"] .x-tab-icon-el,
+.x-tab[data-pa-icon="snippets"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/snippets.svg");
+  mask-image: url("../images/expedition/icons/snippets.svg");
+}
+.x-tab[data-pa-icon="settings"] .x-tab-glyph,
+.x-tab[data-pa-icon="settings"] .x-tab-icon-el,
+.x-tab[data-pa-icon="settings"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/settings.svg");
+  mask-image: url("../images/expedition/icons/settings.svg");
+}
+.x-tab[data-pa-icon="logs"] .x-tab-glyph,
+.x-tab[data-pa-icon="logs"] .x-tab-icon-el,
+.x-tab[data-pa-icon="logs"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/logs.svg");
+  mask-image: url("../images/expedition/icons/logs.svg");
+}
+.x-tab[data-pa-icon="help"] .x-tab-glyph,
+.x-tab[data-pa-icon="help"] .x-tab-icon-el,
+.x-tab[data-pa-icon="help"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/help.svg");
+  mask-image: url("../images/expedition/icons/help.svg");
+}
+.x-tab[data-pa-icon="import"] .x-tab-glyph,
+.x-tab[data-pa-icon="import"] .x-tab-icon-el,
+.x-tab[data-pa-icon="import"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/import.svg");
+  mask-image: url("../images/expedition/icons/import.svg");
+}
+.x-tab[data-pa-icon="plugins"] .x-tab-glyph,
+.x-tab[data-pa-icon="plugins"] .x-tab-icon-el,
+.x-tab[data-pa-icon="plugins"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/plugins.svg");
+  mask-image: url("../images/expedition/icons/plugins.svg");
+}
+.x-tab[data-pa-icon="policies"] .x-tab-glyph,
+.x-tab[data-pa-icon="policies"] .x-tab-icon-el,
+.x-tab[data-pa-icon="policies"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/policies.svg");
+  mask-image: url("../images/expedition/icons/policies.svg");
+}
+.x-tab[data-pa-icon="objects"] .x-tab-glyph,
+.x-tab[data-pa-icon="objects"] .x-tab-icon-el,
+.x-tab[data-pa-icon="objects"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/objects.svg");
+  mask-image: url("../images/expedition/icons/objects.svg");
+}
+.x-tab[data-pa-icon="monitor"] .x-tab-glyph,
+.x-tab[data-pa-icon="monitor"] .x-tab-icon-el,
+.x-tab[data-pa-icon="monitor"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/monitor.svg");
+  mask-image: url("../images/expedition/icons/monitor.svg");
+}
+.x-tab[data-pa-icon="ml"] .x-tab-glyph,
+.x-tab[data-pa-icon="ml"] .x-tab-icon-el,
+.x-tab[data-pa-icon="ml"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/ml.svg");
+  mask-image: url("../images/expedition/icons/ml.svg");
+}
+.x-tab[data-pa-icon="network"] .x-tab-glyph,
+.x-tab[data-pa-icon="network"] .x-tab-icon-el,
+.x-tab[data-pa-icon="network"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/network.svg");
+  mask-image: url("../images/expedition/icons/network.svg");
+}
+.x-tab[data-pa-icon="interfaces"] .x-tab-glyph,
+.x-tab[data-pa-icon="interfaces"] .x-tab-icon-el,
+.x-tab[data-pa-icon="interfaces"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/interfaces.svg");
+  mask-image: url("../images/expedition/icons/interfaces.svg");
+}
+.x-tab[data-pa-icon="zones"] .x-tab-glyph,
+.x-tab[data-pa-icon="zones"] .x-tab-icon-el,
+.x-tab[data-pa-icon="zones"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/zones.svg");
+  mask-image: url("../images/expedition/icons/zones.svg");
+}
+.x-tab[data-pa-icon="router"] .x-tab-glyph,
+.x-tab[data-pa-icon="router"] .x-tab-icon-el,
+.x-tab[data-pa-icon="router"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/router.svg");
+  mask-image: url("../images/expedition/icons/router.svg");
+}
+.x-tab[data-pa-icon="vwire"] .x-tab-glyph,
+.x-tab[data-pa-icon="vwire"] .x-tab-icon-el,
+.x-tab[data-pa-icon="vwire"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/vwire.svg");
+  mask-image: url("../images/expedition/icons/vwire.svg");
+}
+.x-tab[data-pa-icon="vlan"] .x-tab-glyph,
+.x-tab[data-pa-icon="vlan"] .x-tab-icon-el,
+.x-tab[data-pa-icon="vlan"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/vlan.svg");
+  mask-image: url("../images/expedition/icons/vlan.svg");
+}
+.x-tab[data-pa-icon="vpn"] .x-tab-glyph,
+.x-tab[data-pa-icon="vpn"] .x-tab-icon-el,
+.x-tab[data-pa-icon="vpn"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/vpn.svg");
+  mask-image: url("../images/expedition/icons/vpn.svg");
+}
+.x-tab[data-pa-icon="export"] .x-tab-glyph,
+.x-tab[data-pa-icon="export"] .x-tab-icon-el,
+.x-tab[data-pa-icon="export"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/export.svg");
+  mask-image: url("../images/expedition/icons/export.svg");
+}
+.x-tab[data-pa-icon="tools"] .x-tab-glyph,
+.x-tab[data-pa-icon="tools"] .x-tab-icon-el,
+.x-tab[data-pa-icon="tools"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/tools.svg");
+  mask-image: url("../images/expedition/icons/tools.svg");
+}
+.x-tab[data-pa-icon="server"] .x-tab-glyph,
+.x-tab[data-pa-icon="server"] .x-tab-icon-el,
+.x-tab[data-pa-icon="server"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/server.svg");
+  mask-image: url("../images/expedition/icons/server.svg");
+}
+.x-tab[data-pa-icon="jobs"] .x-tab-glyph,
+.x-tab[data-pa-icon="jobs"] .x-tab-icon-el,
+.x-tab[data-pa-icon="jobs"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/jobs.svg");
+  mask-image: url("../images/expedition/icons/jobs.svg");
+}
+.x-tab[data-pa-icon="users"] .x-tab-glyph,
+.x-tab[data-pa-icon="users"] .x-tab-icon-el,
+.x-tab[data-pa-icon="users"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/users.svg");
+  mask-image: url("../images/expedition/icons/users.svg");
+}
+.x-tab[data-pa-icon="prefix-suffix"] .x-tab-glyph,
+.x-tab[data-pa-icon="prefix-suffix"] .x-tab-icon-el,
+.x-tab[data-pa-icon="prefix-suffix"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/prefix-suffix.svg");
+  mask-image: url("../images/expedition/icons/prefix-suffix.svg");
+}
+.x-tab[data-pa-icon="rename"] .x-tab-glyph,
+.x-tab[data-pa-icon="rename"] .x-tab-icon-el,
+.x-tab[data-pa-icon="rename"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/rename.svg");
+  mask-image: url("../images/expedition/icons/rename.svg");
+}
+.x-tab[data-pa-icon="search-replace"] .x-tab-glyph,
+.x-tab[data-pa-icon="search-replace"] .x-tab-icon-el,
+.x-tab[data-pa-icon="search-replace"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/search-replace.svg");
+  mask-image: url("../images/expedition/icons/search-replace.svg");
+}
+.x-tab[data-pa-icon="security"] .x-tab-glyph,
+.x-tab[data-pa-icon="security"] .x-tab-icon-el,
+.x-tab[data-pa-icon="security"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/security.svg");
+  mask-image: url("../images/expedition/icons/security.svg");
+}
+.x-tab[data-pa-icon="nat"] .x-tab-glyph,
+.x-tab[data-pa-icon="nat"] .x-tab-icon-el,
+.x-tab[data-pa-icon="nat"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/nat.svg");
+  mask-image: url("../images/expedition/icons/nat.svg");
+}
+.x-tab[data-pa-icon="app-override"] .x-tab-glyph,
+.x-tab[data-pa-icon="app-override"] .x-tab-icon-el,
+.x-tab[data-pa-icon="app-override"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/app-override.svg");
+  mask-image: url("../images/expedition/icons/app-override.svg");
+}
+.x-tab[data-pa-icon="qos"] .x-tab-glyph,
+.x-tab[data-pa-icon="qos"] .x-tab-icon-el,
+.x-tab[data-pa-icon="qos"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/qos.svg");
+  mask-image: url("../images/expedition/icons/qos.svg");
+}
+.x-tab[data-pa-icon="pbf"] .x-tab-glyph,
+.x-tab[data-pa-icon="pbf"] .x-tab-icon-el,
+.x-tab[data-pa-icon="pbf"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/pbf.svg");
+  mask-image: url("../images/expedition/icons/pbf.svg");
+}
+.x-tab[data-pa-icon="decryption"] .x-tab-glyph,
+.x-tab[data-pa-icon="decryption"] .x-tab-icon-el,
+.x-tab[data-pa-icon="decryption"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/decryption.svg");
+  mask-image: url("../images/expedition/icons/decryption.svg");
+}
+.x-tab[data-pa-icon="captive"] .x-tab-glyph,
+.x-tab[data-pa-icon="captive"] .x-tab-icon-el,
+.x-tab[data-pa-icon="captive"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/captive.svg");
+  mask-image: url("../images/expedition/icons/captive.svg");
+}
+.x-tab[data-pa-icon="dos"] .x-tab-glyph,
+.x-tab[data-pa-icon="dos"] .x-tab-icon-el,
+.x-tab[data-pa-icon="dos"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/dos.svg");
+  mask-image: url("../images/expedition/icons/dos.svg");
+}
+.x-tab[data-pa-icon="folder"] .x-tab-glyph,
+.x-tab[data-pa-icon="folder"] .x-tab-icon-el,
+.x-tab[data-pa-icon="folder"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/folder.svg");
+  mask-image: url("../images/expedition/icons/folder.svg");
+}
+.x-tab[data-pa-icon="vsys"] .x-tab-glyph,
+.x-tab[data-pa-icon="vsys"] .x-tab-icon-el,
+.x-tab[data-pa-icon="vsys"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/vsys.svg");
+  mask-image: url("../images/expedition/icons/vsys.svg");
+}
+.x-tab[data-pa-icon="response-pages"] .x-tab-glyph,
+.x-tab[data-pa-icon="response-pages"] .x-tab-icon-el,
+.x-tab[data-pa-icon="response-pages"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/response-pages.svg");
+  mask-image: url("../images/expedition/icons/response-pages.svg");
+}
+.x-tab[data-pa-icon="server-profiles"] .x-tab-glyph,
+.x-tab[data-pa-icon="server-profiles"] .x-tab-icon-el,
+.x-tab[data-pa-icon="server-profiles"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/server-profiles.svg");
+  mask-image: url("../images/expedition/icons/server-profiles.svg");
+}
+.x-tab[data-pa-icon="snmp"] .x-tab-glyph,
+.x-tab[data-pa-icon="snmp"] .x-tab-icon-el,
+.x-tab[data-pa-icon="snmp"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/snmp.svg");
+  mask-image: url("../images/expedition/icons/snmp.svg");
+}
+.x-tab[data-pa-icon="syslog"] .x-tab-glyph,
+.x-tab[data-pa-icon="syslog"] .x-tab-icon-el,
+.x-tab[data-pa-icon="syslog"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/syslog.svg");
+  mask-image: url("../images/expedition/icons/syslog.svg");
+}
+.x-tab[data-pa-icon="email"] .x-tab-glyph,
+.x-tab[data-pa-icon="email"] .x-tab-icon-el,
+.x-tab[data-pa-icon="email"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/email.svg");
+  mask-image: url("../images/expedition/icons/email.svg");
+}
+.x-tab[data-pa-icon="netflow"] .x-tab-glyph,
+.x-tab[data-pa-icon="netflow"] .x-tab-icon-el,
+.x-tab[data-pa-icon="netflow"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/netflow.svg");
+  mask-image: url("../images/expedition/icons/netflow.svg");
+}
+.x-tab[data-pa-icon="radius"] .x-tab-glyph,
+.x-tab[data-pa-icon="radius"] .x-tab-icon-el,
+.x-tab[data-pa-icon="radius"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/radius.svg");
+  mask-image: url("../images/expedition/icons/radius.svg");
+}
+.x-tab[data-pa-icon="ldap"] .x-tab-glyph,
+.x-tab[data-pa-icon="ldap"] .x-tab-icon-el,
+.x-tab[data-pa-icon="ldap"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/ldap.svg");
+  mask-image: url("../images/expedition/icons/ldap.svg");
+}
+.x-tab[data-pa-icon="kerberos"] .x-tab-glyph,
+.x-tab[data-pa-icon="kerberos"] .x-tab-icon-el,
+.x-tab[data-pa-icon="kerberos"]::before {
+  -webkit-mask-image: url("../images/expedition/icons/kerberos.svg");
+  mask-image: url("../images/expedition/icons/kerberos.svg");
+}
+
+#mainpaneltabs .x-tab-hidden,
+#projectOptions .x-tab-hidden,
+#mainpaneltabs .x-tab.x-hidden,
+#projectOptions .x-tab.x-hidden,
+#mainpaneltabs .x-tab[aria-hidden="true"],
+#projectOptions .x-tab[aria-hidden="true"] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ext section header tabs (BEST PRACTICES / MONITOR / …) */
+.pa-side-nav .x-tab[data-pa-section="1"] {
+  min-height: 28px !important;
+  margin: 14px 0 4px !important;
+  padding: 4px 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+}
+.pa-side-nav .x-tab[data-pa-section="1"]::before,
+.pa-side-nav .x-tab[data-pa-section="1"] .x-tab-glyph,
+.pa-side-nav .x-tab[data-pa-section="1"] .x-tab-icon-el {
+  display: none !important;
+  width: 0 !important;
+  margin: 0 !important;
+}
+.pa-side-nav .x-tab[data-pa-section="1"] .x-tab-inner,
+.pa-side-nav .x-tab[data-pa-section="1"] .x-tab-inner-default {
+  color: var(--pa-text-tertiary) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+#mainpaneltabs > .x-panel-body,
+#mainpaneltabs-body,
+#projectOptions > .x-panel-body,
+#projectOptions-body {
+  background: transparent !important;
+  border: 0 !important;
+  /* Kill Ext's margin-left that doubles the sidebar offset with left: */
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Hide Help permanently */
+#mainpaneltabs .x-tab[data-pa-icon="help"],
+#mainpaneltabs .x-tab:has(.x-tab-inner:empty),
+.pa-side-nav .x-tab[data-pa-icon="help"] {
+  display: none !important;
+}
+
+/* Dashboard Workspace hero tile — removed (collapse slot, not just hide img) */
+.pa-dash-hero,
+.pa-dash-hero-slot,
+img[src*="pa-side-hero"] {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+/* Release grid fills the row after hero removal */
+#mtversiongrid,
+.pa-release-grid {
+  margin-left: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+/* Flat object icons in grids / stats */
+img.pa-flat-obj-icon,
+img[data-pa-flat] {
+  width: 16px !important;
+  height: 16px !important;
+  object-fit: contain !important;
+  vertical-align: middle !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Nested horizontal tabs — symmetrical glass pills (AOA-style) */
+.x-tab-bar-top:not(.x-tab-bar-left),
+.x-tab-bar-default-horizontal:not(.x-tab-bar-left):not(.pa-side-nav) {
+  background: rgba(255, 255, 255, 0.42) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--pa-hairline) !important;
+  box-shadow: none !important;
+  padding: 8px 10px !important;
+  margin: 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  border-radius: 0 !important;
+  gap: 4px !important;
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+}
+/* Dark: kill light-glass Devices/Snippets/IRON-SKILLET strip on Import */
+html.pa-theme-dark .x-tab-bar-top:not(.x-tab-bar-left),
+html.pa-theme-dark .x-tab-bar-default-horizontal:not(.x-tab-bar-left):not(.pa-side-nav),
+html.pa-theme-dark #ImportSupport .x-tab-bar,
+html.pa-theme-dark #ImportCard .x-tab-bar,
+html.pa-theme-dark #LoadImportProject .x-tab-bar,
+html.pa-theme-dark #DevicesView .x-tab-bar {
+  background: rgba(16, 22, 34, 0.98) !important;
+  background-image: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html.pa-theme-dark .x-tab-bar-top .x-tab .x-tab-inner,
+html.pa-theme-dark .x-tab-bar-default-horizontal:not(.x-tab-bar-left) .x-tab .x-tab-inner {
+  color: rgba(245, 245, 247, 0.78) !important;
+}
+html.pa-theme-dark .x-tab-bar-top .x-tab-active .x-tab-inner,
+html.pa-theme-dark .x-tab-bar-default-horizontal:not(.x-tab-bar-left) .x-tab-active .x-tab-inner {
+  color: #64b5ff !important;
+}
+.x-tab-bar-top .x-tab,
+.x-tab-bar-default-horizontal:not(.x-tab-bar-left):not(.pa-side-nav) .x-tab {
+  border-radius: 10px !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  min-height: 34px !important;
+  margin: 0 2px !important;
+  padding: 6px 12px !important;
+}
+.x-tab-bar-top .x-tab-over,
+.x-tab-bar-default-horizontal:not(.x-tab-bar-left) .x-tab-over {
+  background: rgba(0, 122, 255, 0.1) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.12) !important;
+}
+.x-tab-bar-top .x-tab-active,
+.x-tab-bar-default-horizontal:not(.x-tab-bar-left) .x-tab-active {
+  background: rgba(0, 122, 255, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.2) !important;
+}
+.x-tab-bar-top .x-tab-active .x-tab-inner,
+.x-tab-bar-default-horizontal:not(.x-tab-bar-left) .x-tab-active .x-tab-inner {
+  color: var(--pa-accent) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  font-weight: 650 !important;
+}
+.x-tab-bar-top .x-tab .x-tab-inner,
+.x-tab-bar-default-horizontal:not(.x-tab-bar-left) .x-tab .x-tab-inner {
+  text-transform: none !important;
+  letter-spacing: -0.01em !important;
+  font-size: 13px !important;
+}
+/* Flat icons on horizontal tabs */
+.x-tab-bar-top .x-tab[data-pa-icon] .x-tab-glyph,
+.x-tab-bar-top .x-tab[data-pa-icon] .x-tab-icon-el,
+.x-tab-bar-default-horizontal .x-tab[data-pa-icon] .x-tab-glyph,
+.x-tab-bar-default-horizontal .x-tab[data-pa-icon] .x-tab-icon-el,
+.x-tab[data-pa-icon="users"] .x-tab-glyph,
+.x-tab[data-pa-icon="users"] .x-tab-icon-el,
+.x-tab[data-pa-icon="prefix-suffix"] .x-tab-glyph,
+.x-tab[data-pa-icon="prefix-suffix"] .x-tab-icon-el,
+.x-tab[data-pa-icon="rename"] .x-tab-glyph,
+.x-tab[data-pa-icon="rename"] .x-tab-icon-el,
+.x-tab[data-pa-icon="search-replace"] .x-tab-glyph,
+.x-tab[data-pa-icon="search-replace"] .x-tab-icon-el {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  margin-right: 8px !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
+  background-color: var(--pa-text-secondary) !important;
+  background-image: none !important;
+  -webkit-mask-position: center !important;
+  mask-position: center !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+  -webkit-mask-size: 16px 16px !important;
+  mask-size: 16px 16px !important;
+  -webkit-mask-mode: alpha !important;
+  overflow: hidden !important;
+}
+.x-tab-bar-top .x-tab-active[data-pa-icon] .x-tab-glyph,
+.x-tab-bar-top .x-tab-active[data-pa-icon] .x-tab-icon-el,
+.x-tab-bar-default-horizontal .x-tab-active[data-pa-icon] .x-tab-glyph,
+.x-tab-bar-default-horizontal .x-tab-active[data-pa-icon] .x-tab-icon-el {
+  background-color: var(--pa-accent) !important;
+}
+.x-tab-bar-top .x-tab[data-pa-icon] img,
+.x-tab-bar-default-horizontal .x-tab[data-pa-icon] img {
+  display: none !important;
+}
+
+/* ── Glass cards / panels — flat corners (no rounding) ─────────── */
+html:not(.pa-theme-dark) .x-panel-default:not(.x-tabpanel),
+html:not(.pa-theme-dark) .x-panel-default-framed,
+html:not(.pa-theme-dark) .myborder:not(.x-tab-bar),
+html:not(.pa-theme-dark) #mainpaneltabs-body .x-panel,
+html:not(.pa-theme-dark) #projectOptions-body .x-panel,
+html:not(.pa-theme-dark) #mainpaneltabs-body .x-grid-panel,
+html:not(.pa-theme-dark) #projectOptions-body .x-grid-panel,
+html:not(.pa-theme-dark) #mainpaneltabs-body .x-panel-default,
+html:not(.pa-theme-dark) #projectOptions-body .x-panel-default {
+  background: rgba(255, 255, 255, 0.48) !important;
+  border: 1px solid var(--pa-glass-border) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  overflow: hidden;
+}
+/* Direct content shell: square edges */
+#mainpaneltabs-body > .x-panel,
+#mainpaneltabs-body > .x-panel-default,
+#projectOptions-body > .x-panel,
+#projectOptions-body > .x-panel-default {
+  border-radius: 0 !important;
+  border-right: 0 !important;
+  box-shadow: none !important;
+}
+/* Nested cards: flat */
+#mainpaneltabs-body .x-panel .x-panel,
+#projectOptions-body .x-panel .x-panel,
+#mainpaneltabs-body .myborder,
+#projectOptions-body .myborder {
+  border-radius: 0 !important;
+}
+#mainpaneltabs-body > .x-panel > .x-panel-header,
+#projectOptions-body > .x-panel > .x-panel-header,
+#mainpaneltabs-body > .x-panel > .x-panel-header-default,
+#projectOptions-body > .x-panel > .x-panel-header-default {
+  border-radius: 0 !important;
+}
+
+/* Project footer strip — was solid PANW blue */
+html:not(.pa-theme-dark) #Project_Configuration,
+html:not(.pa-theme-dark) #Project_Configuration-body,
+html:not(.pa-theme-dark) #Project_Configuration .x-panel-body {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border-top: 1px solid var(--pa-hairline) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+.x-tab-bar.myborder {
+  overflow: visible !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.x-panel-header-default,
+.x-panel-header-default-horizontal {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-bottom: 0 !important;
+}
+.x-panel-header-title-default,
+.x-title-text-default {
+  color: var(--pa-text) !important;
+  font-family: var(--pa-font) !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.02em;
+  text-transform: none !important;
+}
+.x-panel-body-default {
+  background: transparent !important;
+  font-family: var(--pa-font) !important;
+}
+
+.x-toolbar-default,
+.x-toolbar-default-dark,
+.x-toolbar-footer {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.x-toolbar-default-dark .x-btn-inner,
+.x-toolbar-default-dark .x-toolbar-text { color: var(--pa-text) !important; }
+
+/* Grids */
+html:not(.pa-theme-dark) .x-grid-header-ct,
+html:not(.pa-theme-dark) .x-column-header {
+  background: rgba(255, 255, 255, 0.45) !important;
+  background-image: none !important;
+  border-color: var(--pa-hairline) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(10px);
+}
+.x-column-header-text-inner {
+  font-weight: 650 !important;
+  letter-spacing: -0.01em;
+  text-transform: none !important;
+}
+html:not(.pa-theme-dark) .x-grid-item {
+  background: rgba(255, 255, 255, 0.35) !important;
+  color: var(--pa-text) !important;
+  font-family: var(--pa-font) !important;
+}
+html:not(.pa-theme-dark) .x-grid-item-alt { background: rgba(255, 255, 255, 0.55) !important; }
+.x-grid-item-over { background: var(--pa-accent-soft) !important; }
+.x-grid-item-selected { background: rgba(0, 122, 255, 0.16) !important; }
+
+.x-window-default {
+  border-radius: 18px !important;
+  border: 1px solid var(--pa-glass-border) !important;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18) !important;
+  background: var(--pa-glass-strong) !important;
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  overflow: hidden;
+}
+.x-window-header-default,
+.x-window-header-default-top {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--pa-hairline) !important;
+}
+.x-window-body-default { background: transparent !important; }
+
+.x-menu-default,
+.x-boundlist {
+  border-radius: 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  padding: 6px !important;
+  overflow: hidden !important;
+}
+.x-menu-item {
+  border-radius: 10px !important;
+  margin: 2px 0 !important;
+}
+.x-boundlist-item-over,
+.x-menu-item-active {
+  background: rgba(0, 122, 255, 0.12) !important;
+  color: var(--pa-accent) !important;
+  border-radius: 10px !important;
+}
+.x-menu-item-text {
+  font-family: var(--pa-font) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--pa-text) !important;
+}
+.x-menu-item-active .x-menu-item-text {
+  color: var(--pa-accent) !important;
+}
+/* Flat menu icons */
+.x-menu-item-icon,
+.x-menu-item img.x-menu-item-icon {
+  width: 16px !important;
+  height: 16px !important;
+  background-size: 16px 16px !important;
+  opacity: 0.85;
+}
+
+.x-form-text-default {
+  border-radius: 10px !important;
+  border-color: var(--pa-hairline) !important;
+  box-shadow: none !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  font-family: var(--pa-font) !important;
+}
+.x-form-focus { border-color: var(--pa-accent) !important; }
+
+.browse-link:link,
+.browse-link:hover,
+.browse-link:visited { color: var(--pa-accent) !important; }
+.rule-enabled { color: var(--pa-accent) !important; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ══════════════════════════════════════════════════════════════════
+   Wave ui6 — login, icons, underline, mesh, tiles, dark mode
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 1) Login: left = image only; logo above Sign in; hide terms */
+#login .pa-login-hero .pa-login-brand-glass {
+  display: none !important;
+}
+#login .pa-login-terms,
+#login .x-btn.pa-login-terms {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+#login .pa-login-form-logo {
+  display: block !important;
+  order: -20 !important;
+  width: min(220px, 72%) !important;
+  max-width: 220px !important;
+  height: auto !important;
+  margin: 0 0 22px 0 !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  align-self: flex-start !important;
+  z-index: 5 !important;
+}
+/* Dark mode: no white plate — invert dark artwork so it reads on the card */
+html.pa-login-theme-dark #login .pa-login-form-logo {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  filter: invert(1) hue-rotate(180deg) brightness(1.06) contrast(1.04) !important;
+}
+
+/* 7) Remove Workspace brand card from left rail */
+.pa-nav-brand,
+[data-pa-brand] {
+  display: none !important;
+}
+
+/* 3) Kill red/orange underline on tab + link hover */
+.x-tab-bar-strip,
+.x-tab-bar-top-strip,
+.x-tab-bar-strip-default,
+.x-tab-bar-default-horizontal > .x-tab-bar-strip {
+  display: none !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+.x-tab-bar-top .x-tab,
+.x-tab-bar-top .x-tab-over,
+.x-tab-bar-top .x-tab-active,
+.x-tab-bar-default-horizontal .x-tab,
+.x-tab-bar-default-horizontal .x-tab-over,
+.x-tab-bar-default-horizontal .x-tab-active,
+.x-tab.x-tab-default,
+.x-tab.x-tab-active.x-tab-default,
+.x-tab.x-tab-over.x-tab-default {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-bottom: 0 !important;
+  border-color: transparent !important;
+  outline: 0 !important;
+}
+.x-tab .x-tab-inner,
+.x-tab .x-tab-inner-default,
+.x-tab-over .x-tab-inner,
+.x-tab-active .x-tab-inner,
+.browse-link,
+.browse-link:link,
+.browse-link:hover,
+.browse-link:visited,
+.browse-link:active,
+a.browse-link,
+.x-grid-cell-inner a,
+.x-grid-cell-inner a:hover {
+  text-decoration: none !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 5) Remove mesh / pixel patterns — transparent Apple glass */
+.rule-parent,
+.rule-parent-disabled,
+.x-grid-item,
+.x-grid-view,
+.x-grid-body,
+.x-panel-body-default,
+.x-grid-with-row-lines .x-grid-item {
+  background-image: none !important;
+}
+.rule-parent,
+.rule-parent-disabled {
+  background-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* 4) Flatten ALL primary buttons */
+.x-btn.green2-button,
+.x-btn.blue-button,
+.x-btn.green-button,
+.green2-button,
+.blue-button,
+.green-button,
+.x-btn-default-small.green2-button,
+.x-toolbar .green2-button,
+.x-toolbar .blue-button {
+  background: var(--pa-accent) !important;
+  background-color: var(--pa-accent) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  filter: none !important;
+  font-family: var(--pa-font) !important;
+}
+.x-btn.green2-button .x-btn-inner,
+.x-btn.blue-button .x-btn-inner,
+.green2-button .x-btn-inner,
+.blue-button .x-btn-inner,
+.green-button .x-btn-inner {
+  color: #fff !important;
+  font-family: var(--pa-font) !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+}
+.x-btn-over.green2-button,
+.x-btn-over.blue-button,
+.x-btn-over.green-button,
+.x-btn-pressed.green2-button,
+.x-btn-pressed.blue-button,
+.x-btn-pressed.green-button,
+.x-btn-focus.green2-button,
+.x-btn-focus.blue-button,
+.x-btn-focus.green-button {
+  background: var(--pa-accent-strong) !important;
+  background-color: var(--pa-accent-strong) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+.white-button,
+.white2-button,
+.x-btn.white-button,
+.x-btn.white2-button {
+  background: rgba(255, 255, 255, 0.72) !important;
+  background-image: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(12px);
+  min-width: 96px !important;
+  height: auto !important;
+  min-height: 32px !important;
+  padding: 0 12px !important;
+}
+.white2-button .x-btn-inner,
+.x-btn.white2-button .x-btn-inner,
+#username_button .x-btn-inner,
+#projectsettings .x-btn-inner {
+  color: var(--pa-text) !important;
+  font-weight: 650 !important;
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  text-indent: 0 !important;
+  padding: 0 4px !important;
+}
+.white2-button .x-btn-inner b,
+#username_button .x-btn-inner b,
+#projectsettings .x-btn-inner b {
+  color: var(--pa-text) !important;
+  font-weight: 650 !important;
+  opacity: 1 !important;
+}
+.white2-button .x-btn-glyph,
+.x-btn.white2-button .x-btn-glyph,
+#username_button .x-btn-glyph,
+#projectsettings .x-btn-glyph {
+  color: var(--pa-text) !important;
+  font-size: 14px !important;
+  line-height: 14px !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 14px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+  position: static !important;
+  transform: none !important;
+  margin-right: 8px !important;
+  text-indent: 0 !important;
+}
+/* Admin user + project menu triggers — never collapse to an empty pill */
+#username_button,
+.x-btn#username_button {
+  min-width: 120px !important;
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+#projectsettings,
+.x-btn#projectsettings {
+  min-width: 168px !important;
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  padding: 0 16px !important;
+}
+#username_button .x-btn-wrap,
+#projectsettings .x-btn-wrap,
+#username_button .x-btn-button,
+#projectsettings .x-btn-button {
+  display: table !important; /* keep Ext frame layout */
+  width: auto !important;
+  min-width: inherit !important;
+  overflow: visible !important;
+}
+#projectsettings .x-btn-inner {
+  min-width: 72px !important;
+  text-align: left !important;
+}
+
+/* 2/6) Flat iconCls library overrides */
+.icon-security,
+.icon-securityrule,
+.icon-nat,
+.icon-rulenat,
+.icon-app_override,
+.icon-appoverride,
+.icon-qos,
+.icon-pbf,
+.icon-decryption,
+.icon-captive_portal,
+.icon-dos_protection,
+.icon-interfaces,
+.icon-interface-mgmt,
+.icon-vr,
+.icon-vwire,
+.icon-vlans,
+.icon-ipsec-tunnels,
+.icon-network,
+.icon-zone,
+.icon-address,
+.icon-address_groups,
+.icon-applications,
+.icon-applications_groups,
+.icon-services,
+.icon-service,
+.icon-services_groups,
+.icon-device,
+.icon-devices,
+.icon-lock,
+.icon-export,
+.icon-import,
+.icon-excel2,
+.icon-delete,
+.icon-refresh,
+.icon-restart,
+.icon-filter,
+.icon-monitor,
+.icon-logs,
+.icon-plugins,
+.icon-settings,
+.icon-config,
+.action-delete,
+.action-add,
+.action-edit,
+.pa-flat-bg-icon {
+  background-size: 16px 16px !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+.icon-security,
+.icon-securityrule { background-image: url("../images/expedition/icons/security.svg") !important; }
+.icon-nat,
+.icon-rulenat { background-image: url("../images/expedition/icons/nat.svg") !important; }
+.icon-app_override,
+.icon-appoverride { background-image: url("../images/expedition/icons/app-override.svg") !important; }
+.icon-qos { background-image: url("../images/expedition/icons/qos.svg") !important; }
+.icon-pbf { background-image: url("../images/expedition/icons/pbf.svg") !important; }
+.icon-decryption { background-image: url("../images/expedition/icons/decryption.svg") !important; }
+.icon-captive_portal { background-image: url("../images/expedition/icons/captive.svg") !important; }
+.icon-dos_protection { background-image: url("../images/expedition/icons/dos.svg") !important; }
+.icon-interfaces,
+.icon-interface-mgmt { background-image: url("../images/expedition/icons/interfaces.svg") !important; }
+.icon-vr { background-image: url("../images/expedition/icons/router.svg") !important; }
+.icon-vwire { background-image: url("../images/expedition/icons/vwire.svg") !important; }
+.icon-vlans { background-image: url("../images/expedition/icons/vlan.svg") !important; }
+.icon-ipsec-tunnels { background-image: url("../images/expedition/icons/vpn.svg") !important; }
+.icon-network { background-image: url("../images/expedition/icons/network.svg") !important; }
+.icon-zone { background-image: url("../images/expedition/icons/zones.svg") !important; }
+.icon-address { background-image: url("../images/expedition/icons/address.svg") !important; }
+.icon-address_groups { background-image: url("../images/expedition/icons/objects.svg") !important; }
+.icon-applications,
+.icon-applications_groups { background-image: url("../images/expedition/icons/app-override.svg") !important; }
+.icon-services,
+.icon-service,
+.icon-services_groups { background-image: url("../images/expedition/icons/service.svg") !important; }
+.icon-device,
+.icon-devices { background-image: url("../images/expedition/icons/devices.svg") !important; }
+.icon-lock { background-image: url("../images/expedition/icons/lock.svg") !important; }
+.icon-export { background-image: url("../images/expedition/icons/export.svg") !important; }
+.icon-import { background-image: url("../images/expedition/icons/import.svg") !important; }
+.icon-excel2 { background-image: url("../images/expedition/icons/excel.svg") !important; }
+.icon-delete,
+.action-delete { background-image: url("../images/expedition/icons/trash.svg") !important; }
+.icon-refresh { background-image: url("../images/expedition/icons/refresh.svg") !important; }
+.icon-restart { background-image: url("../images/expedition/icons/restart.svg") !important; }
+.icon-filter { background-image: url("../images/expedition/icons/filter.svg") !important; }
+.icon-monitor { background-image: url("../images/expedition/icons/monitor.svg") !important; }
+.icon-logs { background-image: url("../images/expedition/icons/logs.svg") !important; }
+.icon-plugins { background-image: url("../images/expedition/icons/plugins.svg") !important; }
+.icon-settings,
+.icon-config { background-image: url("../images/expedition/icons/settings.svg") !important; }
+.icon-response_page,
+.icon-response-pages { background-image: url("../images/expedition/icons/response-pages.svg") !important; }
+.icon-email { background-image: url("../images/expedition/icons/email.svg") !important; }
+.icon-kerberos { background-image: url("../images/expedition/icons/kerberos.svg") !important; }
+
+/* Device profile pill toolbars — flatten icon buttons */
+.x-toolbar .x-btn-default-toolbar-small .x-btn-icon-el,
+.x-toolbar .x-btn .x-btn-icon-el,
+.pa-profile-pill .x-btn-icon-el {
+  background-size: 16px 16px !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+.pa-profile-pill {
+  border-radius: 980px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: none !important;
+}
+.pa-profile-pill.x-btn-pressed,
+.x-btn-pressed.pa-profile-pill {
+  background: linear-gradient(
+    180deg,
+    rgba(96, 165, 250, 0.35) 0%,
+    rgba(11, 107, 203, 0.18) 100%
+  ) !important;
+  border-color: rgba(11, 107, 203, 0.28) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Hide bitmap img inside tabs once data-pa-icon is set */
+.x-tab[data-pa-icon] img {
+  display: none !important;
+}
+.x-tab[data-pa-icon] .x-tab-icon-el {
+  background-image: none !important;
+}
+
+/* 8) ML health — glass usage bars */
+.pa-ml-health,
+.pa-ml-health .x-panel-body,
+.pa-ml-health .x-grid-view,
+.pa-ml-health .x-grid-item {
+  background: rgba(255, 255, 255, 0.42) !important;
+  background-image: none !important;
+  border-radius: 14px !important;
+}
+.pa-ml-health .x-grid-cell-inner {
+  font-variant-numeric: tabular-nums;
+}
+.pa-ml-health .x-progress-default,
+.pa-ml-health .x-progress {
+  border-radius: 980px !important;
+  border: 0 !important;
+  background: rgba(0, 122, 255, 0.12) !important;
+  overflow: hidden !important;
+  height: 18px !important;
+}
+.pa-ml-health .x-progress-bar,
+.pa-ml-health .x-progress-bar-default {
+  border-radius: 980px !important;
+  background: linear-gradient(90deg, #64d2ff 0%, #0a84ff 55%, #0071e3 100%) !important;
+  background-image: linear-gradient(90deg, #64d2ff 0%, #0a84ff 55%, #0071e3 100%) !important;
+  box-shadow: none !important;
+}
+.pa-ml-health .x-progress-text,
+.pa-ml-health .x-progress-text-back,
+.pa-ml-health .x-progress-text-front {
+  color: var(--pa-text) !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  text-shadow: none !important;
+}
+.pa-ml-health .x-panel-header-title-default:before,
+.pa-jobs-panel .x-panel-header-title-default:before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  background-color: var(--pa-text-secondary);
+  -webkit-mask: url("../images/expedition/icons/heart.svg") center / contain no-repeat;
+  mask: url("../images/expedition/icons/heart.svg") center / contain no-repeat;
+}
+.pa-jobs-panel .x-panel-header-title-default:before {
+  -webkit-mask-image: url("../images/expedition/icons/gears.svg");
+  mask-image: url("../images/expedition/icons/gears.svg");
+}
+
+/* 9) Jobs & tasks — flatter action buttons + icons */
+.pa-jobs-panel .x-btn {
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: none !important;
+}
+.pa-jobs-panel .x-btn-icon-el,
+.pa-jobs-panel .x-btn .x-btn-glyph {
+  background-size: 16px 16px !important;
+}
+
+/* 10) Library projects — keep Ext table layout (no display overrides) */
+#ProjectsGridPanel,
+#ProjectsGridPanel.pa-projects-rows,
+.pa-library-panel #ProjectsGridPanel {
+  background: var(--pa-glass-strong) !important;
+  border: 1px solid var(--pa-glass-border) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05) !important;
+}
+html:not(.pa-theme-dark) #ProjectsGridPanel .x-grid-header-ct,
+html:not(.pa-theme-dark) #ProjectsGridPanel .x-column-header {
+  background: rgba(248, 250, 252, 0.92) !important;
+  background-image: none !important;
+}
+html:not(.pa-theme-dark) #ProjectsGridPanel .x-grid-item {
+  background: rgba(255, 255, 255, 0.55) !important;
+}
+html:not(.pa-theme-dark) #ProjectsGridPanel .x-grid-item-alt {
+  background: rgba(248, 250, 252, 0.72) !important;
+}
+#ProjectsGridPanel .x-grid-item-over {
+  background: var(--pa-accent-soft) !important;
+}
+#ProjectsGridPanel .x-grid-item-selected {
+  background: rgba(11, 107, 203, 0.14) !important;
+}
+#ProjectsGridPanel .x-grid-cell-inner {
+  font-family: var(--pa-font) !important;
+  font-size: 13px !important;
+  color: var(--pa-text) !important;
+  line-height: 1.35 !important;
+}
+#ProjectsGridPanel .x-column-header-text-inner {
+  white-space: nowrap !important;
+}
+
+/* 11) Dark / light mode — full workspace, not login-only */
+html.pa-theme-dark,
+html.pa-login-theme-dark {
+  --pa-accent: #0a84ff;
+  --pa-accent-soft: rgba(10, 132, 255, 0.22);
+  --pa-accent-strong: #409cff;
+  --pa-bg: #0b1220;
+  --pa-wash-1: rgba(40, 90, 180, 0.35);
+  --pa-wash-2: rgba(90, 60, 140, 0.22);
+  --pa-wash-3: rgba(20, 120, 160, 0.2);
+  --pa-glass: rgba(22, 28, 40, 0.72);
+  --pa-glass-strong: rgba(28, 34, 48, 0.86);
+  --pa-glass-border: rgba(255, 255, 255, 0.12);
+  --pa-hairline: rgba(255, 255, 255, 0.1);
+  --pa-text: #f5f5f7;
+  --pa-text-secondary: rgba(245, 245, 247, 0.68);
+  --pa-text-tertiary: rgba(245, 245, 247, 0.42);
+  color-scheme: dark;
+}
+html.pa-theme-dark body::before,
+html.pa-login-theme-dark body::before {
+  background:
+    radial-gradient(1000px 700px at 8% 0%, var(--pa-wash-1), transparent 55%),
+    radial-gradient(900px 600px at 92% 12%, var(--pa-wash-2), transparent 50%),
+    radial-gradient(800px 500px at 50% 100%, var(--pa-wash-3), transparent 55%),
+    linear-gradient(180deg, #0b1220 0%, #121a2a 100%);
+}
+html.pa-theme-dark .x-panel-default:not(.x-tabpanel),
+html.pa-theme-dark .x-grid-item,
+html.pa-theme-dark .x-grid-header-ct,
+html.pa-theme-dark .x-column-header,
+html.pa-theme-dark .x-menu-default,
+html.pa-theme-dark .x-boundlist,
+html.pa-theme-dark .x-window-default,
+html.pa-theme-dark .x-form-text-default,
+html.pa-theme-dark #ProjectsGridPanel .x-grid-item {
+  background: rgba(28, 34, 48, 0.72) !important;
+  color: var(--pa-text) !important;
+  border-color: var(--pa-glass-border) !important;
+}
+html.pa-theme-dark .x-grid-item-alt {
+  background: rgba(36, 44, 62, 0.72) !important;
+}
+html.pa-theme-dark .x-grid-item-over,
+html.pa-theme-dark .x-menu-item-active,
+html.pa-theme-dark .x-boundlist-item-over {
+  background: rgba(10, 132, 255, 0.22) !important;
+}
+html.pa-theme-dark .x-tab-bar-top:not(.x-tab-bar-left),
+html.pa-theme-dark #mainpaneltabs > .x-tab-bar,
+html.pa-theme-dark #projectOptions > .x-tab-bar,
+html.pa-theme-dark .pa-side-nav {
+  background: rgba(18, 24, 36, 0.78) !important;
+  border-color: var(--pa-glass-border) !important;
+}
+html.pa-theme-dark .x-tab .x-tab-inner,
+html.pa-theme-dark .x-panel-header-title-default,
+html.pa-theme-dark .x-title-text-default,
+html.pa-theme-dark .x-column-header-text-inner,
+html.pa-theme-dark .x-menu-item-text {
+  color: var(--pa-text) !important;
+}
+html.pa-theme-dark .x-tab-active .x-tab-inner {
+  color: #64b5ff !important;
+}
+html.pa-converter-ui.pa-theme-dark:not(.pa-login-active) #pa-login-theme-toggle.pa-login-theme-toggle {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  background: rgba(40, 48, 64, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: var(--pa-text) !important;
+}
+html.pa-theme-light,
+html.pa-login-theme-light {
+  color-scheme: light;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Wave ui7 — vendor logos, import progress, flat buttons, glass nav
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Vendor import tabs — company logos instead of FA glyphs */
+#ImportSupport .x-tab-bar,
+#ImportSupport .x-tab-bar-top,
+#ImportSupport .x-tab-bar-default-horizontal {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-radius: 14px !important;
+  padding: 6px 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+}
+#ImportSupport .x-tab,
+.x-tab.pa-vendor-tab {
+  border: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 8px 12px !important;
+  min-height: 36px !important;
+}
+#ImportSupport .x-tab-active,
+.x-tab.pa-vendor-tab.x-tab-active {
+  background: rgba(0, 122, 255, 0.12) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.18) !important;
+}
+#ImportSupport .x-tab .x-tab-inner,
+.x-tab.pa-vendor-tab .x-tab-inner {
+  text-decoration: none !important;
+  border-bottom: 0 !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+}
+#ImportSupport .x-tab-active .x-tab-inner,
+.x-tab.pa-vendor-tab.x-tab-active .x-tab-inner {
+  color: var(--pa-accent) !important;
+}
+.x-tab.pa-vendor-tab .x-tab-glyph,
+.x-tab.pa-vendor-tab .x-tab-icon-el,
+.x-tab.pa-vendor-tab .pa-vendor-logo,
+#ImportSupport .x-tab .x-tab-glyph,
+#ImportSupport .x-tab .x-tab-icon-el {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  margin-right: 8px !important;
+  font-size: 0 !important;
+  color: transparent !important;
+  background-color: transparent !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  opacity: 1 !important;
+}
+.x-tab.pa-vendor-tab[data-pa-icon]::before {
+  display: none !important;
+}
+
+/* Import Progress — kill advertising, modern progress bar */
+.bgimport,
+#ImportCard .bgimport,
+#ImportCard [class*="bgimport"],
+#ImportProgress.bgimport,
+.x-panel.bgimport,
+.x-panel-body.bgimport {
+  background: transparent !important;
+  background-image: none !important;
+}
+#ImportCard img[src*="layer-cake"],
+#ImportCard img[src*="palo_alto_canvas"],
+#ImportCard img[src*="mt-policy"],
+#ImportCard .x-img[style*="layer-cake"],
+.pa-import-clean img[src*="layer-cake"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+#ImportCard .x-form-display-field .x-form-display-field-body,
+#ImportCard .x-form-display-field {
+  max-width: 100%;
+}
+#parseprogress,
+#parseprogress.pa-progress-modern,
+.pa-progress-modern,
+#ImportCard .x-progress,
+#ImportCard .x-progress-default {
+  height: 28px !important;
+  border-radius: 980px !important;
+  border: 0 !important;
+  background: rgba(0, 122, 255, 0.12) !important;
+  background-image: none !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.1) !important;
+  overflow: hidden !important;
+}
+#parseprogress .x-progress-bar,
+#parseprogress .x-progress-bar-default,
+#ImportCard .x-progress-bar,
+#ImportCard .x-progress-bar-default,
+.pa-progress-modern .x-progress-bar {
+  border-radius: 980px !important;
+  background: var(--pa-accent) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+#parseprogress .x-progress-text,
+#parseprogress .x-progress-text-back,
+#parseprogress .x-progress-text-front,
+#ImportCard .x-progress-text,
+.pa-progress-modern .x-progress-text {
+  color: var(--pa-text) !important;
+  font-weight: 650 !important;
+  font-size: 12px !important;
+  text-shadow: none !important;
+  line-height: 28px !important;
+}
+
+/* Global progress bars — flat modern */
+.x-progress-default,
+.x-progress {
+  border-radius: 980px !important;
+  border: 0 !important;
+  background: rgba(0, 122, 255, 0.12) !important;
+  overflow: hidden !important;
+}
+.x-progress-bar-default,
+.x-progress-bar {
+  background: var(--pa-accent) !important;
+  background-image: none !important;
+  border-radius: 980px !important;
+  box-shadow: none !important;
+}
+
+/* Hide legacy blue banner art + Workspace hero tile */
+img[src*="pan-blue"],
+img[src*="pan-blue2"],
+img[src*="pa-side-hero"],
+.pa-dash-hero,
+.pa-dash-hero-slot {
+  display: none !important;
+}
+
+/*
+ * Device Usage / Global Summary — ONE clean pill each.
+ * Ext frames + nested glass wrappers were stacking concentric rings.
+ */
+.pa-banner-ancestor,
+.pa-banner-ancestor.x-panel,
+.pa-banner-ancestor.x-panel-default,
+.pa-banner-ancestor.x-container,
+.pa-banner-ancestor.myborder,
+.pa-banner-ancestor.x-box-item {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: visible !important;
+}
+
+.pa-glass-title-chip,
+.pa-flat-device-usage:not(.x-btn),
+.x-component.pa-glass-title-chip,
+label.pa-glass-title-chip,
+label.pa-flat-device-usage {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 18px !important;
+  margin: 0 !important;
+  border-radius: 980px !important;
+  border: 0 !important;
+  background: var(--pa-accent) !important;
+  background-image: none !important;
+  color: #fff !important;
+  font-family: var(--pa-font-display) !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 34px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: none !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Device Usage Ext button — single outer pill, kill frame rings */
+.x-btn.green-button.pa-banner-btn,
+.x-btn.green-button.pa-flat-device-usage,
+.x-btn.pa-banner-btn {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 18px !important;
+  border-radius: 980px !important;
+  border: 0 !important;
+  background: var(--pa-accent) !important;
+  background-image: none !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: hidden !important;
+  filter: none !important;
+}
+.x-btn.pa-banner-btn .x-btn-wrap,
+.x-btn.pa-banner-btn .x-btn-button,
+.x-btn.pa-banner-btn .x-btn-inner,
+.x-btn.pa-banner-btn .x-frame-tl,
+.x-btn.pa-banner-btn .x-frame-tc,
+.x-btn.pa-banner-btn .x-frame-tr,
+.x-btn.pa-banner-btn .x-frame-ml,
+.x-btn.pa-banner-btn .x-frame-mc,
+.x-btn.pa-banner-btn .x-frame-mr,
+.x-btn.pa-banner-btn .x-frame-bl,
+.x-btn.pa-banner-btn .x-frame-bc,
+.x-btn.pa-banner-btn .x-frame-br,
+.x-btn.green-button .x-btn-wrap,
+.x-btn.green-button .x-btn-button,
+.x-btn.green-button .x-frame-tl,
+.x-btn.green-button .x-frame-tc,
+.x-btn.green-button .x-frame-tr,
+.x-btn.green-button .x-frame-ml,
+.x-btn.green-button .x-frame-mc,
+.x-btn.green-button .x-frame-mr,
+.x-btn.green-button .x-frame-bl,
+.x-btn.green-button .x-frame-bc,
+.x-btn.green-button .x-frame-br {
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.x-btn.green-button .x-btn-inner,
+.x-btn.pa-banner-btn .x-btn-inner {
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 34px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  text-shadow: none !important;
+}
+
+.pa-section-title-bar,
+.pa-flat-device-usage-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 48px !important;
+  max-height: 48px !important;
+  min-height: 48px !important;
+  overflow: visible !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--pa-hairline) !important;
+  box-sizing: border-box !important;
+  padding: 0 12px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.pa-section-title-bar .x-box-inner,
+.pa-flat-device-usage-bar .x-box-inner,
+.pa-section-title-bar .x-box-target,
+.pa-flat-device-usage-bar .x-box-target,
+.pa-section-title-bar .x-box-item,
+.pa-flat-device-usage-bar .x-box-item {
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Primary action buttons — flat corners (not pills) */
+.green2-button,
+.blue-button,
+.green-button,
+.orange-button,
+.x-btn.green2-button,
+.x-btn.blue-button,
+.x-btn.green-button,
+.x-btn.orange-button,
+.x-toolbar .green2-button,
+.x-toolbar .blue-button,
+.x-toolbar .green-button,
+.x-toolbar .orange-button {
+  background: var(--pa-accent) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: #fff !important;
+  font-family: var(--pa-font) !important;
+  filter: none !important;
+  overflow: visible !important;
+  padding: 0 10px !important;
+}
+.x-btn.orange-button,
+.orange-button {
+  background: #e5a00d !important;
+  background-image: none !important;
+}
+.green2-button .x-btn-inner,
+.blue-button .x-btn-inner,
+.green-button .x-btn-inner,
+.orange-button .x-btn-inner,
+.x-btn.green2-button .x-btn-inner,
+.x-btn.blue-button .x-btn-inner,
+.x-btn.green-button .x-btn-inner,
+.x-btn.orange-button .x-btn-inner {
+  color: #fff !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+  font-family: var(--pa-font) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  /* Do NOT force huge padding — Ext already reserves glyph space */
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+/* Glyphs: only restyle colored action buttons — not white2/admin/menu triggers */
+.x-btn.green-button .x-btn-glyph,
+.x-btn.blue-button .x-btn-glyph,
+.x-btn.orange-button .x-btn-glyph,
+.x-btn.green2-button .x-btn-glyph,
+.green-button .x-btn-glyph,
+.blue-button .x-btn-glyph,
+.orange-button .x-btn-glyph {
+  color: #fff !important;
+  opacity: 1 !important;
+  position: static !important;
+  transform: none !important;
+  left: auto !important;
+  top: auto !important;
+  margin: 0 6px 0 0 !important;
+  font-size: 14px !important;
+  line-height: 14px !important;
+}
+.x-btn.green-button .x-btn-button,
+.x-btn.blue-button .x-btn-button,
+.x-btn.orange-button .x-btn-button,
+.x-btn.green2-button .x-btn-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+/* Menu/split Discovery caret stays clear of label */
+.x-btn.green-button.x-btn-menu-active,
+.x-btn.green-button.x-btn-arrow-right,
+.x-btn.green-button .x-btn-wrap-default-small.x-btn-arrow-right:after,
+.x-btn.green-button .x-btn-wrap.x-btn-split-right:after,
+.x-btn.green-button .x-btn-arrow-right:after {
+  color: #fff !important;
+}
+.x-btn-over.green2-button,
+.x-btn-over.blue-button,
+.x-btn-over.green-button,
+.x-btn-pressed.green2-button,
+.x-btn-pressed.blue-button,
+.x-btn-pressed.green-button,
+.x-btn-focus.green2-button,
+.x-btn-focus.blue-button,
+.x-btn-focus.green-button {
+  background: var(--pa-accent-strong) !important;
+  background-image: none !important;
+  box-shadow: 0 2px 6px rgba(11, 107, 203, 0.28) !important;
+  filter: none !important;
+  border: 0 !important;
+}
+
+/* Nuclear kill: red/orange underline on left-rail active/hover */
+#projectOptions .x-tab,
+#projectOptions .x-tab-active,
+#projectOptions .x-tab-over,
+#mainpaneltabs .x-tab,
+#mainpaneltabs .x-tab-active,
+.pa-side-nav .x-tab,
+.pa-side-nav .x-tab-active,
+.pa-side-nav .x-tab-over,
+#projectOptions .x-tab *,
+#mainpaneltabs .x-tab-bar-left .x-tab *,
+.pa-side-nav .x-tab * {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom-style: none !important;
+  border-bottom-width: 0 !important;
+  border-bottom-color: transparent !important;
+}
+#projectOptions .x-tab-active .x-tab-inner::after,
+#projectOptions .x-tab-active .x-tab-inner::before,
+#mainpaneltabs .x-tab-bar-left .x-tab-active .x-tab-inner::after,
+.pa-side-nav .x-tab-active .x-tab-inner::after,
+.pa-side-nav .x-tab-active .x-tab-inner::before {
+  content: none !important;
+  display: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: none !important;
+  height: 0 !important;
+}
+/* Ext table-frame leftovers on left tabs */
+#projectOptions .x-tab .x-tab-tl,
+#projectOptions .x-tab .x-tab-tc,
+#projectOptions .x-tab .x-tab-tr,
+#projectOptions .x-tab .x-tab-ml,
+#projectOptions .x-tab .x-tab-mr,
+#projectOptions .x-tab .x-tab-bl,
+#projectOptions .x-tab .x-tab-bc,
+#projectOptions .x-tab .x-tab-br,
+#projectOptions .x-tab .x-frame-tl,
+#projectOptions .x-tab .x-frame-tc,
+#projectOptions .x-tab .x-frame-tr,
+#projectOptions .x-tab .x-frame-bl,
+#projectOptions .x-tab .x-frame-bc,
+#projectOptions .x-tab .x-frame-br,
+.pa-side-nav .x-tab .x-tab-bc,
+.pa-side-nav .x-tab .x-frame-bc {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  height: 0 !important;
+}
+html.pa-theme-dark #projectOptions .x-tab-bar-left .x-tab-active,
+html.pa-theme-dark .pa-side-nav .x-tab-active {
+  background: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Wave ui8 — typography + density polish
+   ══════════════════════════════════════════════════════════════════ */
+.x-panel-header-title-default,
+.x-title-text-default,
+.x-column-header-text-inner,
+.x-tab .x-tab-inner,
+.x-btn-inner,
+.x-form-item-label,
+.x-form-text,
+.x-menu-item-text,
+.x-grid-cell-inner {
+  font-family: var(--pa-font) !important;
+}
+.x-panel-header-title-default,
+.x-title-text-default {
+  font-size: 14px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--pa-text) !important;
+}
+.x-column-header-text-inner {
+  font-size: 11px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+  color: var(--pa-text-secondary) !important;
+}
+.x-tab .x-tab-inner,
+.x-tab .x-tab-inner-default {
+  font-size: 13px !important;
+  font-weight: 550 !important;
+}
+.x-fieldset-header-text,
+fieldset legend {
+  font-family: var(--pa-font) !important;
+  font-weight: 650 !important;
+  color: var(--pa-text) !important;
+}
+/* Soften dense Ext chrome */
+.x-toolbar-default {
+  padding: 6px 8px !important;
+}
+.x-btn-inner-default-small,
+.x-btn-inner-default-toolbar-small {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Wave ui10 — left-only radius, flush content, glass headers, dark
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Content body flush to left rail — kill the dark gutter */
+#mainpaneltabs-body,
+#projectOptions-body,
+#mainpaneltabs > .x-panel-body,
+#projectOptions > .x-panel-body {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* Outer content shell: round ONLY on the menu side; square flush right */
+#mainpaneltabs-body > .x-panel,
+#mainpaneltabs-body > .x-component,
+#mainpaneltabs-body > .x-panel-default,
+#projectOptions-body > .x-panel,
+#projectOptions-body > .x-component,
+#projectOptions-body > .x-panel-default,
+#DevicesView,
+#DevicesView2,
+#DevicesView3 {
+  border-radius: 0 !important;
+  margin: 0 !important;
+  border-right: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Nested cards keep soft radius; outer shell stays left-only */
+#mainpaneltabs-body > .x-panel > .x-panel-body,
+#projectOptions-body > .x-panel > .x-panel-body {
+  border-radius: 0 !important;
+}
+
+/* Apple glass column headers (frosted, not solid navy) — no top/bottom bars */
+html:not(.pa-theme-dark) .x-grid-header-ct,
+html:not(.pa-theme-dark) .x-grid-header-ct .x-box-inner,
+html:not(.pa-theme-dark) .x-column-header,
+html:not(.pa-theme-dark) .x-column-header-over,
+html:not(.pa-theme-dark) .x-column-header-sort-ASC,
+html:not(.pa-theme-dark) .x-column-header-sort-DESC,
+html:not(.pa-theme-dark) #ProjectsGridPanel .x-grid-header-ct,
+html:not(.pa-theme-dark) #ProjectsGridPanel .x-column-header {
+  background: rgba(255, 255, 255, 0.42) !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  color: var(--pa-text-secondary) !important;
+  border-radius: 0 !important;
+}
+.x-column-header-inner,
+.x-column-header-text-container,
+.x-column-header-text-wrapper {
+  background: transparent !important;
+  background-image: none !important;
+}
+.x-column-header-text-inner {
+  color: var(--pa-text-secondary) !important;
+  font-size: 11px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+/* Dark workspace: cohesive glass panels (no white island) */
+html.pa-theme-dark #mainpaneltabs-body > .x-panel,
+html.pa-theme-dark #mainpaneltabs-body > .x-panel-default,
+html.pa-theme-dark #projectOptions-body > .x-panel,
+html.pa-theme-dark #projectOptions-body > .x-panel-default,
+html.pa-theme-dark #mainpaneltabs-body .x-panel-default:not(.x-tabpanel),
+html.pa-theme-dark #projectOptions-body .x-panel-default:not(.x-tabpanel),
+html.pa-theme-dark #DevicesView,
+html.pa-theme-dark #DevicesView2,
+html.pa-theme-dark #DevicesView3,
+html.pa-theme-dark #Project_Configuration,
+html.pa-theme-dark #Project_Configuration-body {
+  background: rgba(22, 28, 40, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--pa-text) !important;
+}
+
+html.pa-theme-dark .x-grid-header-ct,
+html.pa-theme-dark .x-grid-header-ct .x-box-inner,
+html.pa-theme-dark .x-column-header,
+html.pa-theme-dark .x-column-header-over,
+html.pa-theme-dark #ProjectsGridPanel .x-grid-header-ct,
+html.pa-theme-dark #ProjectsGridPanel .x-column-header {
+  background: rgba(48, 56, 74, 0.45) !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  color: rgba(245, 245, 247, 0.72) !important;
+  border-radius: 0 !important;
+}
+html.pa-theme-dark .x-column-header-text-inner {
+  color: rgba(245, 245, 247, 0.72) !important;
+}
+html.pa-theme-dark .x-grid-item,
+html.pa-theme-dark .x-grid-item-alt,
+html.pa-theme-dark .x-grid-view,
+html.pa-theme-dark .x-grid-body,
+html.pa-theme-dark .x-panel-body-default {
+  background: rgba(22, 28, 40, 0.96) !important;
+  color: var(--pa-text) !important;
+}
+html.pa-theme-dark .x-grid-empty,
+html.pa-theme-dark .x-grid-empty-text {
+  background: rgba(22, 28, 40, 0.96) !important;
+  background-color: rgba(22, 28, 40, 0.96) !important;
+  color: rgba(245, 245, 247, 0.72) !important;
+}
+html.pa-theme-dark .x-tab-bar-top:not(.x-tab-bar-left),
+html.pa-theme-dark .x-tab-bar-default-horizontal:not(.x-tab-bar-left) {
+  background: rgba(28, 34, 48, 0.55) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Flat tick / cross as masked glyphs in grids */
+img.pa-flat-obj-icon[src*="tick.svg"],
+img.pa-flat-obj-icon[src*="cross.svg"],
+img.pa-flat-obj-icon[src*="unchecked.svg"],
+img[data-pa-flat][src*="tick.svg"],
+img[data-pa-flat][src*="cross.svg"],
+img[data-pa-flat][src*="unchecked.svg"] {
+  width: 14px !important;
+  height: 14px !important;
+  opacity: 0.9 !important;
+}
+
+/* Top horizontal Devices / Monitor — crisp flat glyphs */
+.x-tab-bar-top .x-tab[data-pa-icon="devices"] .x-tab-glyph,
+.x-tab-bar-top .x-tab[data-pa-icon="devices"] .x-tab-icon-el,
+.x-tab-bar-top .x-tab[data-pa-icon="monitor"] .x-tab-glyph,
+.x-tab-bar-top .x-tab[data-pa-icon="monitor"] .x-tab-icon-el,
+.x-tab-bar-default-horizontal .x-tab[data-pa-icon="devices"] .x-tab-glyph,
+.x-tab-bar-default-horizontal .x-tab[data-pa-icon="devices"] .x-tab-icon-el,
+.x-tab-bar-default-horizontal .x-tab[data-pa-icon="monitor"] .x-tab-glyph,
+.x-tab-bar-default-horizontal .x-tab[data-pa-icon="monitor"] .x-tab-icon-el {
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px !important;
+  opacity: 1 !important;
+  -webkit-mask-size: 15px 15px !important;
+  mask-size: 15px 15px !important;
+}
+
+/* ── ui14: flat corners on all dashboard / content panels ───────── */
+#DashboardCard,
+#DashboardCard-body,
+#DashboardCard .x-panel-body,
+[itemid="appid_statistics"],
+[itemid="appid_statistics"] > .x-box-inner,
+[itemid="appid_statistics"] > .x-box-target {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Kill gutters between content column and System health checks */
+#DashboardCard .x-box-item,
+#DashboardCard .myborder,
+#mtversiongrid,
+#healtehCheckGrid {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+#mainpaneltabs-body,
+#projectOptions-body,
+#mainpaneltabs-body > .x-panel,
+#mainpaneltabs-body > .x-panel-default,
+#projectOptions-body > .x-panel,
+#projectOptions-body > .x-panel-default,
+#DashboardCard,
+#DevicesView,
+#DevicesView2,
+#DevicesView3,
+#ProjectsGridPanel,
+#DashboardCard .myborder,
+#DashboardCard .x-panel.myborder,
+#DashboardCard .x-grid-panel,
+#DashboardCard .x-panel-default:not(.x-tabpanel),
+#DashboardCard .x-panel,
+#DashboardCard .x-panel-header,
+#DashboardCard .x-panel-header-default,
+#mtversiongrid,
+#mtversiongrid.myborder,
+#mtversiongrid .x-panel-header,
+#healtehCheckGrid,
+#healtehCheckGrid.myborder,
+#healtehCheckGrid .x-panel-header,
+#mainpaneltabs-body .myborder,
+#projectOptions-body .myborder,
+#mainpaneltabs-body .x-panel-default:not(.x-tabpanel),
+#projectOptions-body .x-panel-default:not(.x-tabpanel),
+#mainpaneltabs-body .x-grid-panel,
+#projectOptions-body .x-grid-panel,
+#mainpaneltabs-body .x-panel,
+#projectOptions-body .x-panel {
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+#healtehCheckGrid,
+#healtehCheckGrid.myborder {
+  margin: 5px 0 5px 0 !important;
+  border-right: 0 !important;
+}
+
+#mtversiongrid.pa-release-grid {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Also flatten Jobs toolbar white buttons (were full pills) */
+#DashboardCard .white-button,
+#DashboardCard .x-btn.white-button,
+#panReadOrdersBar .x-btn,
+#panReadOrdersBar .white-button {
+  border-radius: 6px !important;
+}
+
+/* ── ui15: kill release panel top/bottom borders ───────────────── */
+#mtversiongrid,
+#mtversiongrid.myborder,
+#mtversiongrid.x-panel,
+#mtversiongrid.x-panel-default,
+.pa-release-grid,
+.pa-release-grid.myborder {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+}
+#mtversiongrid > .x-panel-header,
+#mtversiongrid > .x-panel-header-default,
+#mtversiongrid .x-panel-header,
+#mtversiongrid .x-panel-body,
+#mtversiongrid .x-panel-body-default,
+#mtversiongrid .x-grid-header-ct,
+#mtversiongrid .x-grid-view,
+#mtversiongrid .x-grid-body {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+/* Dashboard cards: no #d3dfea top/bottom chrome from .myborder */
+#DashboardCard .myborder,
+#DashboardCard .myborder.x-panel,
+#DashboardCard .myborder.x-panel-default {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+}
+
+/* ── ui16: same flat corners + no top/bottom borders everywhere ── */
+.myborder:not(.x-tab-bar),
+.myborder.x-panel,
+.myborder.x-panel-default,
+.myborder.x-grid-panel,
+#mainpaneltabs-body .myborder,
+#projectOptions-body .myborder,
+#mainpaneltabs-body .x-panel-default:not(.x-tabpanel),
+#projectOptions-body .x-panel-default:not(.x-tabpanel),
+#ProjectsGridPanel,
+#ProjectsGridPanel.pa-projects-rows,
+.pa-library-panel,
+.pa-library-panel .x-panel,
+#DevicesView,
+#DevicesView2,
+#DevicesView3,
+#SnippetsView,
+#UsersView,
+#LogsView,
+#healtehCheckGrid {
+  border-radius: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Panel titles + grid headers: no hairline top/bottom bars */
+#mainpaneltabs-body .x-panel-header,
+#mainpaneltabs-body .x-panel-header-default,
+#projectOptions-body .x-panel-header,
+#projectOptions-body .x-panel-header-default,
+#ProjectsGridPanel .x-panel-header,
+#ProjectsGridPanel .x-panel-header-default,
+.pa-library-panel .x-panel-header {
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#mainpaneltabs-body .x-grid-header-ct,
+#projectOptions-body .x-grid-header-ct,
+#ProjectsGridPanel .x-grid-header-ct,
+#ProjectsGridPanel .x-column-header,
+#mainpaneltabs-body .x-column-header,
+#projectOptions-body .x-column-header,
+.x-grid-with-row-lines .x-grid-header-ct {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Flat selected/hover rows (no pill chips) */
+.x-grid-item,
+.x-grid-item-alt,
+.x-grid-item-over,
+.x-grid-item-selected,
+.x-grid-item-focused,
+#ProjectsGridPanel .x-grid-item,
+#ProjectsGridPanel .x-grid-item-selected,
+#ProjectsGridPanel .x-grid-item-over {
+  border-radius: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+
+/* Kill legacy #d3dfea top/bottom from MT3 .myborder globally */
+.myborder {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-top-style: none !important;
+  border-bottom-style: none !important;
+}
+.myborderbar,
+.myborderbar2 {
+  border: 0 !important;
+}
+
+/* ── ui18: Multi Edit / Move / Discovery toolbar ───────────────── */
+.x-toolbar-default,
+.x-toolbar,
+.x-panel-default-outer-border-trl,
+.x-panel-default-outer-border-rbl {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+.x-toolbar-default,
+.x-toolbar-default-docked-top,
+.x-toolbar-default-docked-bottom {
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+/* Rule toolbar action buttons */
+.x-toolbar .orange-button,
+.x-toolbar .blue-button,
+.x-toolbar .green-button,
+.x-toolbar .x-btn.orange-button,
+.x-toolbar .x-btn.blue-button,
+.x-toolbar .x-btn.green-button {
+  border-radius: 6px !important;
+  min-height: 30px !important;
+  height: auto !important;
+}
+.x-toolbar .x-btn .x-btn-glyph,
+.x-toolbar .x-btn .x-btn-icon-el {
+  margin-right: 6px !important;
+  width: 14px !important;
+  min-width: 14px !important;
+  position: static !important;
+  left: auto !important;
+  transform: none !important;
+}
+.x-toolbar .x-btn .x-btn-inner {
+  padding-left: 0 !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+/* Discovery split/menu: room for caret + glyph */
+.x-toolbar .x-btn.green-button.x-btn-menu,
+.x-toolbar .x-btn.green-button.x-btn-arrow-right,
+.x-toolbar .green-button.x-btn-arrow-right {
+  padding-right: 22px !important;
+}
+.x-toolbar .green-button .x-btn-wrap-default-small.x-btn-arrow-right:after,
+.x-toolbar .green-button .x-btn-wrap.x-btn-arrow-right:after,
+.x-toolbar .green-button.x-btn-arrow-right:after {
+  right: 6px !important;
+  color: #fff !important;
+  opacity: 0.9 !important;
+}
+
+/* ── ui19: Settings / Project Settings — show full Cancel/Save/Add Role ─ */
+.x-window .x-toolbar .x-btn,
+.x-window-footer .x-btn,
+.x-toolbar-footer .x-btn,
+.x-window .x-btn.green-button,
+.x-window .x-btn.blue-button,
+.x-window .x-btn.green2-button,
+.x-window .x-btn.white-button,
+.x-window .x-btn[id*="save"],
+.x-window .x-btn[id*="cancel"] {
+  min-width: 96px !important;
+  width: auto !important;
+  max-width: none !important;
+  padding: 0 12px !important;
+  overflow: visible !important;
+}
+.x-window .x-btn .x-btn-inner,
+.x-toolbar-footer .x-btn .x-btn-inner,
+.x-window-footer .x-btn .x-btn-inner,
+.x-toolbar .x-btn.blue-button .x-btn-inner,
+.x-toolbar .x-btn.green-button .x-btn-inner,
+.x-btn.blue-button .x-btn-inner,
+.x-btn.green-button .x-btn-inner,
+.x-btn.white-button .x-btn-inner {
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  text-indent: 0 !important;
+  padding-left: 0 !important;
+}
+/* Kill Ext ellipsis on cramped icon+label buttons */
+.x-btn-inner-center,
+.x-btn-inner-default-small,
+.x-btn-inner-default-toolbar-small {
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Wave ui21 — FULL dark mode (override light glass panels)
+   ══════════════════════════════════════════════════════════════════ */
+html.pa-theme-dark,
+html.pa-login-theme-dark {
+  --pa-bg: #0a0e17;
+  --pa-glass: rgba(18, 24, 36, 0.92);
+  --pa-glass-strong: rgba(24, 30, 44, 0.96);
+  --pa-glass-border: rgba(255, 255, 255, 0.1);
+  --pa-hairline: rgba(255, 255, 255, 0.08);
+  --pa-text: #f5f5f7;
+  --pa-text-secondary: rgba(245, 245, 247, 0.72);
+  --pa-text-tertiary: rgba(245, 245, 247, 0.45);
+}
+
+html.pa-theme-dark body,
+html.pa-theme-dark .x-viewport,
+html.pa-theme-dark .x-body,
+html.pa-theme-dark #mainviewport,
+html.pa-theme-dark #mainpanelcard,
+html.pa-theme-dark #mainpanelcard-body,
+html.pa-theme-dark #MainPanel,
+html.pa-theme-dark #MainPanel-body,
+html.pa-theme-dark #mainpaneltabs,
+html.pa-theme-dark #mainpaneltabs-body,
+html.pa-theme-dark #projectOptions,
+html.pa-theme-dark #projectOptions-body,
+html.pa-theme-dark #DashboardCard,
+html.pa-theme-dark #DashboardCard-body {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--pa-text) !important;
+}
+
+html.pa-theme-dark body::before {
+  background:
+    radial-gradient(900px 600px at 10% 0%, rgba(40, 90, 180, 0.28), transparent 55%),
+    radial-gradient(800px 500px at 90% 10%, rgba(70, 50, 120, 0.2), transparent 50%),
+    linear-gradient(180deg, #070b14 0%, #0f1624 50%, #121a2a 100%) !important;
+}
+
+/* Every content card / container — dark surface */
+html.pa-theme-dark .x-panel,
+html.pa-theme-dark .x-panel-default,
+html.pa-theme-dark .x-panel-default-framed,
+html.pa-theme-dark .x-panel-body,
+html.pa-theme-dark .x-panel-body-default,
+html.pa-theme-dark .x-container,
+html.pa-theme-dark .myborder,
+html.pa-theme-dark .myborder:not(.x-tab-bar),
+html.pa-theme-dark #mainpaneltabs-body .x-panel,
+html.pa-theme-dark #mainpaneltabs-body .x-panel-default,
+html.pa-theme-dark #mainpaneltabs-body .x-grid-panel,
+html.pa-theme-dark #mainpaneltabs-body .myborder,
+html.pa-theme-dark #projectOptions-body .x-panel,
+html.pa-theme-dark #projectOptions-body .x-panel-default,
+html.pa-theme-dark #projectOptions-body .myborder,
+html.pa-theme-dark #DashboardCard .x-panel,
+html.pa-theme-dark #DashboardCard .x-container,
+html.pa-theme-dark #DashboardCard .myborder,
+html.pa-theme-dark #mtversiongrid,
+html.pa-theme-dark #healtehCheckGrid,
+html.pa-theme-dark #ProjectsGridPanel,
+html.pa-theme-dark #DevicesView,
+html.pa-theme-dark #DevicesView2,
+html.pa-theme-dark #DevicesView3,
+html.pa-theme-dark .pa-jobs-panel,
+html.pa-theme-dark .pa-ml-health,
+html.pa-theme-dark .pa-library-panel {
+  background: rgba(22, 28, 40, 0.94) !important;
+  background-color: rgba(22, 28, 40, 0.94) !important;
+  background-image: none !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--pa-text) !important;
+  box-shadow: none !important;
+}
+
+html.pa-theme-dark .x-panel-header,
+html.pa-theme-dark .x-panel-header-default,
+html.pa-theme-dark #DashboardCard .x-panel-header,
+html.pa-theme-dark #mtversiongrid .x-panel-header,
+html.pa-theme-dark #healtehCheckGrid .x-panel-header,
+html.pa-theme-dark .pa-jobs-panel .x-panel-header,
+html.pa-theme-dark .pa-ml-health .x-panel-header {
+  background: rgba(16, 22, 34, 0.98) !important;
+  background-image: none !important;
+  border: 0 !important;
+  color: var(--pa-text) !important;
+}
+
+html.pa-theme-dark .x-panel-header-title-default,
+html.pa-theme-dark .x-title-text-default,
+html.pa-theme-dark .x-panel-header-text-container,
+html.pa-theme-dark .x-header-text {
+  color: var(--pa-text) !important;
+}
+
+/* Grids + property grids */
+html.pa-theme-dark .x-grid-view,
+html.pa-theme-dark .x-grid-body,
+html.pa-theme-dark .x-grid-with-row-lines .x-grid-item,
+html.pa-theme-dark .x-grid-item,
+html.pa-theme-dark .x-grid-cell,
+html.pa-theme-dark .x-grid-cell-inner,
+html.pa-theme-dark .x-grid-row,
+html.pa-theme-dark .x-property-grid .x-grid-item,
+html.pa-theme-dark #mtversiongrid .x-grid-item,
+html.pa-theme-dark #healtehCheckGrid .x-grid-item {
+  background: rgba(28, 34, 48, 0.9) !important;
+  background-image: none !important;
+  color: var(--pa-text) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+html.pa-theme-dark .x-grid-item-alt,
+html.pa-theme-dark .x-grid-row-alt,
+html.pa-theme-dark #mtversiongrid .x-grid-item-alt {
+  background: rgba(34, 42, 58, 0.92) !important;
+}
+html.pa-theme-dark .x-grid-item-over,
+html.pa-theme-dark .x-grid-item-selected {
+  background: rgba(10, 132, 255, 0.22) !important;
+}
+html.pa-theme-dark .x-grid-header-ct,
+html.pa-theme-dark .x-column-header,
+html.pa-theme-dark .x-column-header-inner,
+html.pa-theme-dark .x-column-header-text-inner {
+  background: rgba(16, 22, 34, 0.98) !important;
+  background-image: none !important;
+  color: var(--pa-text-secondary) !important;
+  border: 0 !important;
+}
+
+/* Labels / display fields (gauges captions, STATUS, PENDING) */
+html.pa-theme-dark .x-form-display-field,
+html.pa-theme-dark .x-form-item-label,
+html.pa-theme-dark .x-component,
+html.pa-theme-dark label,
+html.pa-theme-dark .x-label,
+html.pa-theme-dark #jobs_status,
+html.pa-theme-dark #jobs_pending,
+html.pa-theme-dark .x-field {
+  color: var(--pa-text) !important;
+}
+html.pa-theme-dark #jobs_pending .x-form-display-field,
+html.pa-theme-dark #jobs_pending {
+  color: #64b5ff !important;
+}
+
+/* Charts / gauges: keep drawing hosts transparent (opaque bg hides canvas) */
+html.pa-theme-dark .x-surface,
+html.pa-theme-dark .x-surface-canvas,
+html.pa-theme-dark canvas.x-surface-canvas,
+html.pa-theme-dark .x-draw-container,
+html.pa-theme-dark .x-legend,
+html.pa-theme-dark .x-legend-container,
+html.pa-theme-dark .x-legend-inner,
+html.pa-theme-dark [id*="chart"] .x-surface,
+html.pa-theme-dark [id*="chart"] .x-draw-container,
+html.pa-theme-dark .x-container[id*="gauge"] .x-surface {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+html.pa-theme-dark .x-legend-item,
+html.pa-theme-dark .x-legend-item-text,
+html.pa-theme-dark .x-legend-container,
+html.pa-theme-dark .x-legend-inner {
+  color: rgba(245, 245, 247, 0.85) !important;
+}
+
+/* Toolbars inside dark panels */
+html.pa-theme-dark .x-toolbar,
+html.pa-theme-dark .x-toolbar-default,
+html.pa-theme-dark .x-toolbar-footer,
+html.pa-theme-dark #panReadOrdersBar {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+}
+
+/* Jobs white buttons → dark chips with visible labels */
+html.pa-theme-dark .white-button,
+html.pa-theme-dark .white2-button,
+html.pa-theme-dark .x-btn.white-button,
+html.pa-theme-dark .x-btn.white2-button,
+html.pa-theme-dark #panReadOrdersBar .x-btn,
+html.pa-theme-dark .pa-jobs-panel .x-btn {
+  background: rgba(40, 48, 64, 0.95) !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: var(--pa-text) !important;
+}
+html.pa-theme-dark .white-button .x-btn-inner,
+html.pa-theme-dark .white2-button .x-btn-inner,
+html.pa-theme-dark .x-btn.white-button .x-btn-inner,
+html.pa-theme-dark #panReadOrdersBar .x-btn .x-btn-inner,
+html.pa-theme-dark .pa-jobs-panel .x-btn .x-btn-inner {
+  color: var(--pa-text) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+html.pa-theme-dark .white-button .x-btn-glyph,
+html.pa-theme-dark #panReadOrdersBar .x-btn .x-btn-glyph,
+html.pa-theme-dark .pa-jobs-panel .x-btn .x-btn-glyph {
+  color: #64b5ff !important;
+  opacity: 1 !important;
+}
+
+/* Progress bars stay vivid on dark */
+html.pa-theme-dark .x-progress-default,
+html.pa-theme-dark .x-progress {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+html.pa-theme-dark .x-progress-bar,
+html.pa-theme-dark .x-progress-bar-default {
+  background: var(--pa-accent) !important;
+}
+html.pa-theme-dark .x-progress-text {
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Grouped health check section headers */
+html.pa-theme-dark .x-grid-group-hd,
+html.pa-theme-dark .x-grid-group-title,
+html.pa-theme-dark .x-grid-row-summary {
+  background: rgba(36, 44, 62, 0.95) !important;
+  color: var(--pa-text) !important;
+}
+
+/* Forms / inputs */
+html.pa-theme-dark .x-form-text,
+html.pa-theme-dark .x-form-text-default,
+html.pa-theme-dark .x-form-trigger-wrap,
+html.pa-theme-dark input.x-form-field,
+html.pa-theme-dark textarea.x-form-field {
+  background: rgba(16, 22, 34, 0.95) !important;
+  background-image: none !important;
+  color: var(--pa-text) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Menus */
+html.pa-theme-dark .x-menu-default,
+html.pa-theme-dark .x-menu-body,
+html.pa-theme-dark .x-boundlist {
+  background: rgba(28, 34, 48, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+html.pa-theme-dark .x-menu-item-text,
+html.pa-theme-dark .x-boundlist-item {
+  color: var(--pa-text) !important;
+}
+
+/* Side rail stays dark */
+html.pa-theme-dark #mainpaneltabs > .x-tab-bar,
+html.pa-theme-dark #projectOptions > .x-tab-bar,
+html.pa-theme-dark .pa-side-nav {
+  background: rgba(12, 16, 26, 0.96) !important;
+}
+
+/* Theme toggle: show we're in dark (switch to Light) */
+html.pa-theme-dark #pa-login-theme-toggle.pa-login-theme-toggle {
+  background: rgba(40, 48, 64, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #f5f5f7 !important;
+}
+
+/* Kill leftover white inline styles anywhere in the workspace */
+html.pa-theme-dark [style*="background-color:white"],
+html.pa-theme-dark [style*="background-color: white"],
+html.pa-theme-dark [style*="background-color:#fff"],
+html.pa-theme-dark [style*="background-color:#FFF"],
+html.pa-theme-dark [style*="background-color:#ffffff"],
+html.pa-theme-dark [style*="background-color:#FFFFFF"],
+html.pa-theme-dark [style*="background:#fff"],
+html.pa-theme-dark [style*="background: white"],
+html.pa-theme-dark [style*="background:#ffffff"] {
+  background: rgba(22, 28, 40, 0.96) !important;
+  background-color: rgba(22, 28, 40, 0.96) !important;
+  background-image: none !important;
+  color: var(--pa-text) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Wave ui22 — dark mode leftovers (import / charts / empty grids)
+   ══════════════════════════════════════════════════════════════════ */
+html.pa-theme-dark .x-fieldset,
+html.pa-theme-dark fieldset,
+html.pa-theme-dark .x-fieldset-default,
+html.pa-theme-dark .x-fieldset-body,
+html.pa-theme-dark .x-fieldset-header,
+html.pa-theme-dark .x-fieldset-header-default,
+html.pa-theme-dark .x-fieldset-header-text,
+html.pa-theme-dark legend,
+html.pa-theme-dark .bgimport,
+html.pa-theme-dark .x-form-file-wrap,
+html.pa-theme-dark .x-form-file-btn,
+html.pa-theme-dark .x-form-file-input {
+  background: rgba(22, 28, 40, 0.96) !important;
+  background-color: rgba(22, 28, 40, 0.96) !important;
+  background-image: none !important;
+  color: var(--pa-text) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.pa-theme-dark .x-fieldset-header-text,
+html.pa-theme-dark .x-fieldset-header .x-fieldset-header-text,
+html.pa-theme-dark fieldset legend,
+html.pa-theme-dark .x-form-item-label,
+html.pa-theme-dark .x-form-display-field,
+html.pa-theme-dark .x-fieldset .x-component {
+  color: var(--pa-text) !important;
+  opacity: 1 !important;
+}
+
+/* Grid empty states — "No Devices" / "No Networks found." */
+html.pa-theme-dark .x-grid-empty,
+html.pa-theme-dark .x-grid-empty-text,
+html.pa-theme-dark .x-grid-view > .x-grid-empty,
+html.pa-theme-dark .x-grid-body .x-grid-empty,
+html.pa-theme-dark .x-grid-view-default .x-grid-empty,
+html.pa-theme-dark table.x-grid-item,
+html.pa-theme-dark .x-grid-item-container,
+html.pa-theme-dark .x-grid-view,
+html.pa-theme-dark .x-grid-body,
+html.pa-theme-dark .x-grid-view-default {
+  background: rgba(22, 28, 40, 0.96) !important;
+  background-color: rgba(22, 28, 40, 0.96) !important;
+  background-image: none !important;
+  color: rgba(245, 245, 247, 0.72) !important;
+}
+
+html.pa-theme-dark .x-grid-empty,
+html.pa-theme-dark .x-grid-empty-text {
+  color: rgba(245, 245, 247, 0.72) !important;
+  font-weight: 500 !important;
+}
+
+/* Column headers — never white bars */
+html.pa-theme-dark .x-grid-header-ct,
+html.pa-theme-dark .x-grid-header-ct-default,
+html.pa-theme-dark .x-grid-header-ct .x-box-inner,
+html.pa-theme-dark .x-column-header,
+html.pa-theme-dark .x-column-header-inner,
+html.pa-theme-dark .x-column-header-text-container,
+html.pa-theme-dark .x-column-header-text-wrapper,
+html.pa-theme-dark .x-column-header-text-inner,
+html.pa-theme-dark .x-column-header-over,
+html.pa-theme-dark .x-grid-header-ct-hidden {
+  background: rgba(16, 22, 34, 0.98) !important;
+  background-color: rgba(16, 22, 34, 0.98) !important;
+  background-image: none !important;
+  color: rgba(245, 245, 247, 0.75) !important;
+  border-color: transparent !important;
+}
+
+/* Chart / polar / radar panel chrome — not the canvas/surface */
+html.pa-theme-dark .x-panel.myborder > .x-panel-body,
+html.pa-theme-dark #appidchart,
+html.pa-theme-dark #appidchart1,
+html.pa-theme-dark #DashboardRadarChart,
+html.pa-theme-dark #appidchart-body,
+html.pa-theme-dark #appidchart1-body,
+html.pa-theme-dark #DashboardRadarChart-body {
+  background: rgba(22, 28, 40, 0.96) !important;
+  background-color: rgba(22, 28, 40, 0.96) !important;
+  background-image: none !important;
+}
+html.pa-theme-dark #appidchart .x-draw-container,
+html.pa-theme-dark #appidchart1 .x-draw-container,
+html.pa-theme-dark #DashboardRadarChart .x-draw-container,
+html.pa-theme-dark #appidchart .x-surface,
+html.pa-theme-dark #appidchart1 .x-surface,
+html.pa-theme-dark #DashboardRadarChart .x-surface,
+html.pa-theme-dark #appidchart canvas,
+html.pa-theme-dark #appidchart1 canvas,
+html.pa-theme-dark #DashboardRadarChart canvas {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Import upload cards + Devices library empty */
+html.pa-theme-dark #LoadImportProject,
+html.pa-theme-dark #LoadImportProject2,
+html.pa-theme-dark #DevicesView,
+html.pa-theme-dark #DevicesView2,
+html.pa-theme-dark #DevicesView3,
+html.pa-theme-dark #ImportSupport,
+html.pa-theme-dark #ImportSupport-body,
+html.pa-theme-dark #ImportCard,
+html.pa-theme-dark #ProjectsGridPanel .x-grid-view,
+html.pa-theme-dark #ProjectsGridPanel .x-grid-empty {
+  background: rgba(22, 28, 40, 0.96) !important;
+  background-image: none !important;
+  color: var(--pa-text) !important;
+}
+
+/* Override Ext theme white table cells */
+html.pa-theme-dark .x-grid-cell,
+html.pa-theme-dark .x-grid-td,
+html.pa-theme-dark .x-grid-cell-inner,
+html.pa-theme-dark .x-grid-row,
+html.pa-theme-dark .x-grid-row .x-grid-cell {
+  background-color: transparent !important;
+  color: var(--pa-text) !important;
+}
+
+/* Soften vertical section headers on charts (APP-ID ADOPTION rail) */
+html.pa-theme-dark .x-panel-header-right,
+html.pa-theme-dark .x-panel-header-default-right {
+  background: rgba(16, 22, 34, 0.98) !important;
+  color: var(--pa-text) !important;
+}
+
+/* File browse buttons stay readable */
+html.pa-theme-dark .x-form-file-btn,
+html.pa-theme-dark .x-btn.x-form-file-btn {
+  background: rgba(40, 48, 64, 0.95) !important;
+  color: #fff !important;
+}
+html.pa-theme-dark .x-form-file-btn .x-btn-inner {
+  color: #fff !important;
+}
+
+/* ui22b — beat Ext #fff empty + ID light leftovers */
+html.pa-theme-dark .x-grid-empty,
+html.pa-theme-dark div.x-grid-empty,
+html.pa-theme-dark .x-grid-view .x-grid-empty,
+html.pa-theme-dark .x-grid-with-row-lines .x-grid-empty {
+  background: #161c28 !important;
+  background-color: #161c28 !important;
+  color: rgba(245, 245, 247, 0.75) !important;
+  opacity: 1 !important;
+}
+
+html.pa-theme-dark #ProjectsGridPanel .x-grid-header-ct,
+html.pa-theme-dark #ProjectsGridPanel .x-column-header,
+html.pa-theme-dark #ProjectsGridPanel .x-grid-item,
+html.pa-theme-dark #ProjectsGridPanel .x-grid-item-alt,
+html.pa-theme-dark #ProjectsGridPanel .x-grid-view,
+html.pa-theme-dark #ProjectsGridPanel .x-grid-empty,
+html.pa-theme-dark #mainpaneltabs-body .x-grid-header-ct,
+html.pa-theme-dark #mainpaneltabs-body .x-column-header,
+html.pa-theme-dark #mainpaneltabs-body .x-grid-item,
+html.pa-theme-dark #mainpaneltabs-body .x-grid-view,
+html.pa-theme-dark #mainpaneltabs-body .x-grid-empty,
+html.pa-theme-dark #projectOptions-body .x-grid-header-ct,
+html.pa-theme-dark #projectOptions-body .x-column-header,
+html.pa-theme-dark #projectOptions-body .x-grid-item,
+html.pa-theme-dark #projectOptions-body .x-grid-view,
+html.pa-theme-dark #projectOptions-body .x-grid-empty {
+  background: #161c28 !important;
+  background-color: #161c28 !important;
+  background-image: none !important;
+  color: rgba(245, 245, 247, 0.78) !important;
+}
+
+html.pa-theme-dark #mainpaneltabs-body .x-column-header-text-inner,
+html.pa-theme-dark #projectOptions-body .x-column-header-text-inner,
+html.pa-theme-dark #ProjectsGridPanel .x-column-header-text-inner {
+  color: rgba(245, 245, 247, 0.72) !important;
+}
+
+/* Chart adoption panels — outer chrome only */
+html.pa-theme-dark #appidchart-innerCt,
+html.pa-theme-dark #appidchart1-innerCt,
+html.pa-theme-dark #DashboardRadarChart-innerCt {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ui23/42 — chart surfaces transparent, but NEVER force visibility
+   (visibility:visible !important punches through Ext-hidden Dashboard onto Import) */
+html.pa-theme-dark .x-surface,
+html.pa-theme-dark .x-surface-canvas,
+html.pa-theme-dark canvas.x-surface-canvas,
+html.pa-theme-dark .x-draw-container {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+html.pa-theme-dark #DashboardCard:not(.x-hidden):not(.x-hide-visibility):not(.x-hide-offsets) #appidchart canvas,
+html.pa-theme-dark #DashboardCard:not(.x-hidden):not(.x-hide-visibility):not(.x-hide-offsets) #appidchart1 canvas,
+html.pa-theme-dark #DashboardCard:not(.x-hidden):not(.x-hide-visibility):not(.x-hide-offsets) #DashboardRadarChart canvas {
+  opacity: 1;
+}
+
+/* ui24 — theme chip tiny; project button wider */
+html.pa-converter-ui:not(.pa-login-active) #pa-login-theme-toggle.pa-login-theme-toggle,
+html.pa-theme-dark #pa-login-theme-toggle.pa-login-theme-toggle {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  padding: 0 !important;
+}
+html.pa-converter-ui:not(.pa-login-active) #pa-login-theme-toggle .pa-login-theme-label {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+html.pa-converter-ui:not(.pa-login-active) #pa-login-theme-toggle .pa-login-theme-icon {
+  width: 14px !important;
+  height: 14px !important;
+}
+#projectsettings.x-btn,
+.x-btn#projectsettings {
+  min-width: 168px !important;
+}
+
+/* Task Manager status chip (was empty FA-only box in left rail) */
+#agentStateGlobalButton,
+#agentStateGlobalButton2,
+.x-btn#agentStateGlobalButton,
+.x-btn#agentStateGlobalButton2,
+.pa-tm-status-btn {
+  min-width: 118px !important;
+  width: auto !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 36px !important;
+  padding: 0 10px !important;
+  margin: 6px 8px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: rgba(28, 34, 48, 0.85) !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  font-size: 12px !important;
+}
+#agentStateGlobalButton .x-btn-inner,
+#agentStateGlobalButton2 .x-btn-inner,
+.pa-tm-status-btn .x-btn-inner {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: inherit !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+#agentStateGlobalButton .fa,
+#agentStateGlobalButton2 .fa,
+#agentStateGlobalButton .pa-tm-status,
+#agentStateGlobalButton2 .pa-tm-status,
+.pa-tm-status-btn .fa,
+.pa-tm-status-btn .pa-tm-status {
+  display: inline-block !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: inherit !important;
+}
+html:not(.pa-theme-dark) #agentStateGlobalButton,
+html:not(.pa-theme-dark) #agentStateGlobalButton2 {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Wave ui26 — Basepoint-style dashboard cards + pie chrome
+   ══════════════════════════════════════════════════════════════════ */
+#DashboardCard .pa-basepoint-card,
+#DashboardCard .x-panel.pa-basepoint-card,
+#DashboardCard .myborder.pa-basepoint-card {
+  border-radius: 12px !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.06) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05) !important;
+  overflow: visible !important;
+  margin: 6px !important;
+}
+html.pa-theme-dark #DashboardCard .pa-basepoint-card,
+html.pa-theme-dark #DashboardCard .x-panel.pa-basepoint-card,
+html.pa-theme-dark #DashboardCard .myborder.pa-basepoint-card {
+  background: #1a2230 !important;
+  background-color: #1a2230 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.28) !important;
+}
+
+#DashboardCard .pa-basepoint-card > .x-panel-header,
+#DashboardCard .pa-basepoint-card > .x-panel-header-default,
+#DashboardCard .pa-basepoint-card .x-panel-header-right,
+#DashboardCard .pa-basepoint-card .x-panel-header-default-right {
+  background: transparent !important;
+  border: 0 !important;
+  color: #334155 !important;
+}
+html.pa-theme-dark #DashboardCard .pa-basepoint-card > .x-panel-header,
+html.pa-theme-dark #DashboardCard .pa-basepoint-card .x-panel-header-right,
+html.pa-theme-dark #DashboardCard .pa-basepoint-card .x-title-text-default,
+html.pa-theme-dark #DashboardCard .pa-basepoint-card .x-panel-header-title-default {
+  color: #e8eef7 !important;
+  background: transparent !important;
+}
+
+#DashboardCard .pa-basepoint-chart,
+#DashboardCard .pa-basepoint-chart .x-panel-body,
+#DashboardCard .pa-basepoint-chart .x-draw-container,
+#DashboardCard .pa-basepoint-chart .x-surface,
+#DashboardCard .pa-basepoint-chart canvas {
+  background: transparent !important;
+  background-color: transparent !important;
+  position: relative !important;
+}
+
+/* Center caption pill (App-ID / User-ID) — Basepoint label chip */
+.pa-pie-center-badge {
+  position: absolute !important;
+  left: 18px !important;
+  top: 14px !important;
+  z-index: 5 !important;
+  pointer-events: none !important;
+  font-family: Inter, system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1 !important;
+  padding: 6px 10px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.06) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+}
+html.pa-theme-dark .pa-pie-center-badge {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Soft dashboard canvas behind metric cards */
+html:not(.pa-theme-dark) #DashboardCard,
+html:not(.pa-theme-dark) #DashboardCard-body {
+  background: #f4f6f9 !important;
+}
+html.pa-theme-dark #DashboardCard,
+html.pa-theme-dark #DashboardCard-body {
+  background: transparent !important;
+}
+
+/* Project / Application statistics tables — card treatment */
+#DashboardCard .x-grid-panel.myborder,
+#DashboardCard #ProjectsStats,
+#DashboardCard .x-panel.myborder:not(.pa-basepoint-card) {
+  border-radius: 12px !important;
+}
+html:not(.pa-theme-dark) #DashboardCard .x-grid-panel.myborder {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05) !important;
+}
+html.pa-theme-dark #DashboardCard .x-grid-panel.myborder {
+  background: #1a2230 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28) !important;
+}
+
+/* ui27/42 — transparent chart hosts; visibility only when Dashboard is active */
+#appidchart,
+#appidchart1,
+#DashboardRadarChart,
+#appidchart .x-panel-body,
+#appidchart1 .x-panel-body,
+#DashboardRadarChart .x-panel-body,
+#appidchart .x-draw-container,
+#appidchart1 .x-draw-container,
+#DashboardRadarChart .x-draw-container,
+#appidchart .x-surface,
+#appidchart1 .x-surface,
+#DashboardRadarChart .x-surface,
+#appidchart canvas,
+#appidchart1 canvas,
+#DashboardRadarChart canvas {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+#DashboardCard:not(.x-hidden):not(.x-hide-visibility):not(.x-hide-offsets) #appidchart canvas,
+#DashboardCard:not(.x-hidden):not(.x-hide-visibility):not(.x-hide-offsets) #appidchart1 canvas,
+#DashboardCard:not(.x-hidden):not(.x-hide-visibility):not(.x-hide-offsets) #DashboardRadarChart canvas {
+  display: block !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+.pa-pie-center-badge {
+  z-index: 3 !important;
+}
+
+/* Hard-hide dashboard chart overlays when Ext has hidden the card (Import leak) */
+.x-hidden #appidchart,
+.x-hidden #appidchart1,
+.x-hidden #DashboardRadarChart,
+.x-hide-visibility #appidchart,
+.x-hide-visibility #appidchart1,
+.x-hide-visibility #DashboardRadarChart,
+.x-hide-offsets #appidchart,
+.x-hide-offsets #appidchart1,
+.x-hide-offsets #DashboardRadarChart,
+.x-hidden-display #appidchart,
+.x-hidden-display #appidchart1,
+.x-hidden-display #DashboardRadarChart,
+.x-hidden .pa-svg-pie,
+.x-hide-visibility .pa-svg-pie,
+.x-hide-offsets .pa-svg-pie,
+.x-hidden-display .pa-svg-pie,
+.x-hidden .pa-pie-center-badge,
+.x-hide-visibility .pa-pie-center-badge,
+.x-hide-offsets .pa-pie-center-badge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ui28 — login pure black + workspace symmetry polish */
+html.pa-login-theme-dark.pa-login-active,
+html.pa-login-theme-dark.pa-login-active body,
+html.pa-login-theme-dark.pa-login-active .x-viewport,
+html.pa-login-theme-dark.pa-login-active .x-body {
+  background: #000000 !important;
+  background-color: #000000 !important;
+}
+html.pa-login-theme-dark #pa-login-theme-toggle.pa-login-theme-toggle {
+  background: #111111 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #f5f5f7 !important;
+}
+
+/* Workspace dark: deeper black shell for symmetry with login */
+html.pa-theme-dark body::before {
+  background:
+    radial-gradient(900px 600px at 10% 0%, rgba(40, 90, 180, 0.18), transparent 55%),
+    radial-gradient(800px 500px at 90% 10%, rgba(70, 50, 120, 0.12), transparent 50%),
+    linear-gradient(180deg, #000000 0%, #070b12 45%, #0a1018 100%) !important;
+}
+
+/* Project button + TM chip alignment in left rail footer stack */
+#projectsettings.x-btn,
+.x-btn#projectsettings {
+  min-width: 168px !important;
+  margin: 4px 8px !important;
+}
+#agentStateGlobalButton2,
+#agentStateGlobalButton,
+.pa-tm-status-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Keep theme chip from covering EXPORT / project controls */
+html.pa-converter-ui:not(.pa-login-active) #pa-login-theme-toggle.pa-login-theme-toggle {
+  left: 12px !important;
+  bottom: 12px !important;
+  width: 26px !important;
+  height: 26px !important;
+  z-index: 50 !important;
+}
+
+/* ui28b — chart row must keep real height (Device Usage chrome must not crush it) */
+#DashboardCard .pa-basepoint-card,
+#DashboardCard .pa-basepoint-chart {
+  overflow: visible !important;
+  min-height: 240px !important;
+  max-width: 100% !important;
+}
+#appidchart,
+#appidchart1,
+#DashboardRadarChart {
+  min-height: 220px !important;
+  max-width: 100% !important;
+}
+
+/* ui28b — chart row must keep real height (Device Usage chrome must not crush it) */
+#DashboardCard .pa-basepoint-card,
+#DashboardCard .pa-basepoint-chart {
+  overflow: visible !important;
+  min-height: 240px !important;
+  max-width: 100% !important;
+}
+#appidchart,
+#appidchart1,
+#DashboardRadarChart {
+  min-height: 220px !important;
+  max-width: 100% !important;
+}
+
+/* ui29 — nested Dashboard must fill content column (was ~2px wide) */
+#mainpaneltabs-body > .x-panel,
+#mainpaneltabs-body > .x-panel-default,
+#Dashboard,
+#Dashboard-body,
+#DashboardCard,
+#DashboardCard-body {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+#DashboardCard,
+#DashboardCard-body {
+  min-width: 320px !important;
+}
+
+/* ui33 — Basepoint SVG donut fallback (Ext surface was stuck 0×0) */
+.pa-svg-pie-host {
+  position: relative !important;
+  min-height: 260px !important;
+}
+.pa-svg-pie-host .pa-pie-center-badge {
+  display: none !important;
+}
+.pa-svg-pie {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 4 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 10px 12px 4px !important;
+  box-sizing: border-box !important;
+  pointer-events: none !important;
+}
+/* Contain SVG pies inside chart hosts — never bleed across tabs */
+.pa-svg-pie-host,
+#appidchart.pa-svg-pie-host,
+#appidchart1.pa-svg-pie-host,
+#DashboardRadarChart.pa-svg-pie-host {
+  position: relative !important;
+  overflow: hidden !important;
+}
+#DashboardCard.x-hidden .pa-svg-pie,
+#Dashboard.x-hidden .pa-svg-pie,
+#DashboardCard.x-hide-visibility .pa-svg-pie,
+#Dashboard.x-hide-visibility .pa-svg-pie {
+  display: none !important;
+}
+.pa-svg-pie-title {
+  font-family: Inter, system-ui, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  color: #334155 !important;
+  margin: 0 0 6px 2px !important;
+}
+html.pa-theme-dark .pa-svg-pie-title {
+  color: #e8eef7 !important;
+}
+.pa-svg-pie-legend {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 14px !important;
+  margin: 0 0 4px 2px !important;
+}
+.pa-svg-pie-legend-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-family: Inter, system-ui, sans-serif !important;
+  font-size: 11px !important;
+  color: #64748b !important;
+}
+html.pa-theme-dark .pa-svg-pie-legend-item {
+  color: #cbd5e1 !important;
+}
+.pa-svg-pie-swatch {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+}
+.pa-svg-pie svg {
+  flex: 1 1 auto !important;
+  max-height: 220px !important;
+}
+
+/* ui41 — dark login matches light split: banner left, black form right */
+html.pa-login-theme-dark.pa-login-active body::before {
+  background:
+    radial-gradient(900px 600px at 12% 8%, rgba(40, 80, 140, 0.35), transparent 55%),
+    radial-gradient(700px 500px at 88% 12%, rgba(60, 40, 90, 0.22), transparent 50%),
+    linear-gradient(180deg, #000000 0%, #05070c 100%) !important;
+}
+html.pa-login-theme-dark #login-body.pa-login-card-ready,
+html.pa-login-theme-dark #login .x-window-body.pa-login-card-ready {
+  background: #000000 !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 28px 90px rgba(0, 0, 0, 0.75) !important;
+}
+html.pa-login-theme-dark #login .pa-login-hero {
+  display: block !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.28) 100%),
+    url("../images/expedition/login-banner.jpg") center / cover no-repeat !important;
+}
+html.pa-login-theme-dark #login .pa-login-form-pane,
+html.pa-login-theme-dark #login .pa-login-form-inner,
+html.pa-login-theme-dark #login #LoginForm,
+html.pa-login-theme-dark #login #LoginForm-body {
+  background: #000000 !important;
+  background-image: none !important;
+}
+html.pa-login-theme-dark #login .pa-login-form-pane {
+  border-radius: 0 var(--pa-login-radius) var(--pa-login-radius) 0 !important;
+}
+html.pa-login-theme-dark #login .pa-login-form-title {
+  color: #f5f5f7 !important;
+}
+.pa-svg-radar.pa-svg-pie {
+  pointer-events: none !important;
+}
+
+/* ui35 — gauge polars: kill Ext theme white plate behind arcs */
+html.pa-theme-dark .x-panel[id*="SystemCPU"] .x-surface,
+html.pa-theme-dark .x-panel[id*="SystemCPU"] .x-draw-container,
+html.pa-theme-dark .x-panel[id*="SystemCPU"] canvas,
+html.pa-theme-dark polar .x-surface,
+html.pa-theme-dark .x-chart .x-surface,
+html.pa-theme-dark .x-chart .x-draw-container,
+html.pa-theme-dark #mtversiongrid + .x-container .x-surface,
+html.pa-theme-dark #mtversiongrid ~ .x-container .x-surface,
+html.pa-theme-dark #DashboardCard .x-draw-container,
+html.pa-theme-dark #DashboardCard .x-surface,
+html.pa-theme-dark #DashboardCard canvas.x-surface-canvas {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+html.pa-theme-dark #DashboardCard .x-container .x-panel-body.x-draw-container,
+html.pa-theme-dark #DashboardCard .x-draw-container > .x-inner,
+html.pa-theme-dark #DashboardCard .x-surface-outer {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ui35/37 — Jobs toolbar: equal chip buttons (START must not clip) */
+html.pa-theme-dark #panReadOrdersBar .x-btn,
+html.pa-theme-dark .pa-jobs-panel .x-toolbar .x-btn {
+  min-width: 108px !important;
+  height: 36px !important;
+  margin: 0 6px 0 0 !important;
+  padding: 0 10px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+html.pa-theme-dark #panReadOrdersBar .x-btn .x-btn-inner,
+html.pa-theme-dark .pa-jobs-panel .x-toolbar .x-btn .x-btn-inner {
+  font-size: 11px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.02em !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+html.pa-theme-dark #panReadOrdersBar {
+  overflow: visible !important;
+  flex-wrap: wrap !important;
+}
+
+/* ui35 — loading mask / empty grids stay dark */
+html.pa-theme-dark .x-mask,
+html.pa-theme-dark .x-mask-msg,
+html.pa-theme-dark .x-mask-msg-inner,
+html.pa-theme-dark .x-mask-msg-text {
+  background: rgba(12, 16, 24, 0.92) !important;
+  background-image: none !important;
+  color: #e8eef7 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+html.pa-theme-dark .x-form-trigger,
+html.pa-theme-dark .x-form-arrow-trigger {
+  background-color: rgba(28, 34, 48, 0.95) !important;
+  background-image: none !important;
+}

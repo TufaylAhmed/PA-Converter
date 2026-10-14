@@ -4,8 +4,14 @@
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta charset="UTF-8">
-	<link rel="shortcut icon" href="favicon.ico" mime="image/x-icon">
-	<title>Expedition Project</title>
+	<link rel="icon" href="favicon.ico?v=pa3" sizes="any">
+	<link rel="shortcut icon" href="favicon.ico?v=pa3" type="image/x-icon">
+	<link rel="apple-touch-icon" href="favicon.ico?v=pa3">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;650;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="resources/css/pa-converter-theme.css?v=ui45">
+	<title>PA-Converter</title>
 	<!-- The line below must be kept intact for Sencha Command to build your application -->
 	<script id="microloader" data-app="920f08d4-293e-4c95-8341-73195e5d8d00" type="text/javascript">var Ext=Ext||{};Ext.manifest=Ext.manifest||'app.json';Ext=Ext||{};
 Ext.Boot=Ext.Boot||function(emptyFn){function Request(cfg){if(cfg.$isRequest)return cfg;cfg=cfg.url?cfg:{url:cfg};var url=cfg.url;url=url.charAt?[url]:url;var charset=cfg.charset||Boot.config.charset;_apply(this,cfg);delete this.url;this.urls=url;this.charset=charset}function Entry(cfg){if(cfg.$isEntry)return cfg;var charset=cfg.charset||Boot.config.charset,manifest=Ext.manifest;manifest=manifest&&manifest.loader;var cache=void 0!==cfg.cache?cfg.cache:manifest&&manifest.cache,buster;Boot.config.disableCaching&&
@@ -82,6 +88,7 @@ onAllUpdatedAssetsReady:function(){Microloader.updatedAssetsReady=!0;if(Microloa
 Microloader.appCacheState||Microloader.updatedManifest?(Microloader.appUpdate={updated:!0,app:'updated'===Microloader.appCacheState,manifest:Microloader.updatedManifest&&Microloader.updatedManifest.exportContent()},Microloader.fireAppUpdate()):Microloader.appUpdate={})},fireAppUpdate:function(){Ext.GlobalEvents&&Ext.defer(function(){Ext.GlobalEvents.fireEvent('appupdate',Microloader.appUpdate)},1E3)},checksum:function(content,hash){if(!content||!hash)return!1;var passed=!0,hashLn=hash.length,checksumType=
 content.substring(0,1);'/'==checksumType?content.substring(2,hashLn+2)!==hash&&(passed=!1):'f'==checksumType?content.substring(10,hashLn+10)!==hash&&(passed=!1):'.'==checksumType&&content.substring(1,hashLn+1)!==hash&&(passed=!1);return passed},parseResult:function(result){var rst={};!result.exception&&0!==result.status||Boot.env.phantom?200<=result.status&&300>result.status||304===result.status||Boot.env.phantom||0===result.status&&0<result.content.length?rst.content=result.content:rst.error=!0:
 rst.error=!0;return rst}};return Microloader}();Ext.manifest=Ext.manifest||'bootstrap';Ext.Microloader.run();</script>
+	<script src="resources/js/pa-converter-ui.js?v=ui45"></script>
 </head>
 <body>
 </body>

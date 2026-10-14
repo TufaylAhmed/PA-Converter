@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="120" viewBox="0 0 220 120" fill="none">
+  <defs>
+    <linearGradient id="paHeroBg" x1="0" y1="0" x2="220" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7E6F8"/>
+      <stop offset="0.55" stop-color="#E8EEF6"/>
+      <stop offset="1" stop-color="#F4E8DE"/>
+    </linearGradient>
+    <linearGradient id="paHeroMark" x1="24" y1="28" x2="72" y2="76" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D1D1F"/>
+      <stop offset="1" stop-color="#3A3A3C"/>
+    </linearGradient>
+  </defs>
+  <rect width="220" height="120" rx="16" fill="url(#paHeroBg)"/>
+  <rect x="16" y="16" width="188" height="88" rx="14" fill="rgba(255,255,255,0.55)" stroke="rgba(255,255,255,0.8)"/>
+  <rect x="28" y="34" width="44" height="44" rx="12" fill="url(#paHeroMark)"/>
+  <text x="50" y="62" text-anchor="middle" fill="#FFFFFF" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-size="16" font-weight="700">PA</text>
+  <text x="86" y="52" fill="#1D1D1F" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-size="18" font-weight="700">PA-Converter</text>
+  <text x="86" y="74" fill="#6E6E73" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-size="12" font-weight="500">Workspace</text>
+</svg>
