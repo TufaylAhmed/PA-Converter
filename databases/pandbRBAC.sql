@@ -501,7 +501,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','$2y$10$Nk2/jJmmirfgfLLPEGJ7.erkiaVCgRGUZvSPi5wG/gg8SqYFBvYPO',NULL,'2016-09-21 11:45:25','adminim','Migration Tool admin us','2016-03-29 16:10:39','2016-09-21 11:45:25',0,'local','Europe/Amsterdam',1);
+INSERT INTO `users` VALUES (1,'admin','$2y$10$Nk2/jJmmirfgfLLPEGJ7.erkiaVCgRGUZvSPi5wG/gg8SqYFBvYPO',NULL,'2016-09-21 11:45:25','adminim','Migration Tool admin us','2016-03-29 16:10:39','2016-09-21 11:45:25',0,'local','Europe/Amsterdam',1,NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

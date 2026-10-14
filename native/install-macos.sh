@@ -228,17 +228,21 @@ EOF
   # Start MariaDB briefly to seed
   brew services start mariadb || true
   sleep 3
+
+  # Homebrew MariaDB: OS user gets socket auth; `mysql -uroot` → ERROR 1698.
+  # Bootstrap as current user, then create root@127.0.0.1 with password for Expedition.
   SEED_MARKER="$PA_DATA_ROOT/db-seeded"
   if [ ! -f "$SEED_MARKER" ]; then
-    pa_log "Seeding databases…"
-    mysql -uroot <<SQL || true
+    pa_log "Seeding databases (Homebrew MariaDB)…"
+    mysql <<SQL
 CREATE DATABASE IF NOT EXISTS pandb CHARACTER SET utf8 COLLATE utf8_general_ci;
 CREATE DATABASE IF NOT EXISTS pandbRBAC CHARACTER SET utf8 COLLATE utf8_general_ci;
 CREATE DATABASE IF NOT EXISTS BestPractices CHARACTER SET utf8 COLLATE utf8_general_ci;
 CREATE DATABASE IF NOT EXISTS RealTimeUpdates CHARACTER SET utf8 COLLATE utf8_general_ci;
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-CREATE USER IF NOT EXISTS 'root'@'127.0.0.1' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+CREATE OR REPLACE USER 'root'@'127.0.0.1' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+CREATE OR REPLACE USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 SQL
     SQL_DIR="$PA_CONVERTER_ROOT/databases"
@@ -247,6 +251,7 @@ SQL
     mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -h127.0.0.1 BestPractices < "${SQL_DIR}/BestPractices.sql"
     mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -h127.0.0.1 RealTimeUpdates < "${SQL_DIR}/RealTimeUpdates.sql"
     touch "$SEED_MARKER"
+    pa_log "Databases seeded."
   fi
 
   touch "$PA_MARKER"
