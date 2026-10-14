@@ -72,11 +72,10 @@ jobs:
           body: |
             ## Windows install (self-contained)
 
-            **You must be logged into GitHub** to download (private repo). Expected MSI size is ~50MB+.
-            If the file is only a few KB, the download failed (HTML error page) — re-download while signed in.
+            Public download — no GitHub login required. Expected MSI size is ~50MB+.
 
             ### Recommended — Portable ZIP
-            1. Download `PA-Converter-${{ steps.ver.outputs.version }}-portable.zip` (~50MB+) while logged into GitHub
+            1. Download `PA-Converter-${{ steps.ver.outputs.version }}-portable.zip`
             2. **Extract** the ZIP to a folder (do not run from inside the zip)
             3. Right-click `SETUP.bat` → **Run as administrator**
             4. If Windows asks to reboot for WSL, reboot once — setup continues
@@ -87,7 +86,12 @@ jobs:
             ### MSI (optional)
             `PA-Converter-${{ steps.ver.outputs.version }}.msi` — Unblock in Properties if needed, then install.
 
-            No Docker Desktop, Node.js, or GitHub token required on the PC.
+            ### macOS / Linux (npx, no auth)
+            ```bash
+            npx --yes github:TufaylAhmed/PA-Converter#v${{ steps.ver.outputs.version }} start
+            ```
+
+            No Docker Desktop, Node.js, or GitHub token required on the Windows PC (MSI path).
           draft: false
           generate_release_notes: true
         env:
