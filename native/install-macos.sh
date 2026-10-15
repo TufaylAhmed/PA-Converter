@@ -277,9 +277,9 @@ EOF
   SUGG=$(( CPUS * 80 / 100 ))
   [ "$SUGG" -lt 1 ] && SUGG=1
   MEM_MB=$(sysctl -n hw.memsize 2>/dev/null | awk '{print int($1/1024/1024)}' || echo 8192)
-  SUGG_RAM_MB=$(( MEM_MB * 40 / 100 ))
+  # Match Expedition checkCPUs.sh: 80% of host RAM
+  SUGG_RAM_MB=$(( MEM_MB * 80 / 100 ))
   [ "$SUGG_RAM_MB" -lt 1024 ] && SUGG_RAM_MB=1024
-  [ "$SUGG_RAM_MB" -gt 4096 ] && SUGG_RAM_MB=4096
 
   cat > "$PA_USERSPACE/environmentParameters.php" <<EOF
 <?php

@@ -41,11 +41,10 @@ chown www-data:www-data /home/userSpace/userDefinitions.php
 CPUS=$(nproc 2>/dev/null || echo 4)
 SUGG=$(( CPUS * 80 / 100 ))
 [ "$SUGG" -lt 1 ] && SUGG=1
-# Cap driver memory suggestion for Docker Desktop
+# Match Expedition checkCPUs.sh / getCPUs.sh: 80% of MemTotal (health check compares these)
 MEM_KB=$(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo 4000000)
-SUGG_RAM_MB=$(( MEM_KB * 40 / 100 / 1024 ))
+SUGG_RAM_MB=$(( MEM_KB * 80 / 100 / 1024 ))
 [ "$SUGG_RAM_MB" -lt 1024 ] && SUGG_RAM_MB=1024
-[ "$SUGG_RAM_MB" -gt 4096 ] && SUGG_RAM_MB=4096
 
 cat > /home/userSpace/environmentParameters.php <<EOF
 <?php

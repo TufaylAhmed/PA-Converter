@@ -372,6 +372,60 @@ function podmanCompose(args, opts = {}) {
   return r;
 }
 
+/** Align SparkRAM with Expedition health check (80% MemTotal), even on older images. */
+function syncSparkRam(engine) {
+  // Single-quoted-safe one-liner (no nested heredocs)
+  const script =
+    "MEM_KB=$(awk '/MemTotal/{print $2}' /proc/meminfo); " +
+    'SUGG_RAM_MB=$((MEM_KB*80/100/1024)); [ "$SUGG_RAM_MB" -lt 1024 ] && SUGG_RAM_MB=1024; ' +
+    'CPUS=$(nproc); SUGG=$((CPUS*80/100)); [ "$SUGG" -lt 1 ] && SUGG=1; ' +
+    "printf '%s\\n' '<?php' \"define('NumCPUs', $SUGG);\" \"define('TotalCPUs', $CPUS);\" \"define('SparkRAM', '${SUGG_RAM_MB}m');\" " +
+    '> /home/userSpace/environmentParameters.php; ' +
+    "printf '%s\\n' '<?php' '$suggestedEnvironmentParameters = [' \" 'NumCPUs'=>$SUGG,\" \" 'TotalCPUs'=>$CPUS,\" \" 'SparkRAM'=>'${SUGG_RAM_MB}m',\" '];' " +
+    '> /home/userSpace/tempEnvironmentParameters.php; ' +
+    'chown www-data:www-data /home/userSpace/environmentParameters.php /home/userSpace/tempEnvironmentParameters.php 2>/dev/null || true; ' +
+    'echo "SparkRAM=${SUGG_RAM_MB}m NumCPUs=$SUGG/$CPUS"';
+
+  const execArgs = [
+    'compose',
+    '-f',
+    composeFileArg(),
+    'exec',
+    '-T',
+    'web',
+    'bash',
+    '-lc',
+    script,
+  ];
+
+  sleepMs(2500);
+  let r;
+  if (engine === 'podman') {
+    r = run(PODMAN_BIN, execArgs, {
+      capture: true,
+      shell: false,
+      env: podmanComposeEnv(),
+    });
+    if (r.status !== 0 && which('podman-compose')) {
+      r = run(
+        'podman-compose',
+        ['-f', composeFileArg(), 'exec', '-T', 'web', 'bash', '-lc', script],
+        { capture: true, shell: false, env: podmanComposeEnv() }
+      );
+    }
+  } else {
+    r = run(dockerCmd(), execArgs, {
+      capture: true,
+      shell: IS_WIN,
+      env: composeEnv(),
+    });
+  }
+  const out = `${r.stdout || ''}${r.stderr || ''}`.trim();
+  if (r.status === 0 && out) {
+    console.log(`pa-converter: ${out.split('\n').pop()}`);
+  }
+}
+
 function cmdPodmanStart() {
   ensureAppTree();
   ensurePodman();
@@ -392,6 +446,7 @@ function cmdPodmanStart() {
     console.log(`(reusing image ${WEB_IMAGE} — pass --build to rebuild)`);
     podmanCompose(['up', '-d']);
   }
+  syncSparkRam('podman');
   openUiHint('Podman');
 }
 
@@ -469,6 +524,7 @@ function cmdDockerStart() {
     console.log(`(reusing image ${WEB_IMAGE} — pass --build to rebuild)`);
     dockerCompose(['up', '-d']);
   }
+  syncSparkRam('docker');
   openUiHint('Docker');
 }
 
@@ -743,7 +799,7 @@ Host: ${os.platform()} ${os.arch()} | ${ROOT}
 function cmdPublishHelp() {
   console.log(`
 npm:  npm publish --access public
-GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.30 start
+GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.31 start
 `);
 }
 
