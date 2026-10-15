@@ -12,7 +12,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 if [ ! -f "$PA_MARKER" ]; then
-  pa_log "Not installed yet — running install.sh…"
+  pa_log "Not installed yet - running install.sh..."
   bash "$SCRIPT_DIR/install.sh"
 fi
 
@@ -39,26 +39,33 @@ do
   fi
 done
 
-pa_log "Starting MariaDB…"
+pa_log "Starting MariaDB..."
 pa_service start mariadb || pa_service start mysql
-pa_log "Starting RabbitMQ…"
+pa_log "Starting RabbitMQ..."
 pa_service start rabbitmq-server
 
 # Prepare docroot / user defs / agent
 bash "$SCRIPT_DIR/entrypoint-native.sh"
 
-pa_log "Starting Apache…"
-# Prefer apache2ctl for WSL (systemd often incomplete)
-if command -v apache2ctl >/dev/null 2>&1; then
-  apache2ctl configtest >/dev/null 2>&1 || true
-  apache2ctl start 2>/dev/null || apache2ctl restart 2>/dev/null || pa_service start apache2
+pa_log "Starting Apache..."
+pa_start_apache || true
+
+# Confirm ports are actually listening (apache2ctl->systemctl often no-ops on WSL)
+if pa_wait_port "${EXPEDITION_PORT}" 20; then
+  pa_log "HTTPS port ${EXPEDITION_PORT} is listening"
 else
-  pa_service start apache2 || pa_service start httpd
+  pa_log "WARN: port ${EXPEDITION_PORT} not listening - retrying Apache start"
+  pa_start_apache || true
+  apache2ctl configtest 2>&1 | tail -n 20 || true
+  if ! pa_wait_port "${EXPEDITION_PORT}" 15; then
+    pa_log "ERROR: HTTPS port ${EXPEDITION_PORT} still not open. Check /var/log/apache2/"
+    # Do not soft-succeed - Windows SETUP must not claim the UI is up
+    exit 1
+  fi
 fi
 
-# WSL: ensure Windows can reach ports (best-effort)
-if grep -qi microsoft /proc/version 2>/dev/null; then
-  pa_log "WSL detected — HTTPS https://localhost:${EXPEDITION_PORT} (Windows)"
+if pa_is_wsl; then
+  pa_log "WSL detected - open from Windows: https://localhost:${EXPEDITION_PORT}"
 fi
 
 pa_log "Native stack started."

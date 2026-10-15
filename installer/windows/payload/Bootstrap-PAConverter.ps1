@@ -210,11 +210,35 @@ try {
   Set-PAState $state
   Write-PALog "Setup complete."
 
+  # Wait until Apache is reachable from Windows before opening the browser
+  $portOk = $false
+  Write-PALog "Waiting for https://localhost:18443 ..."
+  for ($i = 1; $i -le 40; $i++) {
+    try {
+      $client = New-Object System.Net.Sockets.TcpClient
+      $iar = $client.BeginConnect("127.0.0.1", 18443, $null, $null)
+      $wait = $iar.AsyncWaitHandle.WaitOne(1000, $false)
+      if ($wait -and $client.Connected) {
+        $client.Close()
+        $portOk = $true
+        break
+      }
+      try { $client.Close() } catch {}
+    } catch {}
+    Start-Sleep -Milliseconds 500
+  }
+
+  if (-not $portOk) {
+    Write-PALog "Port 18443 is not open from Windows. Try: wsl -d $(Get-PADistroName) -u root -- bash /opt/pa-converter/native/start.sh" "ERROR"
+    throw "Setup finished but https://localhost:18443 is not listening. See $(Get-PALogPath). In WSL run: sudo bash /opt/pa-converter/native/start.sh"
+  }
+  Write-PALog "Port 18443 is open."
+
   if (-not $SkipStart) {
     Start-Process "https://localhost:18443/"
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.MessageBox]::Show(
-      "PA-Converter is running.`r`n`r`nOpen: https://localhost:18443`r`nLogin: admin / paloalto",
+      "PA-Converter is running.`r`n`r`nOpen: https://localhost:18443`r`nLogin: admin / paloalto`r`n`r`nAccept the self-signed certificate warning.",
       "PA-Converter",
       [System.Windows.Forms.MessageBoxButtons]::OK,
       [System.Windows.Forms.MessageBoxIcon]::Information

@@ -102,9 +102,18 @@ pa_detect_java() {
   fi
 }
 
+pa_is_wsl() {
+  grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null
+}
+
 pa_service() {
   # usage: pa_service start|stop|status name
   local action="$1" name="$2"
+  # WSL often has a systemctl stub that is not actually running — prefer SysV `service`.
+  if pa_is_wsl && command -v service >/dev/null 2>&1; then
+    service "$name" "$action" 2>/dev/null || true
+    return 0
+  fi
   if command -v systemctl >/dev/null 2>&1 && systemctl is-system-running >/dev/null 2>&1; then
     systemctl "$action" "$name" 2>/dev/null || systemctl "$action" "${name}.service" 2>/dev/null || true
   elif command -v service >/dev/null 2>&1; then
@@ -116,6 +125,66 @@ pa_service() {
       status) brew services info "$name" 2>/dev/null || true ;;
     esac
   fi
+}
+
+# Start Apache reliably on WSL (apache2ctl often shells out to broken systemctl).
+pa_start_apache() {
+  if pgrep -x apache2 >/dev/null 2>&1 || pgrep -x httpd >/dev/null 2>&1; then
+    pa_log "Apache already running"
+    return 0
+  fi
+
+  # shellcheck source=/dev/null
+  [ -f /etc/apache2/envvars ] && . /etc/apache2/envvars
+  mkdir -p \
+    "${APACHE_RUN_DIR:-/var/run/apache2}" \
+    "${APACHE_LOCK_DIR:-/var/lock/apache2}" \
+    "${APACHE_LOG_DIR:-/var/log/apache2}" \
+    2>/dev/null || true
+
+  if pa_is_wsl; then
+    service apache2 start 2>/dev/null || true
+  fi
+
+  if ! pgrep -x apache2 >/dev/null 2>&1; then
+    # -k bypasses the systemd helper on many Ubuntu builds
+    if command -v apache2ctl >/dev/null 2>&1; then
+      apache2ctl configtest 2>&1 | tail -n 5 || true
+      apache2ctl -k start 2>/dev/null || apache2ctl start 2>/dev/null || true
+    fi
+  fi
+
+  if ! pgrep -x apache2 >/dev/null 2>&1; then
+    pa_service start apache2 || pa_service start httpd
+  fi
+
+  if ! pgrep -x apache2 >/dev/null 2>&1 && [ -x /usr/sbin/apache2 ]; then
+    /usr/sbin/apache2 -k start 2>/dev/null || true
+  fi
+
+  if pgrep -x apache2 >/dev/null 2>&1 || pgrep -x httpd >/dev/null 2>&1; then
+    pa_log "Apache process is up"
+    return 0
+  fi
+  pa_log "WARN: Apache process not detected after start attempts"
+  return 1
+}
+
+pa_wait_port() {
+  local port="$1" tries="${2:-30}"
+  local i
+  for i in $(seq 1 "$tries"); do
+    if command -v ss >/dev/null 2>&1; then
+      if ss -ltn 2>/dev/null | grep -qE ":${port}\\s"; then return 0; fi
+    elif command -v netstat >/dev/null 2>&1; then
+      if netstat -ltn 2>/dev/null | grep -qE ":${port}\\s"; then return 0; fi
+    else
+      # bash /dev/tcp fallback
+      if (echo >/dev/tcp/127.0.0.1/"$port") >/dev/null 2>&1; then return 0; fi
+    fi
+    sleep 1
+  done
+  return 1
 }
 
 # Install Spark 2.4.3 under $1 (macOS: $PREFIX, Linux: /).
@@ -154,8 +223,9 @@ pa_install_spark() {
       pa_progress 85 spark "Downloading Spark from GitHub (~230MB)..."
       pa_log "Downloading Spark from GitHub CDN..."
       pa_log "  $url"
-      if curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 \
-          -C - --progress-bar -o "$dest" "$url"
+      # -sS: no progress bar (progress bar on stderr races with Windows SETUP log stream)
+      if curl -fsSL --retry 3 --retry-delay 2 --connect-timeout 20 \
+          -C - -o "$dest" "$url"
       then
         tgz="$dest"
         break
@@ -167,8 +237,8 @@ pa_install_spark() {
       pa_progress 86 spark "Downloading Spark from Apache archive (slow)..."
       pa_log "GitHub asset missing - falling back to Apache archive (often slow)..."
       pa_log "  $apache"
-      if curl -fL --retry 5 --retry-delay 5 --connect-timeout 30 \
-          -C - --progress-bar -o "$dest" "$apache"
+      if curl -fsSL --retry 5 --retry-delay 5 --connect-timeout 30 \
+          -C - -o "$dest" "$apache"
       then
         tgz="$dest"
       fi
@@ -179,20 +249,42 @@ pa_install_spark() {
     pa_log "WARN: Spark install failed - UI can run; ML jobs need Spark."
     return 1
   fi
+  local sz
+  sz="$(wc -c < "$tgz" | tr -d ' ')"
+  if [ "${sz:-0}" -lt 1000000 ]; then
+    pa_log "WARN: Spark archive too small (${sz} bytes) - deleting and skipping"
+    rm -f "$tgz"
+    return 1
+  fi
 
   pa_progress 90 spark "Extracting Spark..."
   pa_log "Extracting Spark..."
-  # Bundled opt-Spark.tar.gz paths are opt/Spark/... ; Apache tarball is top-level spark-2.4.3-...
-  local first
-  first="$(tar -tzf "$tgz" 2>/dev/null | head -n 1 || true)"
-  if [[ "$first" == opt/Spark* ]]; then
-    tar -xzf "$tgz" -C "${root%/}"
+  # Probe archive layout without pipefail SIGPIPE from tar|grep -m1
+  local layout="apache"
+  set +o pipefail
+  if tar -tzf "$tgz" 2>/dev/null | grep -m1 -q '^opt/Spark/'; then
+    layout="bundle"
+  fi
+  set -o pipefail
+  if [ "$layout" = "bundle" ]; then
+    tar -xzf "$tgz" -C "${root%/}" || {
+      pa_log "WARN: Spark bundle extract failed"
+      return 1
+    }
   else
-    tar -xzf "$tgz" -C "$spark_dir"
-    ln -sfn "$spark_dir/spark-2.4.3-bin-hadoop2.7" "$spark_home_link"
+    tar -xzf "$tgz" -C "$spark_dir" || {
+      pa_log "WARN: Spark Apache-tarball extract failed"
+      return 1
+    }
+    if [ -d "$spark_dir/spark-2.4.3-bin-hadoop2.7" ]; then
+      ln -sfn "$spark_dir/spark-2.4.3-bin-hadoop2.7" "$spark_home_link"
+    fi
   fi
   if [ ! -e "$spark_home_link" ] && [ -d "$spark_dir/spark-2.4.3-bin-hadoop2.7" ]; then
     ln -sfn "$spark_dir/spark-2.4.3-bin-hadoop2.7" "$spark_home_link"
+  fi
+  if [ ! -e "$spark_home_link" ] && [ -d "$spark_dir/spark" ]; then
+    ln -sfn "$spark_dir/spark" "$spark_home_link"
   fi
   # Bundled archive already includes opt/Spark/spark symlink
   if [ -x "$spark_home_link/bin/spark-submit" ] || [ -x "$spark_dir/spark/bin/spark-submit" ]; then
@@ -201,6 +293,6 @@ pa_install_spark() {
     pa_log "Spark ready at $SPARK_HOME"
     return 0
   fi
-  pa_log "WARN: Spark extract incomplete."
+  pa_log "WARN: Spark extract incomplete (layout=$layout). UI can still run."
   return 1
 }
