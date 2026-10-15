@@ -185,6 +185,118 @@ function resolveRuntime() {
 
 /* ---------- Podman ---------- */
 
+function podmanInfoOk() {
+  if (!PODMAN_BIN) return false;
+  const info = run(PODMAN_BIN, ['info'], { capture: true, shell: false });
+  return info.status === 0;
+}
+
+function machineListText() {
+  const list = run(
+    PODMAN_BIN,
+    ['machine', 'list', '--format', '{{.Name}}\t{{.Running}}'],
+    { capture: true, shell: false }
+  );
+  return (list.stdout || '').trim();
+}
+
+function machineLooksRunning(listOut) {
+  // Formats: "name\ttrue" or "name true" / "Currently running"
+  return /\btrue\b/i.test(listOut) || /Currently running/i.test(listOut);
+}
+
+function startExitMeansAlreadyUp(status, combined) {
+  if (status === 0) return true;
+  const t = String(combined || '').toLowerCase();
+  return (
+    t.includes('already running') ||
+    t.includes('is already running') ||
+    t.includes('vm already running')
+  );
+}
+
+function sleepMs(ms) {
+  try {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+  } catch (_) {
+    spawnSync(process.execPath, ['-e', `setTimeout(()=>{},${ms})`], {
+      stdio: 'ignore',
+      windowsHide: true,
+    });
+  }
+}
+
+function waitForPodmanInfo(attempts = 15, delayMs = 1000) {
+  for (let i = 0; i < attempts; i++) {
+    if (podmanInfoOk()) return true;
+    sleepMs(delayMs);
+  }
+  return podmanInfoOk();
+}
+
+/**
+ * Machine can report Running=true while gvproxy/API socket is dead
+ * (common after sleep / Docker Desktop fighting for sockets).
+ * Recover: start if needed; if still unreachable, stop+start once.
+ */
+function ensurePodmanMachineReady() {
+  let listOut = machineListText();
+  if (!listOut) {
+    console.log(
+      'pa-converter: initializing Podman machine (one-time, a few minutes)…'
+    );
+    const init = run(
+      PODMAN_BIN,
+      ['machine', 'init', '--cpus', '4', '--memory', '4096', '--disk-size', '60'],
+      { shell: false }
+    );
+    if (init.status !== 0) {
+      die(
+        'podman machine init failed. Run: podman machine init && podman machine start'
+      );
+    }
+    listOut = machineListText();
+  }
+
+  if (!machineLooksRunning(listOut)) {
+    console.log('pa-converter: starting Podman machine…');
+    const st = run(PODMAN_BIN, ['machine', 'start'], { capture: true, shell: false });
+    const combined = `${st.stdout || ''}\n${st.stderr || ''}`;
+    if (!startExitMeansAlreadyUp(st.status, combined)) {
+      // still try info — some versions return non-zero with recoverable noise
+      if (!waitForPodmanInfo(8, 1500)) {
+        die(
+          `Could not start Podman machine.\n${combined.trim() || 'Run: podman machine start'}`
+        );
+      }
+      return;
+    }
+  }
+
+  if (waitForPodmanInfo(10, 1000)) return;
+
+  // Stale "running" VM / dead API socket — bounce once
+  console.log(
+    'pa-converter: Podman machine looks up but API is unreachable; restarting machine…'
+  );
+  run(PODMAN_BIN, ['machine', 'stop'], { capture: true, shell: false });
+  const st2 = run(PODMAN_BIN, ['machine', 'start'], { capture: true, shell: false });
+  const combined2 = `${st2.stdout || ''}\n${st2.stderr || ''}`;
+  if (!startExitMeansAlreadyUp(st2.status, combined2) && !waitForPodmanInfo(15, 1500)) {
+    die(
+      'Podman API still unreachable after machine restart.\n' +
+        '  Try: podman machine stop && podman machine start\n' +
+        '  Then: podman info\n' +
+        (combined2.trim() ? `\n${combined2.trim()}` : '')
+    );
+  }
+  if (!waitForPodmanInfo(15, 1500)) {
+    die(
+      'Podman API still unreachable. Try: podman machine stop && podman machine start'
+    );
+  }
+}
+
 function ensurePodman() {
   if (!PODMAN_BIN) {
     if (IS_MAC) {
@@ -202,43 +314,13 @@ function ensurePodman() {
     );
   }
 
-  // macOS / Windows Podman uses a VM — ensure one is up
+  // macOS / Windows Podman uses a VM — ensure one is up and the API socket works
   if (IS_MAC || IS_WIN) {
-    let info = run(PODMAN_BIN, ['info'], { capture: true, shell: false });
-    if (info.status !== 0) {
-      const list = run(
-        PODMAN_BIN,
-        ['machine', 'list', '--format', '{{.Name}}\t{{.Running}}'],
-        { capture: true, shell: false }
-      );
-      const out = (list.stdout || '').trim();
-      if (!out) {
-        console.log(
-          'pa-converter: initializing Podman machine (one-time, a few minutes)…'
-        );
-        const init = run(
-          PODMAN_BIN,
-          ['machine', 'init', '--cpus', '4', '--memory', '4096', '--disk-size', '60'],
-          { shell: false }
-        );
-        if (init.status !== 0) {
-          die(
-            'podman machine init failed. Run: podman machine init && podman machine start'
-          );
-        }
-      }
-      console.log('pa-converter: starting Podman machine…');
-      run(PODMAN_BIN, ['machine', 'start'], { shell: false });
-      info = run(PODMAN_BIN, ['info'], { capture: true, shell: false });
-      if (info.status !== 0) {
-        die('Could not start Podman machine. Run: podman machine start');
-      }
+    if (!podmanInfoOk()) {
+      ensurePodmanMachineReady();
     }
-  } else {
-    const info = run(PODMAN_BIN, ['info'], { capture: true, shell: false });
-    if (info.status !== 0) {
-      die('Podman is installed but not usable.');
-    }
+  } else if (!podmanInfoOk()) {
+    die('Podman is installed but not usable.');
   }
 
   // Prefer `podman compose` (uses compose provider); fall back to podman-compose
@@ -661,7 +743,7 @@ Host: ${os.platform()} ${os.arch()} | ${ROOT}
 function cmdPublishHelp() {
   console.log(`
 npm:  npm publish --access public
-GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.29 start
+GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.30 start
 `);
 }
 
