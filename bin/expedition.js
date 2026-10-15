@@ -40,6 +40,60 @@ function which(cmd) {
   return r.status === 0;
 }
 
+/** Resolve a binary: PATH first, then known install locations (Podman.app). */
+function findBin(name, extraPaths = []) {
+  const finder = IS_WIN ? 'where' : 'which';
+  const r = spawnSync(finder, [name], {
+    encoding: 'utf8',
+    shell: IS_WIN,
+    windowsHide: true,
+  });
+  if (r.status === 0) {
+    const line = String(r.stdout || '')
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .find(Boolean);
+    if (line && fs.existsSync(line)) return line;
+  }
+  for (const p of extraPaths) {
+    if (p && fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+const PODMAN_BIN = findBin('podman', [
+  '/opt/podman/bin/podman',
+  '/usr/local/bin/podman',
+  '/opt/homebrew/bin/podman',
+  path.join(os.homedir(), '.local/bin/podman'),
+]);
+
+const WEB_IMAGE =
+  process.env.EXPEDITION_IMAGE || 'panw/expedition-web:5.45.4';
+
+function wantForceBuild() {
+  return (
+    process.argv.includes('--build') ||
+    process.env.PA_CONVERTER_FORCE_BUILD === '1'
+  );
+}
+
+function imageExists(engine, image) {
+  if (engine === 'podman') {
+    if (!PODMAN_BIN) return false;
+    const r = run(PODMAN_BIN, ['image', 'exists', image], {
+      capture: true,
+      shell: false,
+    });
+    return r.status === 0;
+  }
+  const r = run(dockerCmd(), ['image', 'inspect', image], {
+    capture: true,
+    shell: IS_WIN,
+  });
+  return r.status === 0;
+}
+
 function run(cmd, args, opts = {}) {
   return spawnSync(cmd, args, {
     stdio: opts.capture ? 'pipe' : 'inherit',
@@ -120,9 +174,9 @@ function resolveRuntime() {
   }
   // Windows MSI / npx path stays WSL-native (proven).
   if (IS_WIN) return 'native';
-  // macOS + Linux: Podman first (containers without Docker Desktop).
+  // macOS + Linux: Podman first (incl. /opt/podman/bin — often missing from npx PATH).
   if (IS_MAC || IS_LINUX) {
-    if (which('podman')) return 'podman';
+    if (PODMAN_BIN) return 'podman';
     if (which('docker')) return 'docker';
     return 'podman'; // will print install instructions
   }
@@ -132,12 +186,13 @@ function resolveRuntime() {
 /* ---------- Podman ---------- */
 
 function ensurePodman() {
-  if (!which('podman')) {
+  if (!PODMAN_BIN) {
     if (IS_MAC) {
       die(
-        'Podman is required on macOS.\n' +
-          '  Install:  brew install podman\n' +
+        'Podman is required on macOS (not found in PATH or /opt/podman/bin).\n' +
+          '  Install:  https://podman.io → Podman Desktop, or: brew install podman\n' +
           '  Then:     podman machine init && podman machine start\n' +
+          '  PATH tip: export PATH="/opt/podman/bin:$PATH"\n' +
           '  Retry:    npx @sequr3/pa-converter start'
       );
     }
@@ -149,10 +204,10 @@ function ensurePodman() {
 
   // macOS / Windows Podman uses a VM — ensure one is up
   if (IS_MAC || IS_WIN) {
-    let info = run('podman', ['info'], { capture: true, shell: false });
+    let info = run(PODMAN_BIN, ['info'], { capture: true, shell: false });
     if (info.status !== 0) {
       const list = run(
-        'podman',
+        PODMAN_BIN,
         ['machine', 'list', '--format', '{{.Name}}\t{{.Running}}'],
         { capture: true, shell: false }
       );
@@ -162,7 +217,7 @@ function ensurePodman() {
           'pa-converter: initializing Podman machine (one-time, a few minutes)…'
         );
         const init = run(
-          'podman',
+          PODMAN_BIN,
           ['machine', 'init', '--cpus', '4', '--memory', '4096', '--disk-size', '60'],
           { shell: false }
         );
@@ -173,21 +228,24 @@ function ensurePodman() {
         }
       }
       console.log('pa-converter: starting Podman machine…');
-      run('podman', ['machine', 'start'], { shell: false });
-      info = run('podman', ['info'], { capture: true, shell: false });
+      run(PODMAN_BIN, ['machine', 'start'], { shell: false });
+      info = run(PODMAN_BIN, ['info'], { capture: true, shell: false });
       if (info.status !== 0) {
         die('Could not start Podman machine. Run: podman machine start');
       }
     }
   } else {
-    const info = run('podman', ['info'], { capture: true, shell: false });
+    const info = run(PODMAN_BIN, ['info'], { capture: true, shell: false });
     if (info.status !== 0) {
       die('Podman is installed but not usable.');
     }
   }
 
   // Prefer `podman compose` (uses compose provider); fall back to podman-compose
-  const cv = run('podman', ['compose', 'version'], { capture: true, shell: false });
+  const cv = run(PODMAN_BIN, ['compose', 'version'], {
+    capture: true,
+    shell: false,
+  });
   if (cv.status !== 0 && !which('podman-compose')) {
     die(
       'Podman Compose is required.\n' +
@@ -213,7 +271,7 @@ function stopConflictingNativeMac() {
 function podmanCompose(args, opts = {}) {
   const composeFile = composeFileArg();
   const env = podmanComposeEnv();
-  let r = run('podman', ['compose', '-f', composeFile, ...args], {
+  let r = run(PODMAN_BIN, ['compose', '-f', composeFile, ...args], {
     capture: opts.capture,
     env,
     cwd: ROOT,
@@ -236,11 +294,22 @@ function cmdPodmanStart() {
   ensureAppTree();
   ensurePodman();
   stopConflictingNativeMac();
+  const force = wantForceBuild();
+  const hasImg = imageExists('podman', WEB_IMAGE);
   console.log(
     `Starting Expedition via Podman on https://localhost:${DEFAULT_PORT} …`
   );
-  console.log('(first run builds the web image — several minutes)');
-  podmanCompose(['up', '-d', '--build']);
+  if (!hasImg || force) {
+    console.log(
+      force
+        ? '(forcing image rebuild — several minutes)'
+        : '(first run builds the web image — several minutes; later starts skip this)'
+    );
+    podmanCompose(['up', '-d', '--build']);
+  } else {
+    console.log(`(reusing image ${WEB_IMAGE} — pass --build to rebuild)`);
+    podmanCompose(['up', '-d']);
+  }
   openUiHint('Podman');
 }
 
@@ -304,8 +373,20 @@ function dockerCompose(args, opts = {}) {
 function cmdDockerStart() {
   ensureAppTree();
   ensureDocker();
-  console.log(`Starting Expedition via Docker on https://localhost:${DEFAULT_PORT} …`);
-  dockerCompose(['up', '-d', '--build']);
+  const force = wantForceBuild();
+  const hasImg = imageExists('docker', WEB_IMAGE);
+  console.log(
+    `Starting Expedition via Docker on https://localhost:${DEFAULT_PORT} …`
+  );
+  if (!hasImg || force) {
+    console.log(
+      '(building web image — Spark layer can take several minutes; prefer Podman on macOS)'
+    );
+    dockerCompose(['up', '-d', '--build']);
+  } else {
+    console.log(`(reusing image ${WEB_IMAGE} — pass --build to rebuild)`);
+    dockerCompose(['up', '-d']);
+  }
   openUiHint('Docker');
 }
 
@@ -556,14 +637,16 @@ function cmdHelp() {
   printBanner();
   console.log(`Usage: pa-converter <command>
 
-  start | stop | restart | status | logs [-f] | build | url
+  start [--build] | stop | restart | status | logs [-f] | build | url
 
 macOS / Linux: Podman Compose (recommended) — no Docker Desktop
 Windows:       WSL native (or MSI)
 
-  brew install podman
-  podman machine init && podman machine start   # macOS first time
-  npx @sequr3/pa-converter start
+  # Podman Desktop installs to /opt/podman/bin (often missing from npx PATH)
+  export PATH="/opt/podman/bin:$PATH"
+  podman machine start
+  npx @sequr3/pa-converter start          # reuses image if present
+  npx @sequr3/pa-converter start --build  # force rebuild
 
 Env:
   EXPEDITION_PORT / EXPEDITION_HTTP_PORT
@@ -571,13 +654,14 @@ Env:
   EXPEDITION_IMAGE   optional prebuilt web image
 
 Host: ${os.platform()} ${os.arch()} | ${ROOT}
+  Podman: ${PODMAN_BIN || 'not found'}
 `);
 }
 
 function cmdPublishHelp() {
   console.log(`
 npm:  npm publish --access public
-GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.28 start
+GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.29 start
 `);
 }
 

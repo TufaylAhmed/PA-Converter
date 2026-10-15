@@ -52,13 +52,17 @@ RUN printf '%s\n' \
 
 COPY app/ /var/www/html/
 
-# Spark 2.4.3 — prefer local Git-LFS bundle; otherwise download Apache archive (npm pack excludes the 235MB tarball)
+# Spark 2.4.3 — use real Git-LFS bundle (>=1MB); skip LFS pointer stubs; else download
 COPY docker/spark/ /tmp/spark-src/
 RUN mkdir -p /opt /opt/Spark \
- && if [ -f /tmp/spark-src/opt-Spark.tar.gz ]; then \
-      tar -xzf /tmp/spark-src/opt-Spark.tar.gz -C / ; \
+ && SPARK_BUNDLE=/tmp/spark-src/opt-Spark.tar.gz \
+ && if [ -f "$SPARK_BUNDLE" ] && [ "$(wc -c < "$SPARK_BUNDLE")" -gt 1000000 ]; then \
+      echo "pa-converter: extracting local Spark bundle…" \
+      && tar -xzf "$SPARK_BUNDLE" -C / ; \
     else \
-      curl -fsSL "https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz" \
+      echo "pa-converter: downloading Spark 2.4.3 (one-time, ~230MB)…" \
+      && curl -fL --retry 3 --retry-delay 2 \
+        "https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz" \
         -o /tmp/spark-2.4.3.tgz \
       && tar -xzf /tmp/spark-2.4.3.tgz -C /opt/Spark \
       && rm -f /tmp/spark-2.4.3.tgz ; \
