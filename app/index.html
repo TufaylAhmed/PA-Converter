@@ -10,7 +10,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;650;700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="resources/css/pa-converter-theme.css?v=ui48">
+	<link rel="stylesheet" href="resources/css/pa-converter-theme.css?v=ui49">
 	<title>PA-Converter</title>
 	<!-- The line below must be kept intact for Sencha Command to build your application -->
 	<script id="microloader" data-app="920f08d4-293e-4c95-8341-73195e5d8d00" type="text/javascript">var Ext=Ext||{};Ext.manifest=Ext.manifest||'app.json';Ext=Ext||{};
@@ -88,7 +88,7 @@ onAllUpdatedAssetsReady:function(){Microloader.updatedAssetsReady=!0;if(Microloa
 Microloader.appCacheState||Microloader.updatedManifest?(Microloader.appUpdate={updated:!0,app:'updated'===Microloader.appCacheState,manifest:Microloader.updatedManifest&&Microloader.updatedManifest.exportContent()},Microloader.fireAppUpdate()):Microloader.appUpdate={})},fireAppUpdate:function(){Ext.GlobalEvents&&Ext.defer(function(){Ext.GlobalEvents.fireEvent('appupdate',Microloader.appUpdate)},1E3)},checksum:function(content,hash){if(!content||!hash)return!1;var passed=!0,hashLn=hash.length,checksumType=
 content.substring(0,1);'/'==checksumType?content.substring(2,hashLn+2)!==hash&&(passed=!1):'f'==checksumType?content.substring(10,hashLn+10)!==hash&&(passed=!1):'.'==checksumType&&content.substring(1,hashLn+1)!==hash&&(passed=!1);return passed},parseResult:function(result){var rst={};!result.exception&&0!==result.status||Boot.env.phantom?200<=result.status&&300>result.status||304===result.status||Boot.env.phantom||0===result.status&&0<result.content.length?rst.content=result.content:rst.error=!0:
 rst.error=!0;return rst}};return Microloader}();Ext.manifest=Ext.manifest||'bootstrap';Ext.Microloader.run();</script>
-	<script src="resources/js/pa-converter-ui.js?v=ui48"></script>
+	<script src="resources/js/pa-converter-ui.js?v=ui49"></script>
 </head>
 <body>
 </body>

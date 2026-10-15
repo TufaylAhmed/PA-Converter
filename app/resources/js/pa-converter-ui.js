@@ -455,40 +455,89 @@
     enhanceAddProjectTool(panel)
   }
 
-  /** Ext header "plus" tool is nearly invisible in light mode — label it Add Project. */
+  /** Ext header "plus" tool is nearly invisible in light mode — real Add Project button. */
   function enhanceAddProjectTool(panel) {
     panel = panel || document.getElementById('ProjectsGridPanel')
     if (!panel) return
-    var tools = panel.querySelectorAll('.x-tool')
-    for (var i = 0; i < tools.length; i++) {
-      var tool = tools[i]
+
+    // Prefer Ext API so the control is a real header button (tools clip wide labels)
+    try {
+      if (typeof Ext !== 'undefined' && Ext.getCmp) {
+        var grid = Ext.getCmp('ProjectsGridPanel')
+        if (grid && !grid._paAddProjectPatched) {
+          grid._paAddProjectPatched = true
+          var plusTool = null
+          var tools = grid.tools || []
+          for (var t = 0; t < tools.length; t++) {
+            if (tools[t] && tools[t].type === 'plus') {
+              plusTool = tools[t]
+              try {
+                plusTool.hide()
+              } catch (hideErr) {
+                /* ignore */
+              }
+              break
+            }
+          }
+          var header = grid.getHeader && grid.getHeader()
+          if (header && header.insert && plusTool) {
+            header.insert(header.items ? header.items.length : 0, {
+              xtype: 'button',
+              text: 'Add Project',
+              cls: 'pa-add-project-btn-real',
+              margin: '0 8 0 8',
+              handler: function () {
+                try {
+                  plusTool.fireEvent('click', plusTool)
+                } catch (clickErr) {
+                  try {
+                    plusTool.el && plusTool.el.dom && plusTool.el.dom.click()
+                  } catch (e2) {
+                    /* ignore */
+                  }
+                }
+              },
+            })
+            try {
+              header.updateLayout()
+            } catch (layErr) {
+              /* ignore */
+            }
+            return
+          }
+        } else if (grid && grid._paAddProjectPatched) {
+          return
+        }
+      }
+    } catch (extErr) {
+      /* fall through to DOM fallback */
+    }
+
+    // DOM fallback if Ext path unavailable
+    var toolsDom = panel.querySelectorAll('.x-tool')
+    for (var i = 0; i < toolsDom.length; i++) {
+      var tool = toolsDom[i]
       var tip = (
         tool.getAttribute('data-qtip') ||
         tool.getAttribute('title') ||
-        tool.getAttribute('aria-label') ||
         ''
       ).toLowerCase()
       var isPlus =
-        !!tool.querySelector('.x-tool-plus, .x-tool-img.x-tool-plus') ||
-        tip.indexOf('add new project') !== -1 ||
-        tip === 'add project'
+        !!tool.querySelector('.x-tool-plus') || tip.indexOf('add new project') !== -1
       if (!isPlus) continue
-      if (!tool.classList.contains('pa-add-project-btn')) {
-        tool.classList.add('pa-add-project-btn')
-      }
-      tool.setAttribute('aria-label', 'Add Project')
-      tool.setAttribute('data-qtip', 'Add Project')
-      tool.setAttribute('title', 'Add Project')
-      // Remove Ext sprite so a ghost "+" never shows through the label
-      var sprites = tool.querySelectorAll('.x-tool-tool-el, .x-tool-img, .x-tool-plus')
-      for (var s = 0; s < sprites.length; s++) {
-        sprites[s].parentNode && sprites[s].parentNode.removeChild(sprites[s])
-      }
-      if (!tool.querySelector('.pa-add-project-label')) {
-        var label = document.createElement('span')
-        label.className = 'pa-add-project-label'
-        label.textContent = 'Add Project'
-        tool.appendChild(label)
+      tool.style.setProperty('display', 'none', 'important')
+      var headerEl = panel.querySelector('.x-panel-header')
+      if (headerEl && !headerEl.querySelector('.pa-add-project-btn-real')) {
+        var btn = document.createElement('button')
+        btn.type = 'button'
+        btn.className = 'pa-add-project-btn-real'
+        btn.textContent = 'Add Project'
+        btn.addEventListener('click', function (e) {
+          e.preventDefault()
+          e.stopPropagation()
+          tool.click()
+        })
+        headerEl.appendChild(btn)
       }
     }
   }

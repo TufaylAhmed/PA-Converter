@@ -2319,55 +2319,24 @@ html:not(.pa-theme-dark) #ProjectsGridPanel .x-grid-item-alt {
   white-space: nowrap !important;
 }
 
-/* Library header: Ext "plus" tool → visible "Add Project" (light mode was invisible) */
-#ProjectsGridPanel .x-panel-header,
-#ProjectsGridPanel .x-panel-header-default,
-#ProjectsGridPanel_header {
-  overflow: visible !important;
-}
-#ProjectsGridPanel .x-panel-header .x-box-inner,
-#ProjectsGridPanel_header .x-box-inner,
-#ProjectsGridPanel_header-targetEl {
-  overflow: visible !important;
-}
-#ProjectsGridPanel .x-tool.pa-add-project-btn,
+/* Library header: real "Add Project" button (replaces invisible Ext plus tool) */
+#ProjectsGridPanel .x-tool-plus,
 #ProjectsGridPanel .x-tool:has(.x-tool-plus) {
-  width: auto !important;
-  min-width: 108px !important;
-  max-width: none !important;
+  display: none !important;
+}
+#ProjectsGridPanel .pa-add-project-btn-real,
+#ProjectsGridPanel .x-btn.pa-add-project-btn-real,
+#ProjectsGridPanel_header .pa-add-project-btn-real {
+  appearance: none !important;
+  -webkit-appearance: none !important;
   height: 28px !important;
   min-height: 28px !important;
-  margin: 0 6px 0 10px !important;
   padding: 0 14px !important;
+  margin: 0 8px 0 8px !important;
+  border: none !important;
   border-radius: 8px !important;
   background: var(--pa-accent) !important;
   background-image: none !important;
-  border: 1px solid transparent !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  overflow: hidden !important;
-}
-#ProjectsGridPanel .x-tool.pa-add-project-btn .x-tool-img,
-#ProjectsGridPanel .x-tool.pa-add-project-btn .x-tool-plus,
-#ProjectsGridPanel .x-tool.pa-add-project-btn .x-tool-tool-el,
-#ProjectsGridPanel .x-tool:has(.x-tool-plus) .x-tool-img,
-#ProjectsGridPanel .x-tool:has(.x-tool-plus) .x-tool-tool-el,
-#ProjectsGridPanel .x-tool:has(.x-tool-plus) .x-tool-plus {
-  display: none !important;
-  visibility: hidden !important;
-  background: none !important;
-  background-image: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  opacity: 0 !important;
-}
-#ProjectsGridPanel .x-tool.pa-add-project-btn .pa-add-project-label {
   color: #fff !important;
   font-family: var(--pa-font) !important;
   font-size: 12px !important;
@@ -2375,28 +2344,25 @@ html:not(.pa-theme-dark) #ProjectsGridPanel .x-grid-item-alt {
   letter-spacing: -0.01em !important;
   line-height: 28px !important;
   white-space: nowrap !important;
-  pointer-events: none !important;
-  display: inline-block !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
 }
-/* Fallback before JS runs */
-#ProjectsGridPanel .x-tool:has(.x-tool-plus):not(.pa-add-project-btn)::after {
-  content: "Add Project";
+#ProjectsGridPanel .pa-add-project-btn-real .x-btn-inner,
+#ProjectsGridPanel .x-btn.pa-add-project-btn-real .x-btn-inner {
   color: #fff !important;
-  font-family: var(--pa-font) !important;
-  font-size: 12px !important;
   font-weight: 600 !important;
-  white-space: nowrap !important;
+  font-size: 12px !important;
+  padding: 0 !important;
 }
-#ProjectsGridPanel .x-tool.pa-add-project-btn:hover,
-#ProjectsGridPanel .x-tool:has(.x-tool-plus):hover {
+#ProjectsGridPanel .pa-add-project-btn-real:hover,
+#ProjectsGridPanel .x-btn.pa-add-project-btn-real:hover,
+#ProjectsGridPanel .x-btn-over.pa-add-project-btn-real {
   background: var(--pa-accent-strong) !important;
 }
-html.pa-theme-dark #ProjectsGridPanel .x-tool.pa-add-project-btn,
-html.pa-theme-dark #ProjectsGridPanel .x-tool:has(.x-tool-plus) {
+html.pa-theme-dark #ProjectsGridPanel .pa-add-project-btn-real,
+html.pa-theme-dark #ProjectsGridPanel .x-btn.pa-add-project-btn-real {
   background: var(--pa-accent) !important;
-}
-html.pa-theme-dark #ProjectsGridPanel .x-tool.pa-add-project-btn .pa-add-project-label,
-html.pa-theme-dark #ProjectsGridPanel .x-tool:has(.x-tool-plus):not(.pa-add-project-btn)::after {
   color: #fff !important;
 }
 
