@@ -14,7 +14,7 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$Version = "5.46.42",
+  [string]$Version = "5.46.43",
   [switch]$Start,
   [switch]$SkipInstall
 )

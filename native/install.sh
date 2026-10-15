@@ -185,25 +185,43 @@ rm -f /opt/Spark/spark/jars/log4j-1.2.17.jar 2>/dev/null || true
 
 pa_progress 92 extras "Installing Python helpers and Best Practice Assessment"
 pip3 install --no-cache-dir 'lxml' 2>/dev/null || true
-# Health check runs `pip3.7 list | grep BPA`; 20.04 ships Python 3.8.
-ln -sf "$(command -v pip3)" /usr/local/bin/pip3.7
+# Health check runs `pip3.7 list | grep BPA` (case-sensitive). Ubuntu 20.04 has
+# Python 3.8; modern pip prints the normalized name "bpa", so wrap pip3.7.
 ln -sf "$(command -v python3)" /usr/local/bin/python3.7
-BPA_ZIP="$PA_WWW/OS/BPA/best_practice_assessment_ngfw_pano-master.zip"
-if ! pip3 show BPA >/dev/null 2>&1; then
-  if [ -f "$BPA_ZIP" ]; then
-    pa_log "Installing Best Practice Assessment Python package (a few minutes)..."
-    timeout 900 pip3 install --no-cache-dir "$BPA_ZIP" >/dev/null 2>&1 \
-      || pa_log "WARN: BPA package install failed (BPA reports may not work)"
-  fi
+# Call python3 -m pip (never /usr/bin/pip3) so a bad wrapper cannot brick system pip.
+cat > /usr/local/bin/pip3.7 <<'EOF'
+#!/bin/bash
+if [ "$1" = "list" ]; then
+  python3 -m pip "$@" | sed 's/^bpa /BPA /'
+else
+  exec python3 -m pip "$@"
 fi
-if ! pip3 show BPA >/dev/null 2>&1; then
-  # Same alias the container image installs so the health check passes.
-  BPA_META="$(mktemp -d)"
-  printf '%s\n' 'from setuptools import setup' \
-    'setup(name="BPA", version="3.33.0", description="Expedition BPA healthcheck alias", py_modules=[])' \
-    > "$BPA_META/setup.py"
-  pip3 install --no-cache-dir "$BPA_META" >/dev/null 2>&1 || pa_log "WARN: BPA alias install failed"
-  rm -rf "$BPA_META"
+EOF
+chmod +x /usr/local/bin/pip3.7
+# Expedition runs `bpa-legacy-cli` with LC_ALL=en_US.UTF-8.
+if ! locale -a 2>/dev/null | grep -i '^en_US\.utf8$' >/dev/null; then
+  apt-get install -y --no-install-recommends locales >/dev/null
+  locale-gen en_US.UTF-8 >/dev/null
+fi
+BPA_ZIP="$PA_WWW/OS/BPA/best_practice_assessment_ngfw_pano-master.zip"
+if ! command -v bpa-legacy-cli >/dev/null 2>&1 && [ -f "$BPA_ZIP" ]; then
+  pa_log "Installing Best Practice Assessment (BPA)..."
+  # BPA pins 2018-era Pillow/reportlab/pandas (<2, for pandas.io.json.json_normalize)
+  # that do not build on Python 3.8; Ubuntu's packages satisfy its code, so install
+  # those from apt and BPA itself with --no-deps.
+  if apt-get install -y --no-install-recommends \
+      python3-pandas python3-lxml python3-pil python3-reportlab python3-matplotlib \
+      python3-seaborn python3-jinja2 python3-sqlalchemy python3-xlrd python3-xlsxwriter \
+      python3-pymysql python3-six python3-requests python3-unidecode python3-chardet \
+      python3-dateutil python3-tz python3-setuptools python3-wheel >/dev/null \
+    && pip3 install --no-cache-dir 'pendulum==2.1.2' >/dev/null \
+    && pip3 install --no-cache-dir --no-deps "$BPA_ZIP" iptools 'svglib<=0.9.0' \
+         cssselect2 tinycss2 webencodings >/dev/null
+  then
+    pa_log "BPA $(pip3 show BPA 2>/dev/null | awk '/^Version:/{print $2}') installed."
+  else
+    pa_log "WARN: BPA install failed - BPA reports will not work"
+  fi
 fi
 
 # Expedition expects www-data in the `expedition` group (CSV log cleanup).

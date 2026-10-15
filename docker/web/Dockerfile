@@ -91,21 +91,33 @@ RUN mkdir -p /opt /opt/Spark \
  && rm -f /opt/Spark/spark/jars/log4j-1.2.17.jar || true \
  && rm -rf /tmp/spark-src
 
-# Best Practices Assessment + aliases expected by health checks (pip3.7 list | grep BPA)
-# Pillow/reportlab/matplotlib via pip wheels (avoid flaky apt harfbuzz on arm64)
-RUN pip3 install --no-cache-dir --upgrade 'pip<25' \
- && pip3 install --no-cache-dir 'Pillow<10' reportlab matplotlib || true \
- && (pip3 install --no-cache-dir /var/www/html/OS/BPA/best_practice_assessment_ngfw_pano-master.zip || true) \
- && pip3 install --no-cache-dir pandevice || true \
- && mkdir -p /tmp/bpa-meta \
+# Best Practice Assessment (`bpa-legacy-cli`, run by Expedition with LC_ALL=en_US.UTF-8).
+# BPA pins 2018-era Pillow/reportlab/pandas<2 that do not build on modern Python; Debian's
+# packages satisfy its code, so install those from apt and BPA itself with --no-deps.
+# Health check runs `pip3.7 list | grep BPA`.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends locales \
+      python3-pandas python3-lxml python3-pil python3-reportlab python3-matplotlib \
+      python3-seaborn python3-jinja2 python3-sqlalchemy python3-xlrd python3-xlsxwriter \
+      python3-pymysql python3-six python3-requests python3-unidecode python3-chardet \
+      python3-dateutil python3-tz \
+ && sed -i 's/^# *en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen && locale-gen \
+ && pip3 install --no-cache-dir 'pendulum==2.1.2' \
+ && pip3 install --no-cache-dir --no-deps \
+      /var/www/html/OS/BPA/best_practice_assessment_ngfw_pano-master.zip \
+      iptools 'svglib<=0.9.0' cssselect2 tinycss2 webencodings \
+ && (pip3 install --no-cache-dir pandevice || true) \
+ && ln -sf /usr/bin/python3 /usr/local/bin/python3.7 \
  && printf '%s\n' \
-      'from setuptools import setup' \
-      'setup(name="BPA", version="3.33.0", description="Expedition BPA healthcheck alias", py_modules=[])' \
-      > /tmp/bpa-meta/setup.py \
- && pip3 install --no-cache-dir /tmp/bpa-meta \
- && rm -rf /tmp/bpa-meta \
- && ln -sf /usr/bin/pip3 /usr/local/bin/pip3.7 || true \
- && ln -sf /usr/bin/python3 /usr/local/bin/python3.7 || true
+      '#!/bin/bash' \
+      'if [ "$1" = "list" ]; then' \
+      '  python3 -m pip "$@" | sed "s/^bpa /BPA /"' \
+      'else' \
+      '  exec python3 -m pip "$@"' \
+      'fi' \
+      > /usr/local/bin/pip3.7 \
+ && chmod +x /usr/local/bin/pip3.7 \
+ && rm -rf /var/lib/apt/lists/*
 
 # Satisfy dpkg-based Expedition health checks in container installs
 RUN printf '%s\n' \

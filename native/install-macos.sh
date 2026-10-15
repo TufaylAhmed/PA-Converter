@@ -71,6 +71,60 @@ brew_prefix() {
   brew --prefix 2>/dev/null || echo /usr/local
 }
 
+# Expedition health check greps `pip3.7 list` for uppercase "BPA".
+pa_ensure_pip37_wrapper() {
+  local dest="${1:-/usr/local/bin/pip3.7}"
+  local py
+  py="$(command -v python3 || true)"
+  [ -n "$py" ] || return 0
+  mkdir -p "$(dirname "$dest")"
+  # Call python3 -m pip (never rewrite system pip3).
+  cat > "$dest" <<EOF
+#!/bin/bash
+if [ "\$1" = "list" ]; then
+  "${py}" -m pip "\$@" | sed 's/^bpa /BPA /'
+else
+  exec "${py}" -m pip "\$@"
+fi
+EOF
+  chmod +x "$dest"
+  ln -sf "$py" "$(dirname "$dest")/python3.7" 2>/dev/null || true
+}
+
+pa_install_bpa_macos() {
+  local zip="$PA_CONVERTER_ROOT/app/OS/BPA/best_practice_assessment_ngfw_pano-master.zip"
+  [ -f "$zip" ] || zip="$PA_WWW/OS/BPA/best_practice_assessment_ngfw_pano-master.zip"
+  if command -v bpa-legacy-cli >/dev/null 2>&1; then
+    pa_ensure_pip37_wrapper "$PREFIX/bin/pip3.7"
+    export PATH="$PREFIX/bin:$PATH"
+    return 0
+  fi
+  [ -f "$zip" ] || { pa_log "WARN: BPA zip missing - BPA reports unavailable"; return 0; }
+  pa_log "Installing Best Practice Assessment (BPA)..."
+  # Prefer brew packages when available; fall back to pip for the rest.
+  brew install --quiet numpy || true
+  pip3 install --user --no-cache-dir \
+    'pandas<2' 'pendulum==2.1.2' lxml Pillow reportlab matplotlib seaborn \
+    Jinja2 SQLAlchemy xlrd XlsxWriter PyMySQL six requests unidecode chardet \
+    python-dateutil pytz iptools 'svglib<=0.9.0' cssselect2 tinycss2 webencodings \
+    >/dev/null 2>&1 || true
+  if pip3 install --user --no-cache-dir --no-deps "$zip" >/dev/null 2>&1; then
+    pa_log "BPA installed."
+  else
+    pa_log "WARN: BPA install failed - BPA reports will not work"
+  fi
+  mkdir -p "$PREFIX/bin"
+  pa_ensure_pip37_wrapper "$PREFIX/bin/pip3.7"
+  # Ensure user-local scripts are on PATH for httpd / agent children
+  local py_bin
+  py_bin="$(python3 -m site --user-base 2>/dev/null)/bin"
+  if [ -d "$py_bin" ]; then
+    ln -sf "$py_bin"/bpa-legacy-cli "$PREFIX/bin/bpa-legacy-cli" 2>/dev/null || true
+    ln -sf "$py_bin"/bpa-cli "$PREFIX/bin/bpa-cli" 2>/dev/null || true
+  fi
+  export PATH="$PREFIX/bin:$PATH"
+}
+
 do_install() {
   need_brew
   pa_ensure_dirs
@@ -116,6 +170,10 @@ do_install() {
     fi
   fi
 
+  # Best Practice Assessment (`bpa-legacy-cli`). Same approach as Linux: install
+  # heavy deps from Homebrew / pip, then BPA itself with --no-deps.
+  pa_install_bpa_macos
+
   # Sync app
   pa_log "Syncing app → $PA_WWW"
   mkdir -p "$PA_WWW"
@@ -127,60 +185,11 @@ do_install() {
   fi
   pa_rewrite_php_paths
 
-  # Configure Homebrew httpd for Expedition ports + PHP
-  local bp
-  bp="$(brew_prefix)"
-  local httpd_conf="$bp/etc/httpd/httpd.conf"
-  local vhost="$bp/etc/httpd/extra/pa-converter.conf"
-  mkdir -p "$bp/etc/httpd/extra"
-
-  cat > "$vhost" <<EOF
-Listen ${EXPEDITION_HTTP_PORT}
-Listen ${EXPEDITION_PORT}
-LoadModule ssl_module lib/httpd/modules/mod_ssl.so
-LoadModule rewrite_module lib/httpd/modules/mod_rewrite.so
-LoadModule proxy_module lib/httpd/modules/mod_proxy.so
-LoadModule proxy_fcgi_module lib/httpd/modules/mod_proxy_fcgi.so
-
-<VirtualHost *:${EXPEDITION_HTTP_PORT}>
-  DocumentRoot "${PA_WWW}"
-  <Directory "${PA_WWW}">
-    Options FollowSymLinks
-    AllowOverride All
-    Require all granted
-  </Directory>
-  DirectoryIndex index.html index.php
-  <FilesMatch \.php$>
-    SetHandler "proxy:fcgi://127.0.0.1:9074"
-  </FilesMatch>
-  ErrorLog "${PA_LOG_DIR}/httpd-error.log"
-  CustomLog "${PA_LOG_DIR}/httpd-access.log" common
-</VirtualHost>
-
-<VirtualHost *:${EXPEDITION_PORT}>
-  DocumentRoot "${PA_WWW}"
-  SSLEngine on
-  SSLCertificateFile "${bp}/etc/httpd/server.crt"
-  SSLCertificateKeyFile "${bp}/etc/httpd/server.key"
-  <Directory "${PA_WWW}">
-    Options FollowSymLinks
-    AllowOverride All
-    Require all granted
-  </Directory>
-  DirectoryIndex index.html index.php
-  <FilesMatch \.php$>
-    SetHandler "proxy:fcgi://127.0.0.1:9074"
-  </FilesMatch>
-  ErrorLog "${PA_LOG_DIR}/httpd-ssl-error.log"
-  CustomLog "${PA_LOG_DIR}/httpd-ssl-access.log" common
-</VirtualHost>
-EOF
-
-  if [ -f "$httpd_conf" ] && ! grep -q 'pa-converter.conf' "$httpd_conf" 2>/dev/null; then
-    echo "Include $vhost" >> "$httpd_conf"
-  fi
+  pa_write_httpd_vhost
 
   # Self-signed cert for Homebrew httpd
+  local bp
+  bp="$(brew_prefix)"
   if [ ! -f "$bp/etc/httpd/server.crt" ]; then
     openssl req -x509 -nodes -newkey rsa:2048 -days 3650 \
       -keyout "$bp/etc/httpd/server.key" \
@@ -289,6 +298,62 @@ define('SparkRAM', '${SUGG_RAM_MB}m');
 EOF
 }
 
+# Homebrew httpd vhost. Listen on 443 as well: checkAlive curls https://<ML IP>/
+# (no port), and Spark uses <ML IP>:3306, so the ML address must be a bare IP.
+# On macOS, binding *:443 works without root (127.0.0.1:443 does not).
+pa_write_httpd_vhost() {
+  local bp httpd_conf vhost
+  bp="$(brew_prefix)"
+  httpd_conf="$bp/etc/httpd/httpd.conf"
+  vhost="$bp/etc/httpd/extra/pa-converter.conf"
+  mkdir -p "$bp/etc/httpd/extra" "$PA_LOG_DIR"
+  cat > "$vhost" <<EOF
+Listen ${EXPEDITION_HTTP_PORT}
+Listen ${EXPEDITION_PORT}
+Listen 443
+LoadModule ssl_module lib/httpd/modules/mod_ssl.so
+LoadModule rewrite_module lib/httpd/modules/mod_rewrite.so
+LoadModule proxy_module lib/httpd/modules/mod_proxy.so
+LoadModule proxy_fcgi_module lib/httpd/modules/mod_proxy_fcgi.so
+
+<VirtualHost *:${EXPEDITION_HTTP_PORT}>
+  DocumentRoot "${PA_WWW}"
+  <Directory "${PA_WWW}">
+    Options FollowSymLinks
+    AllowOverride All
+    Require all granted
+  </Directory>
+  DirectoryIndex index.html index.php
+  <FilesMatch \.php$>
+    SetHandler "proxy:fcgi://127.0.0.1:9074"
+  </FilesMatch>
+  ErrorLog "${PA_LOG_DIR}/httpd-error.log"
+  CustomLog "${PA_LOG_DIR}/httpd-access.log" common
+</VirtualHost>
+
+<VirtualHost *:${EXPEDITION_PORT} *:443>
+  DocumentRoot "${PA_WWW}"
+  SSLEngine on
+  SSLCertificateFile "${bp}/etc/httpd/server.crt"
+  SSLCertificateKeyFile "${bp}/etc/httpd/server.key"
+  <Directory "${PA_WWW}">
+    Options FollowSymLinks
+    AllowOverride All
+    Require all granted
+  </Directory>
+  DirectoryIndex index.html index.php
+  <FilesMatch \.php$>
+    SetHandler "proxy:fcgi://127.0.0.1:9074"
+  </FilesMatch>
+  ErrorLog "${PA_LOG_DIR}/httpd-ssl-error.log"
+  CustomLog "${PA_LOG_DIR}/httpd-ssl-access.log" common
+</VirtualHost>
+EOF
+  if [ -f "$httpd_conf" ] && ! grep -q 'pa-converter.conf' "$httpd_conf" 2>/dev/null; then
+    echo "Include $vhost" >> "$httpd_conf"
+  fi
+}
+
 # Post-install tuning: ML paths/IP, RabbitMQ 4.x compat, PHP/MariaDB knobs.
 pa_tune_macos_runtime() {
   local bp ml_ip conf mycnf php_ini
@@ -319,16 +384,20 @@ deprecated_features.permit.transient_nonexcl_queues = true
 EOF
   fi
 
-  # MariaDB listen on localhost TCP (health check + PHP mysqli)
+  # Spark jobs connect to <ML IP>:3306, so MariaDB must listen beyond loopback.
   mycnf="$bp/etc/my.cnf"
-  if [ ! -f "$mycnf" ] || ! grep -q 'bind-address' "$mycnf" 2>/dev/null; then
-    mkdir -p "$(dirname "$mycnf")"
+  mkdir -p "$(dirname "$mycnf")"
+  if [ -f "$mycnf" ] && grep -qE '^\s*bind-address\s*=' "$mycnf" 2>/dev/null; then
+    perl -pi -e 's/^\s*bind-address\s*=.*/bind-address = 0.0.0.0/' "$mycnf"
+  else
     cat >> "$mycnf" <<'EOF'
 
 [mysqld]
-bind-address = 127.0.0.1
+bind-address = 0.0.0.0
 EOF
   fi
+  # Apply bind-address change if MariaDB is already running.
+  brew services restart mariadb >/dev/null 2>&1 || true
 
   # PHP mysqli reconnect (must be in main php.ini — PHP_INI_SYSTEM)
   php_ini="$bp/etc/php/7.4/php.ini"
@@ -348,11 +417,12 @@ max_execution_time = 10000
 mysqli.reconnect = On
 EOF
 
-  # ML settings: checkAlive curls https://$server/API/... (default port 443).
-  # Our UI is on EXPEDITION_PORT, so store host:port. Also reject bare 127.0.0.1.
+  # ML settings: checkAlive curls https://$server/API/... (port 443, no custom port
+  # allowed - Spark also concatenates :3306 onto the same value). Store a bare IP;
+  # httpd also listens on *:443 (see vhost above). Reject bare 127.0.0.1 in the UI.
   mkdir -p "$PA_DATA"
   chmod u+rwx "$PA_DATA" "$PA_USERSPACE" "$PA_PALOGS" 2>/dev/null || true
-  local ml_server="${ml_ip}:${EXPEDITION_PORT}"
+  local ml_server="$ml_ip"
   mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -h127.0.0.1 pandbRBAC -e "
 INSERT INTO ml_settings (id, server, parquetPath, tempDataPath)
 VALUES (1, '${ml_server}', '${PA_DATA}', '${PA_DATA}')
@@ -374,8 +444,11 @@ do_start() {
     pa_link_classic_paths
     # Package updates / fresh sync can restore Docker paths — always rewrite.
     pa_rewrite_php_paths
+    pa_write_httpd_vhost
+    pa_install_bpa_macos
   fi
   need_brew
+  export PATH="$PREFIX/bin:$PATH"
   write_user_defs
   pa_tune_macos_runtime
 

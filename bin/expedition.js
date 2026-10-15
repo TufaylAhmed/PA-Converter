@@ -806,7 +806,7 @@ Host: ${os.platform()} ${os.arch()} | ${ROOT}
 function cmdPublishHelp() {
   console.log(`
 npm:  npm publish --access public
-GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.42 start
+GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.43 start
 `);
 }
 
