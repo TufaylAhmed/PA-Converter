@@ -1,0 +1,65 @@
+:root {
+  color-scheme: light;
+
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --accent: #007aff;
+  --accent-soft: rgba(0, 122, 255, 0.14);
+  --accent-glow: rgba(0, 122, 255, 0.28);
+
+  --bg-base: #e8eef6;
+  --bg-wash-1: #d4e4f7;
+  --bg-wash-2: #f3e9df;
+  --bg-wash-3: #e2e8f0;
+
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-highlight: rgba(255, 255, 255, 0.85);
+  --hairline: rgba(0, 0, 0, 0.08);
+
+  --text: #1d1d1f;
+  --text-secondary: rgba(29, 29, 31, 0.62);
+  --text-tertiary: rgba(29, 29, 31, 0.4);
+
+  --shadow-glass: 0 8px 32px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  --shadow-float: 0 18px 50px rgba(15, 23, 42, 0.12);
+
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --sidebar-width: 248px;
+  --blur: 28px;
+  --sat: 180%;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --accent: #0a84ff;
+  --accent-soft: rgba(10, 132, 255, 0.2);
+  --accent-glow: rgba(10, 132, 255, 0.35);
+
+  --bg-base: #0b0d12;
+  --bg-wash-1: #152038;
+  --bg-wash-2: #1a1428;
+  --bg-wash-3: #0f172a;
+
+  --glass: rgba(28, 28, 32, 0.55);
+  --glass-strong: rgba(38, 38, 44, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.08);
+  --hairline: rgba(255, 255, 255, 0.1);
+
+  --text: #f5f5f7;
+  --text-secondary: rgba(245, 245, 247, 0.62);
+  --text-tertiary: rgba(245, 245, 247, 0.38);
+
+  --shadow-glass: 0 12px 40px rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  --shadow-float: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
