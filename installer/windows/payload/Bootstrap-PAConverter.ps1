@@ -184,8 +184,14 @@ try {
 
   Write-PALog "Restarting WSL distro..."
   $distro = Get-PADistroName
-  & wsl.exe -t $distro 2>$null
+  $null = Invoke-PAWslExe -WslArgs @("-t", $distro)
   Start-Sleep -Seconds 3
+  # Wake distro after terminate so provision does not hit WSL_E_DISTRO_NOT_FOUND
+  $wake = Invoke-PAWslExe -WslArgs @("-d", $distro, "-u", "root", "--", "true")
+  Write-PALog ("WSL wake exit=$($wake.ExitCode) distro='$distro'")
+  if ($wake.ExitCode -ne 0) {
+    throw "WSL distro '$distro' is not usable after restart (exit $($wake.ExitCode)): $($wake.Text)"
+  }
 
   $state.Phase = "provision"
   Set-PAState $state

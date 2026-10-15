@@ -373,7 +373,7 @@ function Get-PAWslDistroNames {
     }
   }
   foreach ($line in ($text -split "(`r`n|`n|`r)")) {
-    $n = $line.Trim()
+    $n = Sanitize-PADistroName $line
     if (-not $n) { continue }
     if ($n -match '^(Windows Subsystem|Subsistema|docker-desktop)') { continue }
     $names += $n
@@ -389,6 +389,7 @@ function Test-PADistroExists {
 
 function Set-PAActiveDistro {
   param([string]$InstallRoot, [string]$Name)
+  $Name = Sanitize-PADistroName $Name
   $script:DistroName = $Name
   Set-Content -Path (Join-Path $InstallRoot "distro-name.txt") -Value $Name -Encoding ascii
   Write-PALog "Active WSL distro set to '$Name'"
@@ -548,14 +549,27 @@ Also ensure virtualization is enabled in BIOS/UEFI.
   throw $hint
 }
 
+function Sanitize-PADistroName {
+  param([string]$Name)
+  if ($null -eq $Name) { return "" }
+  # Strip UTF-16 null pads / control chars that break ProcessStartInfo -d quoting
+  $n = ([string]$Name) -replace "`0", "" -replace "[\u0001-\u001F]", ""
+  $n = $n.Trim()
+  # Distro names are ASCII identifiers (Ubuntu-20.04, PA-Converter, ...)
+  if ($n -match '[^A-Za-z0-9._-]') {
+    $n = ([regex]::Replace($n, '[^A-Za-z0-9._-]', ''))
+  }
+  return $n
+}
+
 function Get-PADistroName {
   $root = Get-PAInstallRoot
   $f = Join-Path $root "distro-name.txt"
   if (Test-Path $f) {
-    $n = (Get-Content $f -Raw).Trim()
+    $n = Sanitize-PADistroName ((Get-Content $f -Raw -ErrorAction SilentlyContinue))
     if ($n) { return $n }
   }
-  return $script:DistroName
+  return (Sanitize-PADistroName $script:DistroName)
 }
 
 function ConvertTo-PAWslMountPath {
@@ -724,41 +738,81 @@ function Show-PAInstallProgress {
   } catch {}
 }
 
+function ConvertTo-PAProcessArguments {
+  # Win32 CommandLineToArgvW-safe join (PS 5.1 ProcessStartInfo has no ArgumentList).
+  param([Parameter(Mandatory)][string[]]$ArgumentList)
+  $parts = foreach ($raw in $ArgumentList) {
+    $arg = [string]$raw
+    if ($arg -eq "") { '""'; continue }
+    if ($arg -notmatch '[\s"]') { $arg; continue }
+    $escaped = [regex]::Replace($arg, '(\\*)"', '$1$1\"')
+    $escaped = [regex]::Replace($escaped, '(\\+)$', '$1$1')
+    '"' + $escaped + '"'
+  }
+  return ($parts -join " ")
+}
+
 function Invoke-PAWsl {
   param(
     [Parameter(Mandatory)][string]$ScriptName,
     [switch]$StreamProgress
   )
-  $distro = Get-PADistroName
-  $envLine = "export PA_CONVERTER_ROOT=/opt/pa-converter EXPEDITION_PORT=18443 EXPEDITION_HTTP_PORT=18080 PYTHONUNBUFFERED=1"
+  $distro = Sanitize-PADistroName (Get-PADistroName)
+  if (-not $distro) {
+    Write-PALog "No WSL distro name resolved." "ERROR"
+    return 1
+  }
+  $scriptPath = "/opt/pa-converter/wsl/$ScriptName"
   Write-PALog "WSL[$distro] running $ScriptName ..."
 
   # Stream provision/install so SETUP shows a live progress bar (not one dump at the end).
+  # IMPORTANT: do NOT nest bash -lc inside ProcessStartInfo.Arguments quotes — that broke
+  # -d after wsl -t (WSL_E_DISTRO_NOT_FOUND) even when the same distro worked via & wsl @args.
   $wantStream = $StreamProgress -or ($ScriptName -eq "provision.sh")
   if ($wantStream) {
     try {
-      # Merge stderr into stdout inside bash so one sync ReadLine loop cannot deadlock.
-      # PA_PROGRESS_MACHINE=1 forces markers even if WSL thinks stdout is a TTY.
-      $bashLc = "$envLine; export PA_PROGRESS_MACHINE=1; bash /opt/pa-converter/wsl/$ScriptName 2>&1"
+      # wsl -e env KEY=VAL ... bash script  — all simple argv tokens, no nested quoting.
+      $argv = @(
+        "-d", $distro,
+        "-u", "root",
+        "-e", "env",
+        "PA_PROGRESS_MACHINE=1",
+        "PA_CONVERTER_ROOT=/opt/pa-converter",
+        "EXPEDITION_PORT=18443",
+        "EXPEDITION_HTTP_PORT=18080",
+        "PYTHONUNBUFFERED=1",
+        "bash", $scriptPath
+      )
 
       $psi = New-Object System.Diagnostics.ProcessStartInfo
       $psi.FileName = "wsl.exe"
-      $psi.Arguments = "-d `"$distro`" -u root -- bash -lc `"$bashLc`""
+      $psi.Arguments = ConvertTo-PAProcessArguments -ArgumentList $argv
       $psi.RedirectStandardOutput = $true
-      $psi.RedirectStandardError = $false
+      $psi.RedirectStandardError = $true
       $psi.UseShellExecute = $false
       $psi.CreateNoWindow = $true
       $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding $false
+      $psi.StandardErrorEncoding = New-Object System.Text.UTF8Encoding $false
 
       $proc = New-Object System.Diagnostics.Process
       $proc.StartInfo = $psi
       $logBuf = New-Object System.Text.StringBuilder
       $lastPct = -1
 
+      # Sync ReadLine on stdout; drain stderr async so a full stderr buffer cannot deadlock.
+      $errSb = New-Object System.Text.StringBuilder
+      $errHandler = {
+        if ($EventArgs.Data) { [void]$Event.MessageData.AppendLine($EventArgs.Data) }
+      }
+      Register-ObjectEvent -InputObject $proc -EventName ErrorDataReceived -Action $errHandler -MessageData $errSb | Out-Null
+
       [void]$proc.Start()
+      $proc.BeginErrorReadLine()
       Show-PAInstallProgress -PercentComplete 0 -Status "Starting WSL provision..."
+      Write-PALog ("wsl argv: " + $psi.Arguments)
 
       while ($null -ne ($line = $proc.StandardOutput.ReadLine())) {
+        $line = ConvertFrom-PAWslText $line
         [void]$logBuf.AppendLine($line)
         if ($line -match '^PA_PROGRESS\|(\d+)\|([^|]*)\|(.*)$') {
           $pct = [int]$Matches[1]
@@ -780,30 +834,69 @@ function Invoke-PAWsl {
       }
 
       $proc.WaitForExit()
+      Start-Sleep -Milliseconds 200
+      Get-EventSubscriber | Where-Object { $_.SourceObject -eq $proc } | ForEach-Object {
+        Unregister-Event -SubscriptionId $_.SubscriptionId -Force -ErrorAction SilentlyContinue
+      }
+      $errText = $errSb.ToString().Trim()
+      if ($errText) {
+        Write-PALog $errText
+        [void]$logBuf.AppendLine($errText)
+      }
+
       $code = [int]$proc.ExitCode
       Write-Host ""
       try { Write-Progress -Activity "PA-Converter install" -Completed } catch {}
+
       if ($code -eq 0) {
         Show-PAInstallProgress -PercentComplete 100 -Status "Complete"
         Write-Host ""
+        return 0
+      }
+
+      # Distro-not-found / bad argv: fall through to the proven & wsl @args path
+      if ($code -ne 0 -and ($logBuf.ToString() -match 'DISTRO_NOT_FOUND|supplied name')) {
+        Write-PALog "Streamed wsl failed with distro-not-found (exit $code); retrying via call-operator." "WARN"
       } else {
         Write-Host ("  Install failed (exit {0}). Full log: {1}" -f $code, (Get-PALogPath)) -ForegroundColor Red
-        $full = $logBuf.ToString()
-        if ($full) { Write-PALog $full }
+        return $code
       }
-      return $code
     } catch {
       Write-PALog "Progress streaming failed ($_); falling back to buffered WSL invoke." "WARN"
     }
   }
 
-  # Capture stdout so PowerShell does not treat wsl output as the function return value
+  # Proven path (same argv style as Sync-PAEngineIntoWsl) — may buffer until exit.
   $r = Invoke-PAWslExe -WslArgs @(
-    "-d", $distro, "-u", "root", "--",
-    "bash", "-lc",
-    "$envLine; bash /opt/pa-converter/wsl/$ScriptName"
+    "-d", $distro, "-u", "root", "-e", "env",
+    "PA_PROGRESS_MACHINE=1",
+    "PA_CONVERTER_ROOT=/opt/pa-converter",
+    "EXPEDITION_PORT=18443",
+    "EXPEDITION_HTTP_PORT=18080",
+    "PYTHONUNBUFFERED=1",
+    "bash", $scriptPath
   )
-  if ($r.Text) { Write-PALog $r.Text }
+  if ($r.Text) {
+    foreach ($line in ($r.Text -split "`n")) {
+      $line = $line.TrimEnd()
+      if (-not $line) { continue }
+      if ($line -match '^PA_PROGRESS\|(\d+)\|([^|]*)\|(.*)$') {
+        $pct = [int]$Matches[1]
+        $msg = $Matches[3].Trim()
+        if (-not $msg) { $msg = $Matches[2] }
+        Show-PAInstallProgress -PercentComplete $pct -Status $msg
+        Write-PALog ("[{0}%] {1}" -f $pct, $msg)
+      } else {
+        Write-PALog $line
+      }
+    }
+    Write-Host ""
+    try { Write-Progress -Activity "PA-Converter install" -Completed } catch {}
+  }
+  if ([int]$r.ExitCode -eq 0) {
+    Show-PAInstallProgress -PercentComplete 100 -Status "Complete"
+    Write-Host ""
+  }
   return [int]$r.ExitCode
 }
 
