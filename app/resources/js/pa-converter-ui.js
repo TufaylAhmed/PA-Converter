@@ -452,6 +452,40 @@
       view.classList.remove('pa-projects-tiles-view')
       view.classList.add('pa-projects-rows-view')
     }
+    enhanceAddProjectTool(panel)
+  }
+
+  /** Ext header "plus" tool is nearly invisible in light mode — label it Add Project. */
+  function enhanceAddProjectTool(panel) {
+    panel = panel || document.getElementById('ProjectsGridPanel')
+    if (!panel) return
+    var tools = panel.querySelectorAll('.x-tool')
+    for (var i = 0; i < tools.length; i++) {
+      var tool = tools[i]
+      var tip = (
+        tool.getAttribute('data-qtip') ||
+        tool.getAttribute('title') ||
+        tool.getAttribute('aria-label') ||
+        ''
+      ).toLowerCase()
+      var isPlus =
+        !!tool.querySelector('.x-tool-plus, .x-tool-img.x-tool-plus') ||
+        tip.indexOf('add new project') !== -1 ||
+        tip === 'add project'
+      if (!isPlus) continue
+      if (!tool.classList.contains('pa-add-project-btn')) {
+        tool.classList.add('pa-add-project-btn')
+      }
+      tool.setAttribute('aria-label', 'Add Project')
+      tool.setAttribute('data-qtip', 'Add Project')
+      tool.setAttribute('title', 'Add Project')
+      if (!tool.querySelector('.pa-add-project-label')) {
+        var label = document.createElement('span')
+        label.className = 'pa-add-project-label'
+        label.textContent = 'Add Project'
+        tool.appendChild(label)
+      }
+    }
   }
 
   function polishDashboardWidgets() {
