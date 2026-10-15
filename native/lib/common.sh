@@ -281,9 +281,14 @@ pa_install_spark() {
   local cache="${PA_DATA_ROOT:-/tmp}/spark-download"
   mkdir -p "$cache"
   local bundle="$PA_CONVERTER_ROOT/docker/spark/opt-Spark.tar.gz"
+  # Pin to releases that actually ship opt-Spark.tar.gz. Do NOT use /latest/
+  # (new MSI-only releases 404 and then curl hangs on Apache archive).
   local asset_tag="${PA_SPARK_RELEASE:-v5.46.22}"
-  local gh_asset="https://github.com/TufaylAhmed/PA-Converter/releases/download/${asset_tag}/opt-Spark.tar.gz"
-  local gh_latest="https://github.com/TufaylAhmed/PA-Converter/releases/latest/download/opt-Spark.tar.gz"
+  local gh_urls=(
+    "https://github.com/TufaylAhmed/PA-Converter/releases/download/${asset_tag}/opt-Spark.tar.gz"
+    "https://github.com/TufaylAhmed/PA-Converter/releases/download/v5.46.39/opt-Spark.tar.gz"
+    "https://github.com/TufaylAhmed/PA-Converter/releases/download/v5.46.22/opt-Spark.tar.gz"
+  )
   local apache="https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz"
   local tgz=""
 
@@ -293,29 +298,45 @@ pa_install_spark() {
     tgz="$bundle"
   else
     local dest="$cache/opt-Spark.tar.gz"
-    for url in "$gh_asset" "$gh_latest"; do
+    local url
+    for url in "${gh_urls[@]}"; do
       pa_progress 85 spark "Downloading Spark from GitHub (~230MB)..."
       pa_log "Downloading Spark from GitHub CDN..."
       pa_log "  $url"
-      # -sS: no progress bar (progress bar on stderr races with Windows SETUP log stream)
-      if curl -fsSL --retry 3 --retry-delay 2 --connect-timeout 20 \
-          -C - -o "$dest" "$url"
+      # Drop corrupt/partial leftovers (HTML 404 pages break -C resume)
+      rm -f "$dest"
+      # max-time 15m; no -C (resume of a bad partial causes silent hangs)
+      if curl -fsSL --retry 2 --retry-delay 2 --connect-timeout 20 --max-time 900 \
+          -o "$dest" "$url"
       then
-        tgz="$dest"
-        break
+        local got
+        got="$(wc -c < "$dest" | tr -d ' ')"
+        if [ "${got:-0}" -gt 1000000 ]; then
+          tgz="$dest"
+          pa_log "Spark download OK (${got} bytes)"
+          break
+        fi
+        pa_log "WARN: download too small (${got} bytes) - trying next URL"
+      else
+        pa_log "WARN: download failed for $url"
       fi
       rm -f "$dest"
     done
-    if [ -z "$tgz" ]; then
+    # Apache archive often stalls for hours — only if explicitly enabled
+    if [ -z "$tgz" ] && [ "${PA_SPARK_APACHE:-0}" = "1" ]; then
       dest="$cache/spark-2.4.3-bin-hadoop2.7.tgz"
       pa_progress 86 spark "Downloading Spark from Apache archive (slow)..."
-      pa_log "GitHub asset missing - falling back to Apache archive (often slow)..."
+      pa_log "GitHub asset missing - Apache fallback (PA_SPARK_APACHE=1)..."
       pa_log "  $apache"
-      if curl -fsSL --retry 5 --retry-delay 5 --connect-timeout 30 \
-          -C - -o "$dest" "$apache"
+      rm -f "$dest"
+      if curl -fsSL --retry 2 --retry-delay 5 --connect-timeout 30 --max-time 900 \
+          -o "$dest" "$apache"
       then
         tgz="$dest"
       fi
+    elif [ -z "$tgz" ]; then
+      pa_log "WARN: Spark GitHub download failed. Skipping Apache archive (set PA_SPARK_APACHE=1 to try)."
+      pa_log "WARN: UI will still start; ML jobs need Spark."
     fi
   fi
 

@@ -23,10 +23,10 @@ Self-contained **MSI** + portable ZIP. First run enables WSL2, imports Ubuntu, i
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.39
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.40
 ```
 
 Outputs under `dist\`:
 
 - `PA-Converter-5.46.18.msi`
-- `PA-Converter-5.46.39-portable.zip`
+- `PA-Converter-5.46.40-portable.zip`
