@@ -479,6 +479,11 @@
       tool.setAttribute('aria-label', 'Add Project')
       tool.setAttribute('data-qtip', 'Add Project')
       tool.setAttribute('title', 'Add Project')
+      // Remove Ext sprite so a ghost "+" never shows through the label
+      var sprites = tool.querySelectorAll('.x-tool-tool-el, .x-tool-img, .x-tool-plus')
+      for (var s = 0; s < sprites.length; s++) {
+        sprites[s].parentNode && sprites[s].parentNode.removeChild(sprites[s])
+      }
       if (!tool.querySelector('.pa-add-project-label')) {
         var label = document.createElement('span')
         label.className = 'pa-add-project-label'

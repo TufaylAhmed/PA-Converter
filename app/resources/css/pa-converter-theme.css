@@ -2349,9 +2349,7 @@ html:not(.pa-theme-dark) #ProjectsGridPanel .x-grid-item-alt {
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
-  overflow: visible !important;
-  left: auto !important;
-  position: relative !important;
+  overflow: hidden !important;
 }
 #ProjectsGridPanel .x-tool.pa-add-project-btn .x-tool-img,
 #ProjectsGridPanel .x-tool.pa-add-project-btn .x-tool-plus,
