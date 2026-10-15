@@ -59,9 +59,14 @@ RUN mkdir -p /opt /opt/Spark \
  && if [ -f "$SPARK_BUNDLE" ] && [ "$(wc -c < "$SPARK_BUNDLE")" -gt 1000000 ]; then \
       echo "pa-converter: extracting local Spark bundle…" \
       && tar -xzf "$SPARK_BUNDLE" -C / ; \
+    elif echo "pa-converter: downloading Spark bundle from GitHub (one-time, ~230MB)…" \
+      && curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 --max-time 900 \
+        "https://github.com/TufaylAhmed/PA-Converter/releases/download/v5.46.22/opt-Spark.tar.gz" \
+        -o /tmp/opt-Spark.tar.gz; then \
+      tar -xzf /tmp/opt-Spark.tar.gz -C / && rm -f /tmp/opt-Spark.tar.gz ; \
     else \
-      echo "pa-converter: downloading Spark 2.4.3 (one-time, ~230MB)…" \
-      && curl -fL --retry 3 --retry-delay 2 \
+      echo "pa-converter: GitHub Spark bundle unavailable - trying Apache archive…" \
+      && curl -fL --retry 3 --retry-delay 2 --connect-timeout 30 --max-time 1200 \
         "https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz" \
         -o /tmp/spark-2.4.3.tgz \
       && tar -xzf /tmp/spark-2.4.3.tgz -C /opt/Spark \

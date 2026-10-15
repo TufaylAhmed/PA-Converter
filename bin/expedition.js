@@ -342,6 +342,12 @@ function stopConflictingNativeMac() {
   // Free 18443/18080 if a previous Homebrew httpd is still bound
   const installMac = path.join(NATIVE, 'install-macos.sh');
   if (!fs.existsSync(installMac)) return;
+  // `install-macos.sh stop` runs `brew services stop mariadb/rabbitmq`, which would
+  // also stop the user's own Homebrew services, so only run it if native was installed.
+  const prefix =
+    process.env.PA_MAC_PREFIX ||
+    path.join(os.homedir(), 'Library', 'Application Support', 'PA-Converter');
+  if (!fs.existsSync(path.join(prefix, 'var', 'installed'))) return;
   console.log('pa-converter: stopping previous native Homebrew stack (if any)…');
   run('bash', [installMac, 'stop'], {
     shell: false,
