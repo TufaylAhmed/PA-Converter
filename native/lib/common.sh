@@ -151,8 +151,8 @@ pa_install_spark() {
   else
     local dest="$cache/opt-Spark.tar.gz"
     for url in "$gh_asset" "$gh_latest"; do
-      pa_progress 85 spark "Downloading Spark from GitHub (~230MB)…"
-      pa_log "Downloading Spark from GitHub CDN…"
+      pa_progress 85 spark "Downloading Spark from GitHub (~230MB)..."
+      pa_log "Downloading Spark from GitHub CDN..."
       pa_log "  $url"
       if curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 \
           -C - --progress-bar -o "$dest" "$url"
@@ -164,8 +164,8 @@ pa_install_spark() {
     done
     if [ -z "$tgz" ]; then
       dest="$cache/spark-2.4.3-bin-hadoop2.7.tgz"
-      pa_progress 86 spark "Downloading Spark from Apache archive (slow)…"
-      pa_log "GitHub asset missing — falling back to Apache archive (often slow)…"
+      pa_progress 86 spark "Downloading Spark from Apache archive (slow)..."
+      pa_log "GitHub asset missing - falling back to Apache archive (often slow)..."
       pa_log "  $apache"
       if curl -fL --retry 5 --retry-delay 5 --connect-timeout 30 \
           -C - --progress-bar -o "$dest" "$apache"
@@ -176,12 +176,12 @@ pa_install_spark() {
   fi
 
   if [ -z "$tgz" ] || [ ! -f "$tgz" ]; then
-    pa_log "WARN: Spark install failed — UI can run; ML jobs need Spark."
+    pa_log "WARN: Spark install failed - UI can run; ML jobs need Spark."
     return 1
   fi
 
-  pa_progress 90 spark "Extracting Spark…"
-  pa_log "Extracting Spark…"
+  pa_progress 90 spark "Extracting Spark..."
+  pa_log "Extracting Spark..."
   # Bundled opt-Spark.tar.gz paths are opt/Spark/... ; Apache tarball is top-level spark-2.4.3-...
   local first
   first="$(tar -tzf "$tgz" 2>/dev/null | head -n 1 || true)"

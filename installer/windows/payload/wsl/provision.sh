@@ -45,7 +45,7 @@ export EXPEDITION_HTTP_PORT="${EXPEDITION_HTTP_PORT:-18080}"
 export DB_HOST=127.0.0.1
 export RABBITMQ_HOST=127.0.0.1
 
-pa_progress 3 install "Installing packages + Spark (first run can take 10–20 minutes)…"
+pa_progress 3 install "Installing packages + Spark (first run can take 10–20 minutes)..."
 # stdbuf keeps apt/progress lines flushing to SETUP
 if command -v stdbuf >/dev/null 2>&1; then
   stdbuf -oL -eL bash "$INSTALL_ROOT/native/install.sh"
@@ -53,10 +53,10 @@ else
   bash "$INSTALL_ROOT/native/install.sh"
 fi
 
-pa_progress 97 start "Starting Apache / MariaDB / RabbitMQ / agent…"
+pa_progress 97 start "Starting Apache / MariaDB / RabbitMQ / agent..."
 bash "$INSTALL_ROOT/native/start.sh"
 
 touch "$MARKER"
-pa_progress 100 ready "Stack is up — open https://localhost:${EXPEDITION_PORT}"
+pa_progress 100 ready "Stack is up - open https://localhost:${EXPEDITION_PORT}"
 echo "[pa-converter] Stack is up (native, no containers)."
 echo "[pa-converter] Open https://localhost:${EXPEDITION_PORT}  (admin / paloalto)"

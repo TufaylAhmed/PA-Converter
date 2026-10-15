@@ -33,7 +33,7 @@ fi
 pa_progress 8 apt-update "Updating apt package lists"
 apt-get update -y
 
-pa_progress 18 apt-base "Installing Apache, MariaDB, RabbitMQ, Java (several minutes)…"
+pa_progress 18 apt-base "Installing Apache, MariaDB, RabbitMQ, Java (several minutes)..."
 apt-get install -y --no-install-recommends \
   ca-certificates curl gnupg lsb-release software-properties-common apt-transport-https \
   apache2 libapache2-mod-php rsync \
@@ -44,14 +44,14 @@ apt-get install -y --no-install-recommends \
   unzip openssl ssl-cert net-tools procps util-linux bc \
   libzip-dev libpng-dev || true
 
-# PHP 7.4 — default on Ubuntu 20.04; use ondrej PPA on newer
+# PHP 7.4 - default on Ubuntu 20.04; use ondrej PPA on newer
 PHP_OK=0
 if php -v 2>/dev/null | grep -qE 'PHP 7\.4'; then
   PHP_OK=1
 fi
 
 if [ "$PHP_OK" -ne 1 ]; then
-  pa_progress 35 php "Installing PHP 7.4 from ondrej/php PPA…"
+  pa_progress 35 php "Installing PHP 7.4 from ondrej/php PPA..."
   apt-get install -y --no-install-recommends software-properties-common
   add-apt-repository -y ppa:ondrej/php || true
   apt-get update -y
@@ -67,7 +67,7 @@ if [ "$PHP_OK" -ne 1 ]; then
   a2enmod php7.4 2>/dev/null || true
   update-alternatives --set php /usr/bin/php7.4 2>/dev/null || true
 else
-  pa_progress 35 php "Installing PHP MySQL/GD extensions…"
+  pa_progress 35 php "Installing PHP MySQL/GD extensions..."
   apt-get install -y --no-install-recommends \
     php-mysql php-gd php-soap php-zip php-bz2 php-ldap php-bcmath php-curl php-xml php-mbstring \
     2>/dev/null || apt-get install -y --no-install-recommends \
@@ -78,16 +78,25 @@ pa_progress 45 apache "Configuring Apache HTTPS ports"
 a2enmod rewrite ssl headers 2>/dev/null || true
 # snakeoil certs for HTTPS
 if [ ! -f /etc/ssl/certs/ssl-cert-snakeoil.pem ]; then
-  apt-get install -y --no-install-recommends ssl-cert
+  apt-get install -y --no-install-recommends ssl-cert || true
   make-ssl-cert generate-default-snakeoil >/dev/null 2>&1 || true
 fi
 
-# PHP ini overrides
-PHP_INI_DIR="$(php -i 2>/dev/null | awk -F'=> ' '/Scan this dir for additional .ini/{print $2; exit}' | tr -d ' ')"
-if [ -z "$PHP_INI_DIR" ] || [ ! -d "$PHP_INI_DIR" ]; then
-  PHP_INI_DIR=/etc/php/7.4/apache2/conf.d
-  mkdir -p "$PHP_INI_DIR"
+# PHP ini overrides (avoid php -i | awk early-exit: SIGPIPE + pipefail aborts install)
+PHP_INI_DIR=""
+if command -v php >/dev/null 2>&1; then
+  PHP_INI_DIR="$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;' 2>/dev/null || true)"
 fi
+PHP_INI_DIR="$(printf '%s' "${PHP_INI_DIR:-}" | tr -d '[:space:]')"
+if [ -z "$PHP_INI_DIR" ] || [ ! -d "$PHP_INI_DIR" ]; then
+  for cand in /etc/php/7.4/apache2/conf.d /etc/php/8.1/apache2/conf.d /etc/php/8.2/apache2/conf.d; do
+    if [ -d "$cand" ]; then PHP_INI_DIR="$cand"; break; fi
+  done
+fi
+if [ -z "$PHP_INI_DIR" ]; then
+  PHP_INI_DIR=/etc/php/7.4/apache2/conf.d
+fi
+mkdir -p "$PHP_INI_DIR"
 cat > "${PHP_INI_DIR}/99-pa-converter.ini" <<'EOF'
 upload_max_filesize = 200M
 post_max_size = 200M
@@ -97,28 +106,38 @@ mysqli.allow_persistent = On
 display_errors = Off
 log_errors = On
 EOF
+pa_log "Wrote PHP overrides in $PHP_INI_DIR"
 
 # Sync app into docroot
 pa_progress 52 sync "Syncing Expedition web app"
-pa_log "Syncing app → $PA_WWW"
+pa_log "Syncing app -> $PA_WWW"
 if [ -d "$PA_CONVERTER_ROOT/app" ]; then
   rsync -a --delete "$PA_CONVERTER_ROOT/app/" "$PA_WWW/" 2>/dev/null \
-    || (rm -rf "$PA_WWW"/* && cp -a "$PA_CONVERTER_ROOT/app/." "$PA_WWW/")
+    || (rm -rf "${PA_WWW:?}/"* && cp -a "$PA_CONVERTER_ROOT/app/." "$PA_WWW/")
 fi
 chown -R www-data:www-data "$PA_WWW" "$PA_USERSPACE" "$PA_DATA" "$PA_PALOGS" 2>/dev/null || true
 
 # Apache site on Expedition ports
+pa_progress 55 apache-site "Enabling pa-converter Apache site"
 APACHE_LOG_DIR="${APACHE_LOG_DIR:-/var/log/apache2}"
 export APACHE_LOG_DIR
+mkdir -p "$APACHE_LOG_DIR"
 SITE_SRC="$SCRIPT_DIR/apache/pa-converter.conf"
 SITE_DST=/etc/apache2/sites-available/pa-converter.conf
+if [ ! -f "$SITE_SRC" ]; then
+  pa_log "ERROR: missing Apache site template: $SITE_SRC"
+  exit 1
+fi
 sed -e "s/\${EXPEDITION_HTTP_PORT}/${EXPEDITION_HTTP_PORT}/g" \
     -e "s/\${EXPEDITION_PORT}/${EXPEDITION_PORT}/g" \
     -e "s|\${APACHE_LOG_DIR}|${APACHE_LOG_DIR}|g" \
     "$SITE_SRC" > "$SITE_DST"
 # Disable default sites that steal :80/:443 if present
 a2dissite 000-default default-ssl 2>/dev/null || true
-a2ensite pa-converter
+a2ensite pa-converter || {
+  pa_log "ERROR: a2ensite pa-converter failed"
+  exit 1
+}
 # Ensure ports are not only 80/443
 if ! grep -q "Listen ${EXPEDITION_HTTP_PORT}" /etc/apache2/ports.conf 2>/dev/null; then
   echo "Listen ${EXPEDITION_HTTP_PORT}" >> /etc/apache2/ports.conf
@@ -145,7 +164,7 @@ mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "
 SEED_MARKER="$PA_DATA_ROOT/db-seeded"
 if [ ! -f "$SEED_MARKER" ]; then
   pa_progress 70 seed "Seeding Expedition databases"
-  pa_log "Seeding Expedition databases…"
+  pa_log "Seeding Expedition databases..."
   export MYSQL_ROOT_PASSWORD
   SQL_DIR="$PA_CONVERTER_ROOT/databases"
   mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -h127.0.0.1 <<SQL
@@ -177,7 +196,7 @@ pa_progress 78 rabbitmq "Starting RabbitMQ"
 pa_service start rabbitmq-server || true
 
 # Spark 2.4.3 (GitHub CDN preferred; Apache archive last)
-pa_progress 82 spark "Installing Spark 2.4.3 (download ~230MB if needed)…"
+pa_progress 82 spark "Installing Spark 2.4.3 (download ~230MB if needed)..."
 pa_detect_java
 pa_install_spark "/" || true
 mkdir -p /opt/Spark/extraLibraries
