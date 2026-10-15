@@ -185,21 +185,28 @@ pa_start_apache() {
     sleep 1
   fi
 
-  # shellcheck source=/dev/null
-  [ -f /etc/apache2/envvars ] && . /etc/apache2/envvars
-  mkdir -p \
-    "${APACHE_RUN_DIR:-/var/run/apache2}" \
-    "${APACHE_LOCK_DIR:-/var/lock/apache2}" \
-    "${APACHE_PID_DIR:-/var/run/apache2}" \
-    "${APACHE_LOG_DIR:-/var/log/apache2}" \
-    2>/dev/null || true
-  # Ubuntu packages expect these; WSL fresh boots sometimes miss them
-  export APACHE_PID_FILE="${APACHE_PID_FILE:-/var/run/apache2/apache2.pid}"
+  # Always set runtime dirs BEFORE sourcing envvars / starting apache2.
+  # (If envvars is not sourced, apache2.conf expands ${APACHE_RUN_DIR} to empty and dies.)
   export APACHE_RUN_DIR="${APACHE_RUN_DIR:-/var/run/apache2}"
   export APACHE_LOCK_DIR="${APACHE_LOCK_DIR:-/var/lock/apache2}"
+  export APACHE_PID_DIR="${APACHE_PID_DIR:-/var/run/apache2}"
+  export APACHE_LOG_DIR="${APACHE_LOG_DIR:-/var/log/apache2}"
+  export APACHE_PID_FILE="${APACHE_PID_FILE:-/var/run/apache2/apache2.pid}"
+  export APACHE_RUN_USER="${APACHE_RUN_USER:-www-data}"
+  export APACHE_RUN_GROUP="${APACHE_RUN_GROUP:-www-data}"
+  # shellcheck source=/dev/null
+  if [ -f /etc/apache2/envvars ]; then
+    # shellcheck disable=SC1091
+    . /etc/apache2/envvars
+  fi
+  # Re-assert after envvars (some installs leave them empty)
+  export APACHE_RUN_DIR="${APACHE_RUN_DIR:-/var/run/apache2}"
+  export APACHE_LOCK_DIR="${APACHE_LOCK_DIR:-/var/lock/apache2}"
+  export APACHE_PID_FILE="${APACHE_PID_FILE:-/var/run/apache2/apache2.pid}"
   export APACHE_LOG_DIR="${APACHE_LOG_DIR:-/var/log/apache2}"
   export APACHE_RUN_USER="${APACHE_RUN_USER:-www-data}"
   export APACHE_RUN_GROUP="${APACHE_RUN_GROUP:-www-data}"
+  mkdir -p "$APACHE_RUN_DIR" "$APACHE_LOCK_DIR" "$APACHE_LOG_DIR" 2>/dev/null || true
 
   local ct
   ct="$(apache2ctl configtest 2>&1 || true)"

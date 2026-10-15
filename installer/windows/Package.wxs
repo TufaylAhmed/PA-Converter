@@ -81,6 +81,9 @@
       <Component Id="Cmp_BootstrapPs1" Guid="C1D2E3F4-A5B6-7890-CDEF-123456789002">
         <File Id="BootstrapPs1" Source="payload\Bootstrap-PAConverter.ps1" KeyPath="yes" />
       </Component>
+      <Component Id="Cmp_FixApachePs1" Guid="C1D2E3F4-A5B6-7890-CDEF-123456789015">
+        <File Id="FixApachePs1" Source="payload\Fix-Apache.ps1" KeyPath="yes" />
+      </Component>
       <Component Id="Cmp_StartPs1" Guid="C1D2E3F4-A5B6-7890-CDEF-123456789003">
         <File Id="StartPs1" Source="payload\Start-PAConverter.ps1" KeyPath="yes" />
       </Component>

@@ -67,7 +67,7 @@ foreach ($name in @(
     "engine.zip",
     "SETUP.bat",
     "Install.cmd",
-    "Bootstrap-PAConverter.ps1",
+    "Bootstrap-PAConverter.ps1", "Fix-Apache.ps1",
     "Start-PAConverter.ps1", "Stop-PAConverter.ps1", "Status-PAConverter.ps1",
     "Start-PAConverter.cmd", "Stop-PAConverter.cmd", "Status-PAConverter.cmd",
     "Configure-PAConverter.cmd", "README.txt", "ENABLE-VIRTUALIZATION.txt"

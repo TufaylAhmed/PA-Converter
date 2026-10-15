@@ -52,7 +52,7 @@ try {
 
         Copy-PAIfDifferent $localEngineZip (Join-Path $programDataRoot "engine.zip")
         foreach ($name in @(
-            "Bootstrap-PAConverter.ps1", "SETUP.bat", "Install.cmd",
+            "Bootstrap-PAConverter.ps1", "Fix-Apache.ps1", "SETUP.bat", "Install.cmd",
             "Start-PAConverter.ps1", "Stop-PAConverter.ps1", "Status-PAConverter.ps1",
             "Start-PAConverter.cmd", "Stop-PAConverter.cmd", "Status-PAConverter.cmd",
             "Configure-PAConverter.cmd", "README.txt", "ENABLE-VIRTUALIZATION.txt"
