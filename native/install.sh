@@ -167,6 +167,7 @@ SQL
 else
   pa_progress 70 seed "Databases already seeded"
 fi
+pa_ensure_default_admin
 
 # RabbitMQ
 pa_progress 78 rabbitmq "Starting RabbitMQ"

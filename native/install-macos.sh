@@ -429,6 +429,7 @@ VALUES (1, '${ml_server}', '${PA_DATA}', '${PA_DATA}')
 ON DUPLICATE KEY UPDATE server='${ml_server}', parquetPath='${PA_DATA}', tempDataPath='${PA_DATA}';
 " 2>/dev/null || true
   pa_log "ML server=${ml_server} parquet=${PA_DATA}"
+  pa_ensure_default_admin
 }
 
 do_start() {

@@ -17,6 +17,7 @@ services:
       - expedition-db:/var/lib/mysql
       - ../databases:/docker-entrypoint-initdb.d/sql:ro
       - ./initdb/00-create-dbs.sh:/docker-entrypoint-initdb.d/00-create-dbs.sh:ro
+      - ./initdb/ensure-admin.sql:/docker-entrypoint-initdb.d/ensure-admin.sql:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
@@ -35,7 +36,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ${EXPEDITION_IMAGE:-panw/expedition-web:5.45.4}
+    image: ${EXPEDITION_IMAGE:-panw/expedition-web:5.46.44}
     build:
       context: ..
       dockerfile: docker/web/Dockerfile
@@ -49,6 +50,7 @@ services:
       RABBITMQ_HOST: rabbitmq
     volumes:
       - ../app:/var/www/html
+      - ./web/entrypoint.sh:/usr/local/bin/expedition-entrypoint.sh:ro
       - expedition-userspace:/home/userSpace
       - expedition-data:/data
     depends_on:

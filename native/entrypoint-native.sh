@@ -70,6 +70,8 @@ mysql -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" pandbRBAC -e \
   "ALTER TABLE users ADD COLUMN IF NOT EXISTS api_key VARCHAR(255) NULL; ALTER TABLE users ADD COLUMN IF NOT EXISTS valid_til TIMESTAMP NULL;" \
   2>/dev/null || true
 
+pa_ensure_default_admin
+
 # Re-set every start: the WSL IP changes on each boot.
 ML_IP="$(pa_ml_ip)"
 
