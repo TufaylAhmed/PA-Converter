@@ -1,6 +1,6 @@
 {
   "name": "@sequr3/pa-converter",
-  "version": "5.46.37",
+  "version": "5.46.38",
   "description": "PA-Converter — Palo Alto Expedition via Podman (macOS/Linux) or WSL native (Windows); no Docker Desktop",
   "license": "UNLICENSED",
   "bin": {

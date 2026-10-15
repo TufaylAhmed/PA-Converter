@@ -127,11 +127,62 @@ pa_service() {
   fi
 }
 
+# Rewrite site + ports.conf (idempotent). Fixes older installs that put Listen in the vhost file.
+pa_ensure_apache_site() {
+  local http_port="${EXPEDITION_HTTP_PORT:-18080}"
+  local https_port="${EXPEDITION_PORT:-18443}"
+  local log_dir="${APACHE_LOG_DIR:-/var/log/apache2}"
+  local site_src="${PA_CONVERTER_ROOT}/native/apache/pa-converter.conf"
+  local site_dst=/etc/apache2/sites-available/pa-converter.conf
+  local ports=/etc/apache2/ports.conf
+
+  mkdir -p "$log_dir" /etc/apache2/sites-available /etc/apache2/sites-enabled
+
+  if [ ! -f "$site_src" ]; then
+    pa_log "WARN: missing $site_src"
+    return 1
+  fi
+
+  sed -e "s/\${EXPEDITION_HTTP_PORT}/${http_port}/g" \
+      -e "s/\${EXPEDITION_PORT}/${https_port}/g" \
+      -e "s|\${APACHE_LOG_DIR}|${log_dir}|g" \
+      "$site_src" > "$site_dst"
+
+  # Strip any Listen lines accidentally left in the vhost (breaks Apache with duplicates)
+  if grep -qE '^\s*Listen\s+' "$site_dst" 2>/dev/null; then
+    pa_log "Removing Listen directives from vhost (must live in ports.conf only)"
+    grep -vE '^\s*Listen\s+' "$site_dst" > "${site_dst}.tmp" && mv "${site_dst}.tmp" "$site_dst"
+  fi
+
+  touch "$ports"
+  if ! grep -qE "^Listen ${http_port}(\\s|\$)" "$ports" 2>/dev/null; then
+    echo "Listen ${http_port}" >> "$ports"
+  fi
+  if ! grep -qE "^Listen ${https_port}(\\s|\$)" "$ports" 2>/dev/null; then
+    echo "Listen ${https_port}" >> "$ports"
+  fi
+
+  # Snakeoil certs for HTTPS
+  if [ ! -f /etc/ssl/certs/ssl-cert-snakeoil.pem ]; then
+    apt-get install -y --no-install-recommends ssl-cert >/dev/null 2>&1 || true
+    make-ssl-cert generate-default-snakeoil >/dev/null 2>&1 || true
+  fi
+
+  a2enmod rewrite ssl headers 2>/dev/null || true
+  a2dissite 000-default default-ssl 2>/dev/null || true
+  a2ensite pa-converter 2>/dev/null || true
+  return 0
+}
+
 # Start Apache reliably on WSL (apache2ctl often shells out to broken systemctl).
 pa_start_apache() {
-  if pgrep -x apache2 >/dev/null 2>&1 || pgrep -x httpd >/dev/null 2>&1; then
-    pa_log "Apache already running"
-    return 0
+  pa_ensure_apache_site || true
+
+  # Stop any half-started instance so a clean start can bind ports
+  if pgrep -x apache2 >/dev/null 2>&1; then
+    pa_log "Stopping existing Apache before clean start"
+    apache2ctl -k stop 2>/dev/null || service apache2 stop 2>/dev/null || pkill apache2 2>/dev/null || true
+    sleep 1
   fi
 
   # shellcheck source=/dev/null
@@ -139,34 +190,50 @@ pa_start_apache() {
   mkdir -p \
     "${APACHE_RUN_DIR:-/var/run/apache2}" \
     "${APACHE_LOCK_DIR:-/var/lock/apache2}" \
+    "${APACHE_PID_DIR:-/var/run/apache2}" \
     "${APACHE_LOG_DIR:-/var/log/apache2}" \
     2>/dev/null || true
+  # Ubuntu packages expect these; WSL fresh boots sometimes miss them
+  export APACHE_PID_FILE="${APACHE_PID_FILE:-/var/run/apache2/apache2.pid}"
+  export APACHE_RUN_DIR="${APACHE_RUN_DIR:-/var/run/apache2}"
+  export APACHE_LOCK_DIR="${APACHE_LOCK_DIR:-/var/lock/apache2}"
+  export APACHE_LOG_DIR="${APACHE_LOG_DIR:-/var/log/apache2}"
+  export APACHE_RUN_USER="${APACHE_RUN_USER:-www-data}"
+  export APACHE_RUN_GROUP="${APACHE_RUN_GROUP:-www-data}"
 
-  if pa_is_wsl; then
-    service apache2 start 2>/dev/null || true
+  local ct
+  ct="$(apache2ctl configtest 2>&1 || true)"
+  if echo "$ct" | grep -qi 'Syntax error\|AH00526\|Cannot load\|SSLCertificate'; then
+    pa_log "Apache configtest FAILED:"
+    echo "$ct" | while IFS= read -r line; do pa_log "  $line"; done
+  else
+    pa_log "Apache configtest: $(echo "$ct" | tail -n 1)"
   fi
 
-  if ! pgrep -x apache2 >/dev/null 2>&1; then
-    # -k bypasses the systemd helper on many Ubuntu builds
-    if command -v apache2ctl >/dev/null 2>&1; then
-      apache2ctl configtest 2>&1 | tail -n 5 || true
-      apache2ctl -k start 2>/dev/null || apache2ctl start 2>/dev/null || true
-    fi
+  # 1) SysV service (best on WSL without systemd)
+  if pa_is_wsl && command -v service >/dev/null 2>&1; then
+    service apache2 start 2>&1 | while IFS= read -r line; do pa_log "service: $line"; done || true
   fi
 
-  if ! pgrep -x apache2 >/dev/null 2>&1; then
-    pa_service start apache2 || pa_service start httpd
-  fi
-
+  # 2) Direct binary -k start (does not go through systemctl)
   if ! pgrep -x apache2 >/dev/null 2>&1 && [ -x /usr/sbin/apache2 ]; then
-    /usr/sbin/apache2 -k start 2>/dev/null || true
+    pa_log "Starting /usr/sbin/apache2 -k start"
+    /usr/sbin/apache2 -k start 2>&1 | while IFS= read -r line; do pa_log "apache2: $line"; done || true
+  fi
+
+  # 3) apache2ctl -k (still better than plain apache2ctl start on WSL)
+  if ! pgrep -x apache2 >/dev/null 2>&1 && command -v apache2ctl >/dev/null 2>&1; then
+    apache2ctl -k start 2>&1 | while IFS= read -r line; do pa_log "apache2ctl: $line"; done || true
   fi
 
   if pgrep -x apache2 >/dev/null 2>&1 || pgrep -x httpd >/dev/null 2>&1; then
-    pa_log "Apache process is up"
+    pa_log "Apache process is up (pids: $(pgrep -x apache2 | tr '\n' ' '))"
     return 0
   fi
-  pa_log "WARN: Apache process not detected after start attempts"
+
+  pa_log "WARN: Apache process not detected. Last error log:"
+  tail -n 30 /var/log/apache2/error.log 2>/dev/null | while IFS= read -r line; do pa_log "  $line"; done || true
+  tail -n 30 /var/log/apache2/pa-converter-ssl-error.log 2>/dev/null | while IFS= read -r line; do pa_log "  $line"; done || true
   return 1
 }
 

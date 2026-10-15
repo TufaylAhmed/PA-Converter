@@ -117,34 +117,14 @@ if [ -d "$PA_CONVERTER_ROOT/app" ]; then
 fi
 chown -R www-data:www-data "$PA_WWW" "$PA_USERSPACE" "$PA_DATA" "$PA_PALOGS" 2>/dev/null || true
 
-# Apache site on Expedition ports
+# Apache site on Expedition ports (Listen only in ports.conf — never in the vhost)
 pa_progress 55 apache-site "Enabling pa-converter Apache site"
 APACHE_LOG_DIR="${APACHE_LOG_DIR:-/var/log/apache2}"
 export APACHE_LOG_DIR
-mkdir -p "$APACHE_LOG_DIR"
-SITE_SRC="$SCRIPT_DIR/apache/pa-converter.conf"
-SITE_DST=/etc/apache2/sites-available/pa-converter.conf
-if [ ! -f "$SITE_SRC" ]; then
-  pa_log "ERROR: missing Apache site template: $SITE_SRC"
-  exit 1
-fi
-sed -e "s/\${EXPEDITION_HTTP_PORT}/${EXPEDITION_HTTP_PORT}/g" \
-    -e "s/\${EXPEDITION_PORT}/${EXPEDITION_PORT}/g" \
-    -e "s|\${APACHE_LOG_DIR}|${APACHE_LOG_DIR}|g" \
-    "$SITE_SRC" > "$SITE_DST"
-# Disable default sites that steal :80/:443 if present
-a2dissite 000-default default-ssl 2>/dev/null || true
-a2ensite pa-converter || {
-  pa_log "ERROR: a2ensite pa-converter failed"
+pa_ensure_apache_site || {
+  pa_log "ERROR: failed to configure Apache site"
   exit 1
 }
-# Ensure ports are not only 80/443
-if ! grep -q "Listen ${EXPEDITION_HTTP_PORT}" /etc/apache2/ports.conf 2>/dev/null; then
-  echo "Listen ${EXPEDITION_HTTP_PORT}" >> /etc/apache2/ports.conf
-fi
-if ! grep -q "Listen ${EXPEDITION_PORT}" /etc/apache2/ports.conf 2>/dev/null; then
-  echo "Listen ${EXPEDITION_PORT}" >> /etc/apache2/ports.conf
-fi
 
 # MariaDB root password + seed DBs once
 pa_progress 60 mariadb "Starting MariaDB and setting root password"
