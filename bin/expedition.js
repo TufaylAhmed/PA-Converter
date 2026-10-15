@@ -438,12 +438,13 @@ function cmdPodmanStart() {
   if (!hasImg || force) {
     console.log(
       force
-        ? '(forcing image rebuild — several minutes)'
-        : '(first run builds the web image — several minutes; later starts skip this)'
+        ? '  [####----------------] build  forcing image rebuild (several minutes)…'
+        : '  [####----------------] build  first run — building web image (several minutes)…'
     );
     podmanCompose(['up', '-d', '--build']);
+    console.log('  [####################] build  image ready');
   } else {
-    console.log(`(reusing image ${WEB_IMAGE} — pass --build to rebuild)`);
+    console.log(`  [####################] start  reusing ${WEB_IMAGE} (pass --build to rebuild)`);
     podmanCompose(['up', '-d']);
   }
   syncSparkRam('podman');

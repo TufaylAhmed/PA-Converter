@@ -13,7 +13,13 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 export DEBIAN_FRONTEND=noninteractive
+# Line-buffer stdout so Windows SETUP sees progress live
+if command -v stdbuf >/dev/null 2>&1; then
+  export PYTHONUNBUFFERED=1
+fi
+
 pa_ensure_dirs
+pa_progress 2 bootstrap "Starting native install"
 pa_log "Installing native stack into PA_CONVERTER_ROOT=$PA_CONVERTER_ROOT"
 
 . /etc/os-release
@@ -24,7 +30,10 @@ if [ "${ID:-}" != "ubuntu" ] && [ "${ID:-}" != "debian" ]; then
   pa_log "WARN: untested distro id=${ID:-unknown}; continuing with apt"
 fi
 
+pa_progress 8 apt-update "Updating apt package lists"
 apt-get update -y
+
+pa_progress 18 apt-base "Installing Apache, MariaDB, RabbitMQ, Java (several minutes)…"
 apt-get install -y --no-install-recommends \
   ca-certificates curl gnupg lsb-release software-properties-common apt-transport-https \
   apache2 libapache2-mod-php rsync \
@@ -42,7 +51,7 @@ if php -v 2>/dev/null | grep -qE 'PHP 7\.4'; then
 fi
 
 if [ "$PHP_OK" -ne 1 ]; then
-  pa_log "Installing PHP 7.4 from ondrej/php PPA…"
+  pa_progress 35 php "Installing PHP 7.4 from ondrej/php PPA…"
   apt-get install -y --no-install-recommends software-properties-common
   add-apt-repository -y ppa:ondrej/php || true
   apt-get update -y
@@ -58,12 +67,14 @@ if [ "$PHP_OK" -ne 1 ]; then
   a2enmod php7.4 2>/dev/null || true
   update-alternatives --set php /usr/bin/php7.4 2>/dev/null || true
 else
+  pa_progress 35 php "Installing PHP MySQL/GD extensions…"
   apt-get install -y --no-install-recommends \
     php-mysql php-gd php-soap php-zip php-bz2 php-ldap php-bcmath php-curl php-xml php-mbstring \
     2>/dev/null || apt-get install -y --no-install-recommends \
     php7.4-mysql php7.4-gd php7.4-soap php7.4-zip php7.4-bz2 php7.4-ldap php7.4-bcmath php7.4-curl
 fi
 
+pa_progress 45 apache "Configuring Apache HTTPS ports"
 a2enmod rewrite ssl headers 2>/dev/null || true
 # snakeoil certs for HTTPS
 if [ ! -f /etc/ssl/certs/ssl-cert-snakeoil.pem ]; then
@@ -88,6 +99,7 @@ log_errors = On
 EOF
 
 # Sync app into docroot
+pa_progress 52 sync "Syncing Expedition web app"
 pa_log "Syncing app → $PA_WWW"
 if [ -d "$PA_CONVERTER_ROOT/app" ]; then
   rsync -a --delete "$PA_CONVERTER_ROOT/app/" "$PA_WWW/" 2>/dev/null \
@@ -116,6 +128,7 @@ if ! grep -q "Listen ${EXPEDITION_PORT}" /etc/apache2/ports.conf 2>/dev/null; th
 fi
 
 # MariaDB root password + seed DBs once
+pa_progress 60 mariadb "Starting MariaDB and setting root password"
 pa_service start mariadb || pa_service start mysql
 sleep 2
 
@@ -131,6 +144,7 @@ mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "
 
 SEED_MARKER="$PA_DATA_ROOT/db-seeded"
 if [ ! -f "$SEED_MARKER" ]; then
+  pa_progress 70 seed "Seeding Expedition databases"
   pa_log "Seeding Expedition databases…"
   export MYSQL_ROOT_PASSWORD
   SQL_DIR="$PA_CONVERTER_ROOT/databases"
@@ -154,12 +168,16 @@ SQL
     "INSERT IGNORE INTO ml_settings (id, server) VALUES (1, '127.0.0.1');" 2>/dev/null || true
   touch "$SEED_MARKER"
   pa_log "Databases seeded."
+else
+  pa_progress 70 seed "Databases already seeded"
 fi
 
 # RabbitMQ
+pa_progress 78 rabbitmq "Starting RabbitMQ"
 pa_service start rabbitmq-server || true
 
 # Spark 2.4.3 (GitHub CDN preferred; Apache archive last)
+pa_progress 82 spark "Installing Spark 2.4.3 (download ~230MB if needed)…"
 pa_detect_java
 pa_install_spark "/" || true
 mkdir -p /opt/Spark/extraLibraries
@@ -170,6 +188,7 @@ chmod -R a+rX /opt/Spark 2>/dev/null || true
 rm -f /opt/Spark/spark/jars/log4j-1.2.17.jar 2>/dev/null || true
 
 # BPA pip helpers (best-effort)
+pa_progress 92 extras "Installing Python helpers"
 pip3 install --no-cache-dir 'lxml' 2>/dev/null || true
 
 # Environment profile for interactive shells
@@ -183,5 +202,6 @@ export RABBITMQ_HOST=127.0.0.1
 EOF
 
 touch "$PA_MARKER"
+pa_progress 96 done "Native install complete"
 pa_log "Native install complete."
 pa_log "Start with: sudo $SCRIPT_DIR/start.sh"

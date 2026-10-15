@@ -182,7 +182,11 @@ try {
   Set-PAState $state
 
   Write-PALog "Provisioning native Expedition inside WSL (apt packages + Spark; no Docker)..."
-  $code = Invoke-PAWsl -ScriptName "provision.sh"
+  Write-Host ""
+  Write-Host "  Installing native stack in WSL (live progress below)." -ForegroundColor Cyan
+  Write-Host "  First run often takes 10–20 minutes (apt + Spark download)." -ForegroundColor DarkGray
+  Write-Host ""
+  $code = Invoke-PAWsl -ScriptName "provision.sh" -StreamProgress
   if ($code -ne 0) {
     throw "Provisioning failed (exit $code). See $(Get-PALogPath) and transcript $transcript"
   }

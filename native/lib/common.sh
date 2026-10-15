@@ -47,6 +47,30 @@ export JAVA_HOME="${JAVA_HOME:-}"
 
 pa_log() { echo "[pa-converter] $*"; }
 
+# Emit install progress for Windows SETUP (Write-Progress) and console bar.
+# Usage: pa_progress <0-100> <phase_id> <human message...>
+pa_progress() {
+  local pct="${1:-0}"
+  local phase="${2:-work}"
+  shift 2 || true
+  local msg="${*:-working}"
+  case "$pct" in
+    ''|*[!0-9]*) pct=0 ;;
+  esac
+  if [ "$pct" -gt 100 ]; then pct=100; fi
+  if [ "$pct" -lt 0 ]; then pct=0; fi
+  local filled=$((pct / 5))
+  local empty=$((20 - filled))
+  local bar
+  bar="$(printf '%*s' "$filled" '' | tr ' ' '#')"
+  bar="${bar}$(printf '%*s' "$empty" '' | tr ' ' '-')"
+  # Machine-readable for PowerShell / piped SETUP (skip on interactive TTY)
+  if [ ! -t 1 ] || [ -n "${PA_PROGRESS_MACHINE:-}" ]; then
+    printf 'PA_PROGRESS|%s|%s|%s\n' "$pct" "$phase" "$msg"
+  fi
+  printf '[pa-converter] [%s] %3d%%  %s\n' "$bar" "$pct" "$msg"
+}
+
 pa_ensure_dirs() {
   mkdir -p "$PA_DATA_ROOT" "$PA_LOG_DIR" "$PA_USERSPACE" "$PA_DATA" "$PA_PALOGS" "$PA_WWW"
 }
@@ -121,11 +145,13 @@ pa_install_spark() {
   local tgz=""
 
   if [ -f "$bundle" ] && [ "$(wc -c < "$bundle" | tr -d ' ')" -gt 1000000 ]; then
+    pa_progress 84 spark "Using local Spark bundle"
     pa_log "Using local Spark bundle ($bundle)"
     tgz="$bundle"
   else
     local dest="$cache/opt-Spark.tar.gz"
     for url in "$gh_asset" "$gh_latest"; do
+      pa_progress 85 spark "Downloading Spark from GitHub (~230MB)…"
       pa_log "Downloading Spark from GitHub CDN…"
       pa_log "  $url"
       if curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 \
@@ -138,6 +164,7 @@ pa_install_spark() {
     done
     if [ -z "$tgz" ]; then
       dest="$cache/spark-2.4.3-bin-hadoop2.7.tgz"
+      pa_progress 86 spark "Downloading Spark from Apache archive (slow)…"
       pa_log "GitHub asset missing — falling back to Apache archive (often slow)…"
       pa_log "  $apache"
       if curl -fL --retry 5 --retry-delay 5 --connect-timeout 30 \
@@ -153,6 +180,7 @@ pa_install_spark() {
     return 1
   fi
 
+  pa_progress 90 spark "Extracting Spark…"
   pa_log "Extracting Spark…"
   # Bundled opt-Spark.tar.gz paths are opt/Spark/... ; Apache tarball is top-level spark-2.4.3-...
   local first

@@ -706,11 +706,93 @@ See $(Get-PALogPath) for details.
   }
 }
 
+function Show-PAInstallProgress {
+  param(
+    [int]$PercentComplete = 0,
+    [string]$Status = "Working…",
+    [string]$Activity = "PA-Converter install"
+  )
+  if ($PercentComplete -lt 0) { $PercentComplete = 0 }
+  if ($PercentComplete -gt 100) { $PercentComplete = 100 }
+  $filled = [Math]::Floor($PercentComplete / 5)
+  $bar = ("#" * $filled).PadRight(20, "-")
+  # Single updating line (console progress bar)
+  Write-Host ("`r  [{0}] {1,3}%  {2}" -f $bar, $PercentComplete, $Status).PadRight(110) -NoNewline
+  try {
+    Write-Progress -Activity $Activity -Status $Status -PercentComplete $PercentComplete
+  } catch {}
+}
+
 function Invoke-PAWsl {
-  param([Parameter(Mandatory)][string]$ScriptName)
+  param(
+    [Parameter(Mandatory)][string]$ScriptName,
+    [switch]$StreamProgress
+  )
   $distro = Get-PADistroName
-  $envLine = "export PA_CONVERTER_ROOT=/opt/pa-converter EXPEDITION_PORT=18443 EXPEDITION_HTTP_PORT=18080"
+  $envLine = "export PA_CONVERTER_ROOT=/opt/pa-converter EXPEDITION_PORT=18443 EXPEDITION_HTTP_PORT=18080 PYTHONUNBUFFERED=1"
   Write-PALog "WSL[$distro] running $ScriptName ..."
+
+  # Stream provision/install so SETUP shows a live progress bar (not one dump at the end).
+  if ($StreamProgress -or $ScriptName -eq "provision.sh") {
+    # Merge stderr→stdout inside bash so one sync ReadLine loop cannot deadlock.
+    # provision.sh already line-buffers install.sh via stdbuf when available.
+    # PA_PROGRESS_MACHINE=1 forces markers even if WSL thinks stdout is a TTY
+    $bashLc = "$envLine; export PA_PROGRESS_MACHINE=1; bash /opt/pa-converter/wsl/$ScriptName 2>&1"
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = "wsl.exe"
+    $psi.Arguments = "-d `"$distro`" -u root -- bash -lc `"$bashLc`""
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $false
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding $false
+
+    $proc = New-Object System.Diagnostics.Process
+    $proc.StartInfo = $psi
+    $logBuf = New-Object System.Text.StringBuilder
+    $lastPct = -1
+
+    [void]$proc.Start()
+    Show-PAInstallProgress -PercentComplete 0 -Status "Starting WSL provision…"
+
+    while ($null -ne ($line = $proc.StandardOutput.ReadLine())) {
+      [void]$logBuf.AppendLine($line)
+      if ($line -match '^PA_PROGRESS\|(\d+)\|([^|]*)\|(.*)$') {
+        $pct = [int]$Matches[1]
+        $msg = $Matches[3].Trim()
+        if (-not $msg) { $msg = $Matches[2] }
+        $lastPct = $pct
+        Show-PAInstallProgress -PercentComplete $pct -Status $msg
+        Write-PALog ("[{0}%] {1}" -f $pct, $msg)
+      } elseif ($line -match '^\[pa-converter\]' -and $line -notmatch '^\[pa-converter\] \[') {
+        # Human log lines (skip duplicate bash progress-bar lines)
+        Write-Host ""
+        Write-Host "  $line" -ForegroundColor DarkCyan
+        Write-PALog $line
+        if ($lastPct -ge 0) {
+          Show-PAInstallProgress -PercentComplete $lastPct -Status "(see log above)"
+        }
+      } else {
+        Write-PALog $line
+      }
+    }
+
+    $proc.WaitForExit()
+    $code = [int]$proc.ExitCode
+    Write-Host ""
+    try { Write-Progress -Activity "PA-Converter install" -Completed } catch {}
+    if ($code -eq 0) {
+      Show-PAInstallProgress -PercentComplete 100 -Status "Complete"
+      Write-Host ""
+    } else {
+      Write-Host ("  Install failed (exit {0}). Full log: {1}" -f $code, (Get-PALogPath)) -ForegroundColor Red
+      $full = $logBuf.ToString()
+      if ($full) { Write-PALog $full }
+    }
+    return $code
+  }
+
   # Capture stdout so PowerShell does not treat wsl output as the function return value
   $r = Invoke-PAWslExe -WslArgs @(
     "-d", $distro, "-u", "root", "--",
