@@ -70,14 +70,8 @@ mysql -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" pandbRBAC -e \
   "ALTER TABLE users ADD COLUMN IF NOT EXISTS api_key VARCHAR(255) NULL; ALTER TABLE users ADD COLUMN IF NOT EXISTS valid_til TIMESTAMP NULL;" \
   2>/dev/null || true
 
-# Native: ML agent runs on same host — use a non-loopback IP if available (checkAlive treats 127.0.0.1 as unset)
-ML_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
-if [ -z "${ML_IP}" ] || [ "${ML_IP}" = "127.0.0.1" ]; then
-  ML_IP="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src"){print $(i+1); exit}}')"
-fi
-if [ -z "${ML_IP}" ]; then
-  ML_IP="127.0.0.1"
-fi
+# Re-set every start: the WSL IP changes on each boot.
+ML_IP="$(pa_ml_ip)"
 
 mysql -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" pandbRBAC -e \
   "INSERT INTO ml_settings (id, server, parquetPath, tempDataPath) VALUES (1, '${ML_IP}', '/data', '/data')
@@ -106,19 +100,24 @@ for cand in "$PA_WWW/console/messaging/readOrders.php" /var/www/html/console/mes
 done
 
 if [ -n "$WWW_CONSOLE" ]; then
-  pa_log "Starting panReadOrders agent (RabbitMQ=${RABBITMQ_HOST})…"
+  # The agent exits immediately if RabbitMQ is not accepting connections yet.
+  if ! pa_wait_port 5672 60; then
+    pa_log "WARN: RabbitMQ is not listening on 5672 - the agent may exit"
+  fi
+  pa_log "Starting panReadOrders agent (RabbitMQ=${RABBITMQ_HOST})..."
   : > "$PA_USERSPACE/panReadOrders.log"
   chown www-data:www-data "$PA_USERSPACE/panReadOrders.log" 2>/dev/null || true
-  # Kill prior agent if any
   pkill -f 'php .*readOrders.php' 2>/dev/null || true
-  if id www-data >/dev/null 2>&1; then
-    su -s /bin/bash www-data -c \
-      "export RABBITMQ_HOST='${RABBITMQ_HOST}'; export JAVA_HOME='${JAVA_HOME:-}'; export SPARK_HOME='${SPARK_HOME:-}'; export PATH='${PATH}'; exec php '${WWW_CONSOLE}' >> '${PA_USERSPACE}/panReadOrders.log' 2>&1" &
-  else
-    (
-      export RABBITMQ_HOST JAVA_HOME SPARK_HOME PATH
-      exec php "$WWW_CONSOLE" >> "$PA_USERSPACE/panReadOrders.log" 2>&1
-    ) &
-  fi
+  # setsid: detach from the wsl.exe session so the agent survives that session ending.
+  setsid su -s /bin/bash www-data -c \
+    "export RABBITMQ_HOST='${RABBITMQ_HOST}'; export JAVA_HOME='${JAVA_HOME:-}'; export SPARK_HOME='${SPARK_HOME:-}'; export PATH='${PATH}'; exec php '${WWW_CONSOLE}' >> '${PA_USERSPACE}/panReadOrders.log' 2>&1" \
+    < /dev/null > /dev/null 2>&1 &
   echo $! > "$PA_DATA_ROOT/panReadOrders.pid"
+  sleep 3
+  if pgrep -f 'php .*readOrders.php' >/dev/null 2>&1; then
+    pa_log "panReadOrders agent is running."
+  else
+    pa_log "WARN: panReadOrders agent exited. Last log lines:"
+    tail -n 15 "$PA_USERSPACE/panReadOrders.log" 2>/dev/null | pa_log_lines || true
+  fi
 fi

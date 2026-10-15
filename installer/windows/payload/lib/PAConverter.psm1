@@ -730,11 +730,54 @@ function Show-PAInstallProgress {
   # fail Import-Module before any setup.log is written.
   if ($PercentComplete -lt 0) { $PercentComplete = 0 }
   if ($PercentComplete -gt 100) { $PercentComplete = 100 }
+  if (-not $script:PAInstallClock) { $script:PAInstallClock = [Diagnostics.Stopwatch]::StartNew() }
+  $script:PAStepClock = [Diagnostics.Stopwatch]::StartNew()
+  $script:PAStepStatus = $Status
+  $script:PAStepPct = $PercentComplete
   $filled = [Math]::Floor($PercentComplete / 5)
   $bar = ("#" * $filled).PadRight(20, "-")
-  Write-Host ("`r  [{0}] {1,3}%  {2}" -f $bar, $PercentComplete, $Status).PadRight(110) -NoNewline
+  Write-Host ("  [{0}] {1,3}%  {2}  {3}" -f $bar, $PercentComplete, (Format-PAElapsed $script:PAInstallClock.Elapsed), $Status)
+  Update-PAInstallHeartbeat -Activity $Activity
+}
+
+function Format-PAElapsed([TimeSpan]$t) {
+  return ("{0:00}:{1:00}" -f [Math]::Floor($t.TotalMinutes), $t.Seconds)
+}
+
+# Refresh the progress banner so long silent steps still show time moving.
+function Update-PAInstallHeartbeat {
+  param([string]$Activity = "PA-Converter install")
+  if (-not $script:PAInstallClock) { return }
+  $total = Format-PAElapsed $script:PAInstallClock.Elapsed
+  $step = if ($script:PAStepClock) { Format-PAElapsed $script:PAStepClock.Elapsed } else { "00:00" }
   try {
-    Write-Progress -Activity $Activity -Status $Status -PercentComplete $PercentComplete
+    Write-Progress -Activity "$Activity - elapsed $total" `
+      -Status ("{0}  (this step {1})" -f $script:PAStepStatus, $step) `
+      -PercentComplete ([int]$script:PAStepPct)
+  } catch {}
+}
+
+# QuickEdit pauses all console output after a click until a key is pressed.
+function Disable-PAQuickEdit {
+  try {
+    if (-not ("PAConsoleMode" -as [type])) {
+      Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class PAConsoleMode {
+  [DllImport("kernel32.dll")] public static extern IntPtr GetStdHandle(int h);
+  [DllImport("kernel32.dll")] public static extern bool GetConsoleMode(IntPtr h, out uint m);
+  [DllImport("kernel32.dll")] public static extern bool SetConsoleMode(IntPtr h, uint m);
+  public static void DisableQuickEdit() {
+    IntPtr h = GetStdHandle(-10);
+    uint m;
+    if (!GetConsoleMode(h, out m)) return;
+    SetConsoleMode(h, (m & ~0x40u) | 0x80u);
+  }
+}
+"@
+    }
+    [PAConsoleMode]::DisableQuickEdit()
   } catch {}
 }
 
@@ -811,7 +854,18 @@ function Invoke-PAWsl {
       Show-PAInstallProgress -PercentComplete 0 -Status "Starting WSL provision..."
       Write-PALog ("wsl argv: " + $psi.Arguments)
 
-      while ($null -ne ($line = $proc.StandardOutput.ReadLine())) {
+      # Async reads with a 1s timeout so the elapsed-time banner keeps updating during
+      # silent steps (Spark download, pip builds).
+      $pending = $proc.StandardOutput.ReadLineAsync()
+      while ($true) {
+        if (-not $pending.Wait(1000)) {
+          Update-PAInstallHeartbeat
+          continue
+        }
+        $line = $pending.Result
+        if ($null -eq $line) { break }
+        $pending = $proc.StandardOutput.ReadLineAsync()
+
         $line = ConvertFrom-PAWslText $line
         [void]$logBuf.AppendLine($line)
         if ($line -match '^PA_PROGRESS\|(\d+)\|([^|]*)\|(.*)$') {
@@ -822,14 +876,12 @@ function Invoke-PAWsl {
           Show-PAInstallProgress -PercentComplete $pct -Status $msg
           Write-PALog ("[{0}%] {1}" -f $pct, $msg)
         } elseif ($line -match '^\[pa-converter\]' -and $line -notmatch '^\[pa-converter\] \[') {
-          Write-Host ""
-          Write-Host "  $line" -ForegroundColor DarkCyan
+          Write-Host ("        {0}" -f ($line -replace '^\[pa-converter\]\s*', '')) -ForegroundColor DarkCyan
           Write-PALog $line
-          if ($lastPct -ge 0) {
-            Show-PAInstallProgress -PercentComplete $lastPct -Status "(see log above)"
-          }
+          Update-PAInstallHeartbeat
         } else {
           Write-PALog $line
+          Update-PAInstallHeartbeat
         }
       }
 
@@ -845,12 +897,11 @@ function Invoke-PAWsl {
       }
 
       $code = [int]$proc.ExitCode
-      Write-Host ""
       try { Write-Progress -Activity "PA-Converter install" -Completed } catch {}
 
       if ($code -eq 0) {
-        Show-PAInstallProgress -PercentComplete 100 -Status "Complete"
-        Write-Host ""
+        $total = if ($script:PAInstallClock) { Format-PAElapsed $script:PAInstallClock.Elapsed } else { "" }
+        Write-Host ("  Done in {0}." -f $total) -ForegroundColor Green
         return 0
       }
 

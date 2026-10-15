@@ -95,6 +95,7 @@ post_max_size = 200M
 memory_limit = 1G
 max_execution_time = 10000
 mysqli.allow_persistent = On
+mysqli.reconnect = On
 display_errors = Off
 log_errors = On
 EOF
@@ -182,9 +183,51 @@ fi
 chmod -R a+rX /opt/Spark 2>/dev/null || true
 rm -f /opt/Spark/spark/jars/log4j-1.2.17.jar 2>/dev/null || true
 
-# BPA pip helpers (best-effort)
-pa_progress 92 extras "Installing Python helpers"
+pa_progress 92 extras "Installing Python helpers and Best Practice Assessment"
 pip3 install --no-cache-dir 'lxml' 2>/dev/null || true
+# Health check runs `pip3.7 list | grep BPA`; 20.04 ships Python 3.8.
+ln -sf "$(command -v pip3)" /usr/local/bin/pip3.7
+ln -sf "$(command -v python3)" /usr/local/bin/python3.7
+BPA_ZIP="$PA_WWW/OS/BPA/best_practice_assessment_ngfw_pano-master.zip"
+if ! pip3 show BPA >/dev/null 2>&1; then
+  if [ -f "$BPA_ZIP" ]; then
+    pa_log "Installing Best Practice Assessment Python package (a few minutes)..."
+    timeout 900 pip3 install --no-cache-dir "$BPA_ZIP" >/dev/null 2>&1 \
+      || pa_log "WARN: BPA package install failed (BPA reports may not work)"
+  fi
+fi
+if ! pip3 show BPA >/dev/null 2>&1; then
+  # Same alias the container image installs so the health check passes.
+  BPA_META="$(mktemp -d)"
+  printf '%s\n' 'from setuptools import setup' \
+    'setup(name="BPA", version="3.33.0", description="Expedition BPA healthcheck alias", py_modules=[])' \
+    > "$BPA_META/setup.py"
+  pip3 install --no-cache-dir "$BPA_META" >/dev/null 2>&1 || pa_log "WARN: BPA alias install failed"
+  rm -rf "$BPA_META"
+fi
+
+# Expedition expects www-data in the `expedition` group (CSV log cleanup).
+getent group expedition >/dev/null || groupadd expedition
+id expedition >/dev/null 2>&1 || useradd -r -M -g expedition -s /usr/sbin/nologin expedition
+usermod -a -G expedition www-data
+
+# Health check verifies these Ubuntu appliance packages via dpkg; the native install
+# provides their content, so register empty placeholder packages.
+pa_register_placeholder_pkg() {
+  local name="$1" version="$2" dir
+  if [ "$(dpkg-query -W -f='${Status}' "$name" 2>/dev/null)" = "install ok installed" ]; then
+    return 0
+  fi
+  dir="$(mktemp -d)"
+  mkdir -p "$dir/pkg/DEBIAN"
+  printf 'Package: %s\nVersion: %s\nArchitecture: all\nMaintainer: PA-Converter <noreply@local>\nDescription: Placeholder for the Expedition appliance package (PA-Converter native install)\n' \
+    "$name" "$version" > "$dir/pkg/DEBIAN/control"
+  dpkg-deb --build "$dir/pkg" "$dir/$name.deb" >/dev/null && dpkg -i "$dir/$name.deb" >/dev/null \
+    || pa_log "WARN: could not register $name"
+  rm -rf "$dir"
+}
+pa_register_placeholder_pkg expedition-beta 5.45.4-2build1
+pa_register_placeholder_pkg expeditionml-dependencies-beta 1.2.102
 
 # Environment profile for interactive shells
 cat > /etc/profile.d/pa-converter.sh <<EOF

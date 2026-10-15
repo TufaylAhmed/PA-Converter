@@ -24,6 +24,7 @@ try {
 try {
   Import-Module (Join-Path $here "lib\PAConverter.psm1") -Force
   try { Add-Content -Path $bootLog -Value ("{0:u} module imported OK" -f (Get-Date)) -Encoding utf8 } catch {}
+  Disable-PAQuickEdit
 
   # Portable ZIP: scripts sit next to engine.zip; runtime home is ProgramData.
   function Get-PAFullPath([string]$p) {

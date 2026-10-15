@@ -132,6 +132,15 @@ pa_service() {
 
 # Ubuntu 20.04 names the MariaDB init script `mysql`; newer releases use `mariadb`.
 pa_start_mariadb() {
+  # Spark jobs connect to <ML IP>:3306, so MariaDB must not be loopback-only.
+  local cnf=/etc/mysql/mariadb.conf.d/99-pa-converter.cnf
+  if [ -d /etc/mysql/mariadb.conf.d ] && [ ! -f "$cnf" ]; then
+    printf '[mysqld]\nbind-address = 0.0.0.0\n' > "$cnf"
+    if mysqladmin --protocol=tcp -h127.0.0.1 ping >/dev/null 2>&1; then
+      pa_log "Restarting MariaDB to listen beyond loopback"
+      pa_service restart mariadb || pa_service restart mysql || true
+    fi
+  fi
   if ! mysqladmin --protocol=tcp -h127.0.0.1 ping >/dev/null 2>&1; then
     pa_service start mariadb || pa_service start mysql || true
   fi
@@ -174,13 +183,20 @@ pa_ensure_apache_site() {
     grep -vE '^\s*Listen\s+' "$site_dst" > "${site_dst}.tmp" && mv "${site_dst}.tmp" "$site_dst"
   fi
 
-  touch "$ports"
-  if ! grep -qE "^Listen ${http_port}(\\s|\$)" "$ports" 2>/dev/null; then
-    echo "Listen ${http_port}" >> "$ports"
-  fi
-  if ! grep -qE "^Listen ${https_port}(\\s|\$)" "$ports" 2>/dev/null; then
-    echo "Listen ${https_port}" >> "$ports"
-  fi
+  # Own ports.conf entirely: Ubuntu's default Listen 80/443 have no SSL vhost behind them.
+  # Expedition calls its ML API at https://<ML IP>/ (port 443, no port allowed because
+  # Spark also uses <ML IP>:3306), so serve 443 on that IP only - binding it on all
+  # addresses would make WSL forward Windows' port 443.
+  local ml_ip
+  ml_ip="$(pa_ml_ip)"
+  {
+    echo "# Managed by PA-Converter"
+    echo "Listen ${http_port}"
+    echo "Listen ${https_port}"
+    if [ -n "$ml_ip" ] && [ "$ml_ip" != "127.0.0.1" ]; then
+      echo "Listen ${ml_ip}:443"
+    fi
+  } > "$ports"
 
   # Snakeoil certs for HTTPS
   if [ ! -f /etc/ssl/certs/ssl-cert-snakeoil.pem ]; then
@@ -192,6 +208,16 @@ pa_ensure_apache_site() {
   a2dissite 000-default default-ssl 2>/dev/null || true
   a2ensite pa-converter 2>/dev/null || true
   return 0
+}
+
+# Non-loopback address Expedition stores as its ML server (checkAlive treats 127.0.0.1 as unset).
+pa_ml_ip() {
+  local ip
+  ip="$(hostname -I 2>/dev/null | awk '{print $1}')"
+  if [ -z "$ip" ] || [ "$ip" = "127.0.0.1" ]; then
+    ip="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src"){print $(i+1); exit}}')"
+  fi
+  echo "${ip:-127.0.0.1}"
 }
 
 pa_log_lines() {
@@ -214,12 +240,19 @@ pa_start_apache() {
     return 1
   fi
 
+  # Full stop/start, not graceful: a graceful reload cannot rebind changed Listen
+  # addresses (EADDRINUSE) and leaves Apache dead.
   if pgrep -x apache2 >/dev/null 2>&1; then
-    pa_log "Apache already running - reloading config"
-    out="$(apache2ctl -k graceful 2>&1)" || true
-  else
-    out="$(apache2ctl -k start 2>&1)" || true
+    pa_log "Restarting Apache to apply config"
+    apache2ctl -k stop >/dev/null 2>&1 || true
+    local i
+    for i in $(seq 1 15); do
+      pgrep -x apache2 >/dev/null 2>&1 || break
+      sleep 1
+    done
+    pkill -9 -x apache2 2>/dev/null || true
   fi
+  out="$(apache2ctl -k start 2>&1)" || true
   [ -n "$out" ] && printf '%s\n' "$out" | pa_log_lines
   sleep 1
 
@@ -261,7 +294,10 @@ pa_install_spark() {
   local spark_dir="${root%/}/opt/Spark"
   mkdir -p "$spark_dir"
 
-  if [ -x "${spark_home_link}/bin/spark-submit" ]; then
+  # Older installs extracted the bare Apache tarball (no Expedition defaults/packages);
+  # only treat Spark as installed when the full bundle layout is present.
+  if [ -x "${spark_home_link}/bin/spark-submit" ] && [ -d "${spark_dir}/packages" ] \
+     && [ -f "${spark_dir}/spark-defaults.conf" ]; then
     export SPARK_HOME="$spark_home_link"
     return 0
   fi
