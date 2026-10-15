@@ -729,16 +729,55 @@ function Register-PARunOnce {
   Write-PALog "Registered RunOnce to continue setup after reboot."
 }
 
+function Test-PAEngineIsNative {
+  param([string]$EngineDir)
+  $provision = Join-Path $EngineDir "wsl\provision.sh"
+  $nativeInstall = Join-Path $EngineDir "native\install.sh"
+  if (-not (Test-Path $nativeInstall)) { return $false }
+  if (-not (Test-Path $provision)) { return $false }
+  $text = Get-Content -LiteralPath $provision -Raw -ErrorAction SilentlyContinue
+  if (-not $text) { return $false }
+  # Old engines run docker compose ("Building and starting Expedition")
+  if ($text -match 'docker compose|docker-compose|Building and starting Expedition') {
+    return $false
+  }
+  if ($text -match 'native/install\.sh|native stack|Installing packages \+ Spark') {
+    return $true
+  }
+  return $false
+}
+
 function Expand-PAEngine {
   param([string]$InstallRoot)
   $zip = Join-Path $InstallRoot "engine.zip"
   $engine = Join-Path $InstallRoot "engine"
   $nativeMarker = Join-Path $engine "native\install.sh"
   $compose = Join-Path $engine "docker\docker-compose.yml"
+  $provision = Join-Path $engine "wsl\provision.sh"
+
+  $needExtract = $true
   if ((Test-Path $nativeMarker) -or (Test-Path $compose)) {
-    Write-PALog "Engine already extracted."
+    $needExtract = $false
+    if (Test-Path $zip) {
+      $zipTime = (Get-Item -LiteralPath $zip).LastWriteTimeUtc
+      $probe = if (Test-Path $provision) { $provision } elseif (Test-Path $nativeMarker) { $nativeMarker } else { $compose }
+      $engTime = (Get-Item -LiteralPath $probe).LastWriteTimeUtc
+      if ($zipTime -gt $engTime.AddSeconds(5)) {
+        Write-PALog "engine.zip is newer than extracted engine — re-extracting..."
+        $needExtract = $true
+      }
+    }
+    if (-not (Test-PAEngineIsNative -EngineDir $engine)) {
+      Write-PALog "Extracted engine still uses Docker Compose provision — re-extracting native engine..."
+      $needExtract = $true
+    }
+  }
+
+  if (-not $needExtract) {
+    Write-PALog "Engine already extracted (native)."
     return
   }
+
   if (-not (Test-Path $zip)) {
     throw "engine.zip missing at $zip"
   }
@@ -766,10 +805,13 @@ function Expand-PAEngine {
       Remove-Item $sub.FullName -Recurse -Force
     }
   }
-  if (-not (Test-Path $nativeMarker) -and -not (Test-Path $compose)) {
-    throw "After extract, native/install.sh (or docker-compose.yml) still missing under $engine"
+  if (-not (Test-Path $nativeMarker)) {
+    throw "After extract, native/install.sh still missing under $engine (need a native engine.zip)."
   }
-  Write-PALog "Engine extract OK."
+  if (-not (Test-PAEngineIsNative -EngineDir $engine)) {
+    throw "engine.zip still contains Docker-based wsl/provision.sh. Rebuild MSI/portable with stage-payload.ps1."
+  }
+  Write-PALog "Engine extract OK (native provision)."
 }
 
 Export-ModuleMember -Function *
