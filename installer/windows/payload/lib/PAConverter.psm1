@@ -210,7 +210,7 @@ Setup will stop with clear instructions if the hypervisor is still missing after
   if (-not $r.Ok) {
     $help = Join-Path (Get-PAInstallRoot) "ENABLE-VIRTUALIZATION.txt"
     if (-not (Test-Path $help)) {
-      # During first run InstallRoot may not have the file yet — try script dir
+      # During first run InstallRoot may not have the file yet - try script dir
       $alt = Join-Path $PSScriptRoot "..\ENABLE-VIRTUALIZATION.txt"
       if (Test-Path $alt) { $help = $alt }
     }
@@ -489,7 +489,7 @@ function Install-PADistro {
     Write-PALog "Using cached rootfs tar.gz."
   }
 
-  # Some WSL builds import .tar more reliably than .tar.gz — gunzip first
+  # Some WSL builds import .tar more reliably than .tar.gz - gunzip first
   if (-not (Test-Path $tar) -or ((Get-Item $tar).Length -lt 10MB)) {
     Write-PALog "Decompressing rootfs to .tar for import..."
     if (Test-Path $tar) { Remove-Item $tar -Force }
@@ -579,14 +579,14 @@ function ConvertTo-PAWslMountPath {
     throw "Unexpected install path (need drive letter): $full"
   }
   $drive = $full.Substring(0, 1).ToLowerInvariant()
-  # Substring(2) keeps a leading '\' after 'C:' — trim it or we get /mnt/c//ProgramData/...
+  # Substring(2) keeps a leading '\' after 'C:' - trim it or we get /mnt/c//ProgramData/...
   $rest = $full.Substring(2).TrimStart('\', '/') -replace '\\', '/'
   return "/mnt/$drive/$rest"
 }
 
 function Test-PAEngineInWsl {
   param([string]$Distro)
-  # Prefer exit code only — wsl UTF-16 text is often mojibake in Windows PowerShell 5.1
+  # Prefer exit code only - wsl UTF-16 text is often mojibake in Windows PowerShell 5.1
   # Native marker preferred; docker-compose kept as legacy fallback
   $r = Invoke-PAWslExe -WslArgs @(
     "-d", $Distro, "-u", "root", "--",
@@ -766,12 +766,12 @@ function Invoke-PAWsl {
   Write-PALog "WSL[$distro] running $ScriptName ..."
 
   # Stream provision/install so SETUP shows a live progress bar (not one dump at the end).
-  # IMPORTANT: do NOT nest bash -lc inside ProcessStartInfo.Arguments quotes — that broke
+  # IMPORTANT: do NOT nest bash -lc inside ProcessStartInfo.Arguments quotes - that broke
   # -d after wsl -t (WSL_E_DISTRO_NOT_FOUND) even when the same distro worked via & wsl @args.
   $wantStream = $StreamProgress -or ($ScriptName -eq "provision.sh")
   if ($wantStream) {
     try {
-      # wsl -e env KEY=VAL ... bash script  — all simple argv tokens, no nested quoting.
+      # wsl -e env KEY=VAL ... bash script  - all simple argv tokens, no nested quoting.
       $argv = @(
         "-d", $distro,
         "-u", "root",
@@ -866,7 +866,7 @@ function Invoke-PAWsl {
     }
   }
 
-  # Proven path (same argv style as Sync-PAEngineIntoWsl) — may buffer until exit.
+  # Proven path (same argv style as Sync-PAEngineIntoWsl) - may buffer until exit.
   $r = Invoke-PAWslExe -WslArgs @(
     "-d", $distro, "-u", "root", "-e", "env",
     "PA_PROGRESS_MACHINE=1",
@@ -898,6 +898,47 @@ function Invoke-PAWsl {
     Write-Host ""
   }
   return [int]$r.ExitCode
+}
+
+function Get-PAKeepAliveProcess {
+  Get-CimInstance Win32_Process -Filter "Name = 'wsl.exe'" -ErrorAction SilentlyContinue |
+    Where-Object { $_.CommandLine -and $_.CommandLine -match 'pa-converter-keepalive' }
+}
+
+# WSL2 terminates a distro a few seconds after its last wsl.exe client exits, which kills
+# Apache/MariaDB/RabbitMQ. A hidden long-lived client keeps the services running.
+function Start-PAKeepAlive {
+  if (Get-PAKeepAliveProcess) { return }
+  $distro = Get-PADistroName
+  Start-Process -FilePath "wsl.exe" -WindowStyle Hidden `
+    -ArgumentList "-d $distro -u root -e sh -c `"exec sleep infinity`" pa-converter-keepalive"
+  Write-PALog "Started WSL keep-alive for '$distro'."
+}
+
+function Stop-PAKeepAlive {
+  Get-PAKeepAliveProcess | ForEach-Object {
+    try { Stop-Process -Id $_.ProcessId -Force -ErrorAction Stop } catch {}
+  }
+}
+
+# Logon task: start services and hold the distro open (task has no time limit).
+function Register-PAAutoStart {
+  param([string]$InstallRoot)
+  $script = Join-Path $InstallRoot "Start-PAConverter.ps1"
+  try {
+    $user = "$env:USERDOMAIN\$env:USERNAME"
+    $action = New-ScheduledTaskAction -Execute "powershell.exe" `
+      -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$script`" -Background"
+    $trigger = New-ScheduledTaskTrigger -AtLogOn -User $user
+    $principal = New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive -RunLevel Highest
+    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
+      -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew
+    Register-ScheduledTask -TaskName "PA-Converter" -Action $action -Trigger $trigger `
+      -Principal $principal -Settings $settings -Force | Out-Null
+    Write-PALog "Registered logon task 'PA-Converter' (auto-start after reboot)."
+  } catch {
+    Write-PALog "Could not register logon task: $($_.Exception.Message)" "WARN"
+  }
 }
 
 function Register-PARunOnce {
@@ -942,12 +983,12 @@ function Expand-PAEngine {
       $probe = if (Test-Path $provision) { $provision } elseif (Test-Path $nativeMarker) { $nativeMarker } else { $compose }
       $engTime = (Get-Item -LiteralPath $probe).LastWriteTimeUtc
       if ($zipTime -gt $engTime.AddSeconds(5)) {
-        Write-PALog "engine.zip is newer than extracted engine — re-extracting..."
+        Write-PALog "engine.zip is newer than extracted engine - re-extracting..."
         $needExtract = $true
       }
     }
     if (-not (Test-PAEngineIsNative -EngineDir $engine)) {
-      Write-PALog "Extracted engine still uses Docker Compose provision — re-extracting native engine..."
+      Write-PALog "Extracted engine still uses Docker Compose provision - re-extracting native engine..."
       $needExtract = $true
     }
   }
@@ -964,7 +1005,7 @@ function Expand-PAEngine {
   if (Test-Path $engine) { Remove-Item $engine -Recurse -Force }
   New-Item -ItemType Directory -Force -Path $engine | Out-Null
 
-  # Prefer tar.exe (Windows 10+) — handles large trees better than Expand-Archive
+  # Prefer tar.exe (Windows 10+) - handles large trees better than Expand-Archive
   if (Get-Command tar.exe -ErrorAction SilentlyContinue) {
     & tar.exe -xf $zip -C $engine
     if ($LASTEXITCODE -ne 0) { throw "tar extract failed ($LASTEXITCODE)" }

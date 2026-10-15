@@ -29,13 +29,6 @@ export DEBIAN_FRONTEND=noninteractive
 export EXPEDITION_PORT=18443
 export EXPEDITION_HTTP_PORT=18080
 
-export APACHE_RUN_DIR=/var/run/apache2
-export APACHE_LOCK_DIR=/var/lock/apache2
-export APACHE_LOG_DIR=/var/log/apache2
-export APACHE_PID_FILE=/var/run/apache2/apache2.pid
-export APACHE_RUN_USER=www-data
-export APACHE_RUN_GROUP=www-data
-
 echo "=== FIX SITE / PORTS ==="
 SITE=/etc/apache2/sites-available/pa-converter.conf
 PORTS=/etc/apache2/ports.conf
@@ -57,27 +50,16 @@ if [ ! -f /etc/ssl/certs/ssl-cert-snakeoil.pem ]; then
   make-ssl-cert generate-default-snakeoil || true
 fi
 
-mkdir -p "$APACHE_RUN_DIR" "$APACHE_LOCK_DIR" "$APACHE_LOG_DIR"
-if [ -f /etc/apache2/envvars ]; then
-  # shellcheck disable=SC1091
-  . /etc/apache2/envvars
-fi
-# force again after envvars
-export APACHE_RUN_DIR=/var/run/apache2
-export APACHE_LOCK_DIR=/var/lock/apache2
-export APACHE_LOG_DIR=/var/log/apache2
-export APACHE_PID_FILE=/var/run/apache2/apache2.pid
-export APACHE_RUN_USER=www-data
-export APACHE_RUN_GROUP=www-data
+mkdir -p /var/run/apache2 /var/lock/apache2 /var/log/apache2
 
 echo "=== CONFIGTEST ==="
 apache2ctl configtest
 
 echo "=== RESTART ==="
 apache2ctl -k stop 2>/dev/null || true
-pkill apache2 2>/dev/null || true
+pkill -x apache2 2>/dev/null || true
 sleep 1
-/usr/sbin/apache2 -k start
+apache2ctl -k start
 sleep 1
 
 echo "=== RESULT ==="

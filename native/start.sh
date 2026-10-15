@@ -40,28 +40,27 @@ do
 done
 
 pa_log "Starting MariaDB..."
-pa_service start mariadb || pa_service start mysql
+pa_start_mariadb || exit 1
 pa_log "Starting RabbitMQ..."
-pa_service start rabbitmq-server
+pa_service start rabbitmq-server || pa_log "WARN: RabbitMQ did not start (background jobs will queue)"
 
 # Prepare docroot / user defs / agent
 bash "$SCRIPT_DIR/entrypoint-native.sh"
 
 pa_log "Starting Apache..."
-pa_start_apache || true
+if ! pa_start_apache; then
+  pa_log "Processes on ${EXPEDITION_PORT}/${EXPEDITION_HTTP_PORT}:"
+  { pa_port_owner "${EXPEDITION_PORT}"; pa_port_owner "${EXPEDITION_HTTP_PORT}"; } | pa_log_lines
+  exit 1
+fi
 
-# Confirm ports are actually listening (apache2ctl->systemctl often no-ops on WSL)
 if pa_wait_port "${EXPEDITION_PORT}" 20; then
   pa_log "HTTPS port ${EXPEDITION_PORT} is listening"
 else
-  pa_log "WARN: port ${EXPEDITION_PORT} not listening - retrying Apache start"
-  pa_start_apache || true
-  apache2ctl configtest 2>&1 | tail -n 20 || true
-  if ! pa_wait_port "${EXPEDITION_PORT}" 15; then
-    pa_log "ERROR: HTTPS port ${EXPEDITION_PORT} still not open. Check /var/log/apache2/"
-    # Do not soft-succeed - Windows SETUP must not claim the UI is up
-    exit 1
-  fi
+  pa_log "ERROR: Apache is running but port ${EXPEDITION_PORT} is not open."
+  pa_port_owner "${EXPEDITION_PORT}" | pa_log_lines
+  tail -n 20 /var/log/apache2/error.log 2>/dev/null | pa_log_lines || true
+  exit 1
 fi
 
 if pa_is_wsl; then

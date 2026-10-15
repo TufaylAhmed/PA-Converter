@@ -22,7 +22,8 @@ else
     if [ ! -t 1 ] || [ -n "${PA_PROGRESS_MACHINE:-}" ]; then
       printf 'PA_PROGRESS|%s|%s|%s\n' "$pct" "$phase" "$*"
     fi
-    local filled=$((pct / 5)) empty=$((20 - filled))
+    local filled=$((pct / 5))
+    local empty=$((20 - filled))
     local bar
     bar="$(printf '%*s' "$filled" '' | tr ' ' '#')"
     bar="${bar}$(printf '%*s' "$empty" '' | tr ' ' '-')"

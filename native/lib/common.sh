@@ -18,7 +18,7 @@ if [ -z "${PA_DATA_ROOT:-}" ] || [ -z "${PA_WWW:-}" ]; then
     : "${SPARK_HOME:=$_PA_PREFIX/opt/Spark/spark}"
   else
     : "${PA_DATA_ROOT:=/var/lib/pa-converter}"
-    : "${PA_WWW:=/var/www/pa-converter}"
+    : "${PA_WWW:=/var/www/html}"
     : "${PA_USERSPACE:=/home/userSpace}"
     : "${PA_DATA:=/data}"
     : "${PA_PALOGS:=/PALogs}"
@@ -27,7 +27,7 @@ if [ -z "${PA_DATA_ROOT:-}" ] || [ -z "${PA_WWW:-}" ]; then
 fi
 
 export PA_DATA_ROOT="${PA_DATA_ROOT:-/var/lib/pa-converter}"
-export PA_WWW="${PA_WWW:-/var/www/pa-converter}"
+export PA_WWW="${PA_WWW:-/var/www/html}"
 export PA_USERSPACE="${PA_USERSPACE:-/home/userSpace}"
 export PA_DATA="${PA_DATA:-/data}"
 export PA_PALOGS="${PA_PALOGS:-/PALogs}"
@@ -103,28 +103,48 @@ pa_detect_java() {
 }
 
 pa_is_wsl() {
-  grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null
+  [ "${PA_FORCE_WSL:-}" = "1" ] || grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null
 }
 
 pa_service() {
   # usage: pa_service start|stop|status name
   local action="$1" name="$2"
   # WSL often has a systemctl stub that is not actually running — prefer SysV `service`.
+  # Returns the real exit status so `pa_service start a || pa_service start b` falls back.
   if pa_is_wsl && command -v service >/dev/null 2>&1; then
-    service "$name" "$action" 2>/dev/null || true
-    return 0
+    service "$name" "$action" 2>/dev/null
+    return
   fi
   if command -v systemctl >/dev/null 2>&1 && systemctl is-system-running >/dev/null 2>&1; then
-    systemctl "$action" "$name" 2>/dev/null || systemctl "$action" "${name}.service" 2>/dev/null || true
+    systemctl "$action" "$name" 2>/dev/null || systemctl "$action" "${name}.service" 2>/dev/null
   elif command -v service >/dev/null 2>&1; then
-    service "$name" "$action" 2>/dev/null || true
+    service "$name" "$action" 2>/dev/null
   elif command -v brew >/dev/null 2>&1; then
     case "$action" in
-      start) brew services start "$name" 2>/dev/null || true ;;
-      stop) brew services stop "$name" 2>/dev/null || true ;;
-      status) brew services info "$name" 2>/dev/null || true ;;
+      start) brew services start "$name" 2>/dev/null ;;
+      stop) brew services stop "$name" 2>/dev/null ;;
+      status) brew services info "$name" 2>/dev/null ;;
     esac
+  else
+    return 1
   fi
+}
+
+# Ubuntu 20.04 names the MariaDB init script `mysql`; newer releases use `mariadb`.
+pa_start_mariadb() {
+  if ! mysqladmin --protocol=tcp -h127.0.0.1 ping >/dev/null 2>&1; then
+    pa_service start mariadb || pa_service start mysql || true
+  fi
+  local i
+  for i in $(seq 1 30); do
+    if mysqladmin --protocol=tcp -h127.0.0.1 ping >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+  done
+  pa_log "ERROR: MariaDB is not answering on 127.0.0.1:3306"
+  tail -n 20 /var/log/mysql/error.log 2>/dev/null | pa_log_lines || true
+  return 1
 }
 
 # Rewrite site + ports.conf (idempotent). Fixes older installs that put Listen in the vhost file.
@@ -174,74 +194,46 @@ pa_ensure_apache_site() {
   return 0
 }
 
-# Start Apache reliably on WSL (apache2ctl often shells out to broken systemctl).
+pa_log_lines() {
+  local line
+  while IFS= read -r line; do pa_log "  $line"; done
+}
+
+# Start (or reload) Apache without systemd.
+# Never source /etc/apache2/envvars here: it reads unset vars and kills `set -u` scripts.
+# `apache2ctl -k <action>` sources envvars in its own process and calls the binary
+# directly, unlike `apache2ctl start` which defers to systemctl (a no-op on WSL).
 pa_start_apache() {
   pa_ensure_apache_site || true
+  mkdir -p /var/run/apache2 /var/lock/apache2 /var/log/apache2
 
-  # Stop any half-started instance so a clean start can bind ports
+  local out
+  if ! out="$(apache2ctl configtest 2>&1)"; then
+    pa_log "ERROR: Apache configtest failed:"
+    printf '%s\n' "$out" | pa_log_lines
+    return 1
+  fi
+
   if pgrep -x apache2 >/dev/null 2>&1; then
-    pa_log "Stopping existing Apache before clean start"
-    apache2ctl -k stop 2>/dev/null || service apache2 stop 2>/dev/null || pkill apache2 2>/dev/null || true
-    sleep 1
-  fi
-
-  # Always set runtime dirs BEFORE sourcing envvars / starting apache2.
-  # (If envvars is not sourced, apache2.conf expands ${APACHE_RUN_DIR} to empty and dies.)
-  export APACHE_RUN_DIR="${APACHE_RUN_DIR:-/var/run/apache2}"
-  export APACHE_LOCK_DIR="${APACHE_LOCK_DIR:-/var/lock/apache2}"
-  export APACHE_PID_DIR="${APACHE_PID_DIR:-/var/run/apache2}"
-  export APACHE_LOG_DIR="${APACHE_LOG_DIR:-/var/log/apache2}"
-  export APACHE_PID_FILE="${APACHE_PID_FILE:-/var/run/apache2/apache2.pid}"
-  export APACHE_RUN_USER="${APACHE_RUN_USER:-www-data}"
-  export APACHE_RUN_GROUP="${APACHE_RUN_GROUP:-www-data}"
-  # shellcheck source=/dev/null
-  if [ -f /etc/apache2/envvars ]; then
-    # shellcheck disable=SC1091
-    . /etc/apache2/envvars
-  fi
-  # Re-assert after envvars (some installs leave them empty)
-  export APACHE_RUN_DIR="${APACHE_RUN_DIR:-/var/run/apache2}"
-  export APACHE_LOCK_DIR="${APACHE_LOCK_DIR:-/var/lock/apache2}"
-  export APACHE_PID_FILE="${APACHE_PID_FILE:-/var/run/apache2/apache2.pid}"
-  export APACHE_LOG_DIR="${APACHE_LOG_DIR:-/var/log/apache2}"
-  export APACHE_RUN_USER="${APACHE_RUN_USER:-www-data}"
-  export APACHE_RUN_GROUP="${APACHE_RUN_GROUP:-www-data}"
-  mkdir -p "$APACHE_RUN_DIR" "$APACHE_LOCK_DIR" "$APACHE_LOG_DIR" 2>/dev/null || true
-
-  local ct
-  ct="$(apache2ctl configtest 2>&1 || true)"
-  if echo "$ct" | grep -qi 'Syntax error\|AH00526\|Cannot load\|SSLCertificate'; then
-    pa_log "Apache configtest FAILED:"
-    echo "$ct" | while IFS= read -r line; do pa_log "  $line"; done
+    pa_log "Apache already running - reloading config"
+    out="$(apache2ctl -k graceful 2>&1)" || true
   else
-    pa_log "Apache configtest: $(echo "$ct" | tail -n 1)"
+    out="$(apache2ctl -k start 2>&1)" || true
   fi
+  [ -n "$out" ] && printf '%s\n' "$out" | pa_log_lines
+  sleep 1
 
-  # 1) SysV service (best on WSL without systemd)
-  if pa_is_wsl && command -v service >/dev/null 2>&1; then
-    service apache2 start 2>&1 | while IFS= read -r line; do pa_log "service: $line"; done || true
-  fi
-
-  # 2) Direct binary -k start (does not go through systemctl)
-  if ! pgrep -x apache2 >/dev/null 2>&1 && [ -x /usr/sbin/apache2 ]; then
-    pa_log "Starting /usr/sbin/apache2 -k start"
-    /usr/sbin/apache2 -k start 2>&1 | while IFS= read -r line; do pa_log "apache2: $line"; done || true
-  fi
-
-  # 3) apache2ctl -k (still better than plain apache2ctl start on WSL)
-  if ! pgrep -x apache2 >/dev/null 2>&1 && command -v apache2ctl >/dev/null 2>&1; then
-    apache2ctl -k start 2>&1 | while IFS= read -r line; do pa_log "apache2ctl: $line"; done || true
-  fi
-
-  if pgrep -x apache2 >/dev/null 2>&1 || pgrep -x httpd >/dev/null 2>&1; then
-    pa_log "Apache process is up (pids: $(pgrep -x apache2 | tr '\n' ' '))"
+  if pgrep -x apache2 >/dev/null 2>&1; then
     return 0
   fi
-
-  pa_log "WARN: Apache process not detected. Last error log:"
-  tail -n 30 /var/log/apache2/error.log 2>/dev/null | while IFS= read -r line; do pa_log "  $line"; done || true
-  tail -n 30 /var/log/apache2/pa-converter-ssl-error.log 2>/dev/null | while IFS= read -r line; do pa_log "  $line"; done || true
+  pa_log "ERROR: Apache did not start. Recent error log:"
+  tail -n 20 /var/log/apache2/error.log 2>/dev/null | pa_log_lines || true
   return 1
+}
+
+# Print whatever is holding a port (helps diagnose leftovers such as old Docker proxies).
+pa_port_owner() {
+  ss -ltnp 2>/dev/null | grep -E ":$1\\s" || true
 }
 
 pa_wait_port() {
@@ -362,7 +354,7 @@ pa_install_spark() {
   fi
   set -o pipefail
   if [ "$layout" = "bundle" ]; then
-    tar -xzf "$tgz" -C "${root%/}" || {
+    tar -xzf "$tgz" -C "${root%/}/" || {
       pa_log "WARN: Spark bundle extract failed"
       return 1
     }

@@ -1,7 +1,7 @@
 ﻿<#
 .SYNOPSIS
   One-click appliance setup: enable WSL2, import Ubuntu, install native stack
-  (Apache/PHP/MariaDB/RabbitMQ/Spark — no Docker), and start the stack.
+  (Apache/PHP/MariaDB/RabbitMQ/Spark - no Docker), and start the stack.
 #>
 [CmdletBinding()]
 param(
@@ -80,7 +80,7 @@ try {
         $p = Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Wait -PassThru -WorkingDirectory $programDataRoot
         exit $p.ExitCode
       }
-      # Already running from ProgramData — continue in place
+      # Already running from ProgramData - continue in place
       $InstallRoot = $programDataRoot
     } else {
       $InstallRoot = Get-PAInstallRoot
@@ -209,6 +209,9 @@ try {
   $state.Phase = "ready"
   Set-PAState $state
   Write-PALog "Setup complete."
+
+  Start-PAKeepAlive
+  Register-PAAutoStart -InstallRoot $InstallRoot
 
   # Wait until Apache is reachable from Windows before opening the browser
   $portOk = $false

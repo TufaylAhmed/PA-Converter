@@ -42,7 +42,10 @@ apt-get install -y --no-install-recommends \
   openjdk-11-jre-headless \
   python3 python3-pip python3-pil python3-reportlab python3-matplotlib \
   unzip openssl ssl-cert net-tools procps util-linux bc \
-  libzip-dev libpng-dev || true
+  libzip-dev libpng-dev || {
+    pa_log "ERROR: apt-get install of base packages failed (see apt output above)."
+    exit 1
+  }
 
 # PHP 7.4 - default on Ubuntu 20.04; use ondrej PPA on newer
 PHP_OK=0
@@ -82,22 +85,11 @@ if [ ! -f /etc/ssl/certs/ssl-cert-snakeoil.pem ]; then
   make-ssl-cert generate-default-snakeoil >/dev/null 2>&1 || true
 fi
 
-# PHP ini overrides (avoid php -i | awk early-exit: SIGPIPE + pipefail aborts install)
-PHP_INI_DIR=""
-if command -v php >/dev/null 2>&1; then
-  PHP_INI_DIR="$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;' 2>/dev/null || true)"
-fi
-PHP_INI_DIR="$(printf '%s' "${PHP_INI_DIR:-}" | tr -d '[:space:]')"
-if [ -z "$PHP_INI_DIR" ] || [ ! -d "$PHP_INI_DIR" ]; then
-  for cand in /etc/php/7.4/apache2/conf.d /etc/php/8.1/apache2/conf.d /etc/php/8.2/apache2/conf.d; do
-    if [ -d "$cand" ]; then PHP_INI_DIR="$cand"; break; fi
-  done
-fi
-if [ -z "$PHP_INI_DIR" ]; then
-  PHP_INI_DIR=/etc/php/7.4/apache2/conf.d
-fi
-mkdir -p "$PHP_INI_DIR"
-cat > "${PHP_INI_DIR}/99-pa-converter.ini" <<'EOF'
+# PHP ini overrides for both the Apache module and the CLI (the agent runs php-cli)
+for PHP_INI_DIR in /etc/php/7.4/apache2/conf.d /etc/php/7.4/cli/conf.d; do
+  [ -d "$(dirname "$PHP_INI_DIR")" ] || continue
+  mkdir -p "$PHP_INI_DIR"
+  cat > "${PHP_INI_DIR}/99-pa-converter.ini" <<'EOF'
 upload_max_filesize = 200M
 post_max_size = 200M
 memory_limit = 1G
@@ -106,7 +98,8 @@ mysqli.allow_persistent = On
 display_errors = Off
 log_errors = On
 EOF
-pa_log "Wrote PHP overrides in $PHP_INI_DIR"
+  pa_log "Wrote PHP overrides in $PHP_INI_DIR"
+done
 
 # Sync app into docroot
 pa_progress 52 sync "Syncing Expedition web app"
@@ -114,6 +107,10 @@ pa_log "Syncing app -> $PA_WWW"
 if [ -d "$PA_CONVERTER_ROOT/app" ]; then
   rsync -a --delete "$PA_CONVERTER_ROOT/app/" "$PA_WWW/" 2>/dev/null \
     || (rm -rf "${PA_WWW:?}/"* && cp -a "$PA_CONVERTER_ROOT/app/." "$PA_WWW/")
+fi
+# Pre-5.46.41 docroot (the PHP app hard-codes /var/www/html)
+if [ "$PA_WWW" != /var/www/pa-converter ]; then
+  rm -rf /var/www/pa-converter
 fi
 chown -R www-data:www-data "$PA_WWW" "$PA_USERSPACE" "$PA_DATA" "$PA_PALOGS" 2>/dev/null || true
 
@@ -128,8 +125,7 @@ pa_ensure_apache_site || {
 
 # MariaDB root password + seed DBs once
 pa_progress 60 mariadb "Starting MariaDB and setting root password"
-pa_service start mariadb || pa_service start mysql
-sleep 2
+pa_start_mariadb || exit 1
 
 # Set root password for TCP (unix_socket auth on localhost is common on Ubuntu)
 mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}'; FLUSH PRIVILEGES;" 2>/dev/null \
