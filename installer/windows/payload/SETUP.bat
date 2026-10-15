@@ -43,9 +43,12 @@ if errorlevel 1 (
   echo   2. Enable Virtualization in BIOS ^(or Nested Virt in your VM^)
   echo   3. Reboot, then run SETUP.bat again
   echo.
-  echo Log: %ProgramData%\PA-Converter\logs\setup.log
+  echo Logs:
+  echo   %ProgramData%\PA-Converter\logs\setup-boot.log
+  echo   %ProgramData%\PA-Converter\logs\setup.log
   echo.
   if exist "%~dp0ENABLE-VIRTUALIZATION.txt" notepad "%~dp0ENABLE-VIRTUALIZATION.txt"
+  if exist "%ProgramData%\PA-Converter\logs\setup-boot.log" notepad "%ProgramData%\PA-Converter\logs\setup-boot.log"
   if exist "%ProgramData%\PA-Converter\logs\setup.log" notepad "%ProgramData%\PA-Converter\logs\setup.log"
   pause
   exit /b 1

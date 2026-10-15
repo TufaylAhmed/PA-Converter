@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   One-click appliance setup: enable WSL2, import Ubuntu, install native stack
   (Apache/PHP/MariaDB/RabbitMQ/Spark — no Docker), and start the stack.
@@ -13,8 +13,17 @@ param(
 $ErrorActionPreference = "Stop"
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+# Breadcrumb before Import-Module (PS 5.1 can die on UTF-8-no-BOM Unicode with no setup.log)
+try {
+  $bootLogDir = Join-Path $env:ProgramData "PA-Converter\logs"
+  New-Item -ItemType Directory -Force -Path $bootLogDir | Out-Null
+  $bootLog = Join-Path $bootLogDir "setup-boot.log"
+  Add-Content -Path $bootLog -Value ("{0:u} boot start here={1} ps={2}" -f (Get-Date), $here, $PSVersionTable.PSVersion) -Encoding utf8
+} catch {}
+
 try {
   Import-Module (Join-Path $here "lib\PAConverter.psm1") -Force
+  try { Add-Content -Path $bootLog -Value ("{0:u} module imported OK" -f (Get-Date)) -Encoding utf8 } catch {}
 
   # Portable ZIP: scripts sit next to engine.zip; runtime home is ProgramData.
   function Get-PAFullPath([string]$p) {
@@ -184,7 +193,7 @@ try {
   Write-PALog "Provisioning native Expedition inside WSL (apt packages + Spark; no Docker)..."
   Write-Host ""
   Write-Host "  Installing native stack in WSL (live progress below)." -ForegroundColor Cyan
-  Write-Host "  First run often takes 10–20 minutes (apt + Spark download)." -ForegroundColor DarkGray
+  Write-Host "  First run often takes 10-20 minutes (apt + Spark download)." -ForegroundColor DarkGray
   Write-Host ""
   $code = Invoke-PAWsl -ScriptName "provision.sh" -StreamProgress
   if ($code -ne 0) {
@@ -214,10 +223,17 @@ catch {
   try { Stop-Transcript | Out-Null } catch {}
   try { if ($script:PASetupLock) { $script:PASetupLock.Close() } } catch {}
   $msg = $_.Exception.Message
+  try {
+    $bootLogDir = Join-Path $env:ProgramData "PA-Converter\logs"
+    New-Item -ItemType Directory -Force -Path $bootLogDir | Out-Null
+    Add-Content -Path (Join-Path $bootLogDir "setup-boot.log") -Value ("{0:u} SETUP FAILED: {1}" -f (Get-Date), $msg) -Encoding utf8
+    Add-Content -Path (Join-Path $bootLogDir "setup.log") -Value ("{0:u} [ERROR] {1}" -f (Get-Date), $msg) -Encoding utf8
+  } catch {}
   if (Get-Command Show-PAError -ErrorAction SilentlyContinue) {
     Show-PAError $msg
   } else {
     Write-Host "SETUP FAILED: $msg" -ForegroundColor Red
+    Write-Host "Log: $env:ProgramData\PA-Converter\logs\setup-boot.log" -ForegroundColor DarkGray
     try {
       Add-Type -AssemblyName System.Windows.Forms
       [System.Windows.Forms.MessageBox]::Show($msg, "PA-Converter setup failed") | Out-Null
