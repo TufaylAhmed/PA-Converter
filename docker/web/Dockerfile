@@ -6,17 +6,22 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SPARK_HOME=/opt/Spark/spark \
     PATH="/opt/Spark/spark/bin:${PATH}"
 
-# Bullseye mirrors can 404; use archive
-RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list \
- && sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list \
- && sed -i '/bullseye-updates/d' /etc/apt/sources.list \
- && printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99no-check-valid \
+# Bullseye is EOL — snapshot.debian.org avoids archive.debian.org CDN 404s (e.g. harfbuzz arm64)
+RUN printf '%s\n' \
+      'deb http://snapshot.debian.org/archive/debian/20240701T000000Z bullseye main' \
+      'deb http://snapshot.debian.org/archive/debian/20240701T000000Z bullseye-updates main' \
+      'deb http://snapshot.debian.org/archive/debian-security/20240701T000000Z bullseye-security main' \
+      > /etc/apt/sources.list \
+ && printf '%s\n' \
+      'Acquire::Check-Valid-Until "false";' \
+      'Acquire::Retries "5";' \
+      > /etc/apt/apt.conf.d/99archive \
+ && apt-get clean \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       libzip-dev libpng-dev libxml2-dev libldap2-dev libbz2-dev \
       libcurl4-openssl-dev openssl ssl-cert unzip curl default-mysql-client bc \
       openjdk-11-jre-headless python3 python3-pip python3-setuptools python3-wheel \
-      python3-pil python3-reportlab python3-matplotlib \
       procps util-linux ca-certificates net-tools \
       && groupadd -f expedition \
       && usermod -a -G expedition www-data \
@@ -78,7 +83,9 @@ RUN mkdir -p /opt /opt/Spark \
  && rm -rf /tmp/spark-src
 
 # Best Practices Assessment + aliases expected by health checks (pip3.7 list | grep BPA)
+# Pillow/reportlab/matplotlib via pip wheels (avoid flaky apt harfbuzz on arm64)
 RUN pip3 install --no-cache-dir --upgrade 'pip<25' \
+ && pip3 install --no-cache-dir 'Pillow<10' reportlab matplotlib || true \
  && (pip3 install --no-cache-dir /var/www/html/OS/BPA/best_practice_assessment_ngfw_pano-master.zip || true) \
  && pip3 install --no-cache-dir pandevice || true \
  && mkdir -p /tmp/bpa-meta \
