@@ -1887,12 +1887,18 @@
       touchPie('appidchart1', useridColors, 'User-ID', hard)
       touchRadar('DashboardRadarChart', hard)
       restyleGaugeCharts(dark)
+      // SVG fallbacks must repaint on every theme pass — otherwise dark-mode
+      // donut/radar fills stay near-black after switching back to light.
+      paintFallbackPies()
+      paintFallbackRadar('DashboardRadarChart')
       if (hard) {
         setTimeout(function () {
           touchPie('appidchart', appidColors, 'App-ID', false)
           touchPie('appidchart1', useridColors, 'User-ID', false)
           touchRadar('DashboardRadarChart', false)
           restyleGaugeCharts(dark)
+          paintFallbackPies()
+          paintFallbackRadar('DashboardRadarChart')
         }, 500)
       }
     } catch (e) {
@@ -1974,29 +1980,33 @@
         } catch (eBg) {
           /* ignore */
         }
-        // Soften track (#dfdfe1 → dark) without dropping gradient fills (url(#c1))
+        // Soften track (#dfdfe1 → dark) for dark UI; restore stock track in light mode.
+        // Leaving #2a3344 after a theme switch makes gauges look like black rings.
         try {
-          if (dark) {
-            var cols = chart.getColors ? chart.getColors() : chart.colors
-            if (cols && cols.length >= 2) {
-              var next = cols.slice()
-              var last = String(next[next.length - 1] || '')
+          var cols = chart.getColors ? chart.getColors() : chart.colors
+          if (cols && cols.length >= 2) {
+            var next = cols.slice()
+            var last = String(next[next.length - 1] || '')
+            var lastLow = last.toLowerCase()
+            if (dark) {
               if (last.indexOf('url(') === -1 && /#dfdfe1|#e[0-9a-f]{5}|rgb\(22[0-9]/i.test(last)) {
                 next[next.length - 1] = '#2a3344'
-                if (chart.setColors) chart.setColors(next)
-                else chart.colors = next
-              } else if (last === '#dfdfe1' || last.toLowerCase() === '#dfdfe1') {
+              } else if (lastLow === '#dfdfe1') {
                 next[next.length - 1] = '#2a3344'
-                if (chart.setColors) chart.setColors(next)
-                else chart.colors = next
-              } else {
-                // Always retint trailing solid track when present
-                if (last.charAt(0) === '#' || last.indexOf('rgb') === 0) {
-                  next[next.length - 1] = '#2a3344'
-                  if (chart.setColors) chart.setColors(next)
-                  else chart.colors = next
-                }
+              } else if (last.charAt(0) === '#' || last.indexOf('rgb') === 0) {
+                next[next.length - 1] = '#2a3344'
               }
+            } else if (
+              lastLow === '#2a3344' ||
+              lastLow === '#1a2230' ||
+              lastLow === '#0b1220' ||
+              /rgb\(\s*(0|10|15|22|26|42)\s*,/.test(lastLow)
+            ) {
+              next[next.length - 1] = '#dfdfe1'
+            }
+            if (next[next.length - 1] !== cols[cols.length - 1]) {
+              if (chart.setColors) chart.setColors(next)
+              else chart.colors = next
             }
           }
         } catch (eCol) {
@@ -2398,7 +2408,11 @@
   }
 
   function paintFallbackPies() {
-    var dark = document.documentElement.classList.contains('pa-theme-dark')
+    // Prefer explicit theme attribute so a stale class cannot leave black donuts in light mode
+    var dark =
+      document.documentElement.getAttribute('data-pa-theme') === 'dark' ||
+      (document.documentElement.getAttribute('data-pa-theme') !== 'light' &&
+        document.documentElement.classList.contains('pa-theme-dark'))
     var pairs = [
       ['appidchart', dark ? ['#34d399', '#64748b'] : ['#10b981', '#cbd5e1'], 'App-ID'],
       ['appidchart1', dark ? ['#60a5fa', '#64748b'] : ['#2563eb', '#cbd5e1'], 'User-ID'],
@@ -2436,7 +2450,10 @@
     id = id || 'DashboardRadarChart'
     var host = document.getElementById(id)
     if (!host) return false
-    var dark = document.documentElement.classList.contains('pa-theme-dark')
+    var dark =
+      document.documentElement.getAttribute('data-pa-theme') === 'dark' ||
+      (document.documentElement.getAttribute('data-pa-theme') !== 'light' &&
+        document.documentElement.classList.contains('pa-theme-dark'))
     var canvas = host.querySelector('canvas')
     var alive = false
     if (canvas && canvas.width > 10 && canvas.height > 10) {
