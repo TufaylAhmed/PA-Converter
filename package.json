@@ -1,5 +1,5 @@
 {
-  "name": "@sequr3/pa-converter",
+  "name": "@tufayl/pa-converter",
   "version": "5.46.46",
   "description": "PA-Converter — Palo Alto Expedition via Podman (macOS/Linux) or WSL native (Windows); no Docker Desktop",
   "license": "UNLICENSED",

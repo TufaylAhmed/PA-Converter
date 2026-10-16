@@ -3,7 +3,7 @@
   Bootstrap PA-Converter on Windows via npx (WSL2 native runtime).
 
 .DESCRIPTION
-  Checks Node + WSL, installs @sequr3/pa-converter from npmjs, and optionally starts.
+  Checks Node + WSL, installs @tufayl/pa-converter from npmjs, and optionally starts.
   Does not require Docker Desktop.
 
 .EXAMPLE
@@ -20,7 +20,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Package = "@sequr3/pa-converter@$Version"
+$Package = "@tufayl/pa-converter@$Version"
 
 Write-Host ""
 Write-Host "  PA-Converter Windows installer (native / WSL)" -ForegroundColor Cyan

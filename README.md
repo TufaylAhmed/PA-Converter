@@ -5,7 +5,7 @@
 ### Palo Alto Expedition · Firewall Config Converter
 
 [![Version](https://img.shields.io/badge/Expedition-5.46.28-orange?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
-[![npm](https://img.shields.io/badge/npm-@sequr3/pa--converter-CB3837?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@sequr3/pa-converter)
+[![npm](https://img.shields.io/badge/npm-@sequr3/pa--converter-CB3837?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@tufayl/pa-converter)
 [![GitHub](https://img.shields.io/badge/GitHub-public-181717?style=for-the-badge&logo=github)](https://github.com/TufaylAhmed/PA-Converter)
 [![Platform](https://img.shields.io/badge/macOS%20Podman%20%7C%20Windows%20WSL%20%7C%20Linux-ready-success?style=for-the-badge)](https://github.com/TufaylAhmed/PA-Converter)
 [![Node](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -71,7 +71,7 @@ podman machine start
 
 | Path | Who | Command / download |
 |------|-----|-------------------|
-| **npm / npx** | macOS / Linux / Windows+WSL | `npx @sequr3/pa-converter start` |
+| **npm / npx** | macOS / Linux / Windows+WSL | `npx @tufayl/pa-converter start` |
 | **MSI / portable ZIP** | Windows | [GitHub Releases](https://github.com/TufaylAhmed/PA-Converter/releases) |
 | **git clone** | contributors | clone this repo, then `npm start` |
 
@@ -82,11 +82,11 @@ podman machine start
 ### macOS / Linux / Windows (npx)
 
 ```bash
-npx @sequr3/pa-converter@5.46.28 start
+npx @tufayl/pa-converter@5.46.28 start
 
-npx @sequr3/pa-converter status
-npx @sequr3/pa-converter logs -f
-npx @sequr3/pa-converter stop
+npx @tufayl/pa-converter status
+npx @tufayl/pa-converter logs -f
+npx @tufayl/pa-converter stop
 ```
 
 If npm is still validating a new version, run from GitHub:
@@ -102,9 +102,9 @@ On Windows, the CLI runs install/start **inside WSL** (`wsl.exe`). Install WSL f
 **Runtime overrides:**
 
 ```bash
-PA_CONVERTER_RUNTIME=podman npx @sequr3/pa-converter start   # default on macOS/Linux
-PA_CONVERTER_RUNTIME=docker npx @sequr3/pa-converter start   # Docker Desktop
-PA_CONVERTER_RUNTIME=native npx @sequr3/pa-converter start   # Homebrew / apt (legacy)
+PA_CONVERTER_RUNTIME=podman npx @tufayl/pa-converter start   # default on macOS/Linux
+PA_CONVERTER_RUNTIME=docker npx @tufayl/pa-converter start   # Docker Desktop
+PA_CONVERTER_RUNTIME=native npx @tufayl/pa-converter start   # Homebrew / apt (legacy)
 ```
 
 ---
@@ -245,6 +245,6 @@ Windows MSI: `installer\windows\build.ps1 -Version 5.46.46`
 
 <div align="center">
 
-**PA-Converter** · Expedition 5.45.4 · [`@sequr3/pa-converter`](https://www.npmjs.com/package/@sequr3/pa-converter) · [GitHub](https://github.com/TufaylAhmed/PA-Converter)
+**PA-Converter** · Expedition 5.45.4 · [`@tufayl/pa-converter`](https://www.npmjs.com/package/@tufayl/pa-converter) · [GitHub](https://github.com/TufaylAhmed/PA-Converter)
 
 </div>

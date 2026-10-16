@@ -119,8 +119,8 @@ function openUiHint(runtime) {
 Expedition is starting (${runtime}).
   Open:  https://localhost:${DEFAULT_PORT}
   Login: admin / paloalto
-  Logs:  npx @sequr3/pa-converter logs
-  Stop:  npx @sequr3/pa-converter stop
+  Logs:  npx @tufayl/pa-converter logs
+  Stop:  npx @tufayl/pa-converter stop
 
 Note: accept the self-signed TLS warning in your browser.
 `);
@@ -305,7 +305,7 @@ function ensurePodman() {
           '  Install:  https://podman.io → Podman Desktop, or: brew install podman\n' +
           '  Then:     podman machine init && podman machine start\n' +
           '  PATH tip: export PATH="/opt/podman/bin:$PATH"\n' +
-          '  Retry:    npx @sequr3/pa-converter start'
+          '  Retry:    npx @tufayl/pa-converter start'
       );
     }
     die(
@@ -790,8 +790,8 @@ Windows:       WSL native (or MSI)
   # Podman Desktop installs to /opt/podman/bin (often missing from npx PATH)
   export PATH="/opt/podman/bin:$PATH"
   podman machine start
-  npx @sequr3/pa-converter start          # reuses image if present
-  npx @sequr3/pa-converter start --build  # force rebuild
+  npx @tufayl/pa-converter start          # reuses image if present
+  npx @tufayl/pa-converter start --build  # force rebuild
 
 Env:
   EXPEDITION_PORT / EXPEDITION_HTTP_PORT
