@@ -69,7 +69,7 @@ const PODMAN_BIN = findBin('podman', [
 ]);
 
 const WEB_IMAGE =
-  process.env.EXPEDITION_IMAGE || 'panw/expedition-web:5.46.44';
+  process.env.EXPEDITION_IMAGE || 'panw/expedition-web:5.46.45';
 
 function wantForceBuild() {
   return (
@@ -806,7 +806,7 @@ Host: ${os.platform()} ${os.arch()} | ${ROOT}
 function cmdPublishHelp() {
   console.log(`
 npm:  npm publish --access public
-GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.44 start
+GitHub: npx --yes github:TufaylAhmed/PA-Converter#v5.46.45 start
 `);
 }
 

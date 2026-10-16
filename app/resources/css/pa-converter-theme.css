@@ -2319,6 +2319,63 @@ html:not(.pa-theme-dark) #ProjectsGridPanel .x-grid-item-alt {
   white-space: nowrap !important;
 }
 
+/*
+ * Ext panel header tools (+ / − / refresh / …) use FontAwesome glyphs.
+ * Stock theme paints them white on a navy chip (#235585). Our glass headers
+ * drop that chip, so in light mode the white "+" vanishes into the wash
+ * (Syslog, Server Profiles, Devices, etc.). Force theme-aware glyph color.
+ */
+.x-panel-header .x-tool,
+.x-panel-header .x-tool-img,
+.x-panel-header .x-tool-tool-el,
+.x-window-header .x-tool,
+.x-window-header .x-tool-img,
+.x-window-header .x-tool-tool-el {
+  opacity: 1 !important;
+  filter: none !important;
+}
+html:not(.pa-theme-dark) .x-panel-header .x-tool-img,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-plus,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-minus,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-close,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-refresh,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-search,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-gear,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-help,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-tool-el,
+html:not(.pa-theme-dark) .x-window-header .x-tool-img,
+html:not(.pa-theme-dark) .x-window-header .x-tool-tool-el,
+html:not(.pa-theme-dark) .x-toolbar .x-tool-img,
+html:not(.pa-theme-dark) .x-toolbar .x-tool-plus {
+  color: var(--pa-accent, #0b6bcb) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+html:not(.pa-theme-dark) .x-panel-header .x-tool:hover .x-tool-img,
+html:not(.pa-theme-dark) .x-panel-header .x-tool-over .x-tool-img,
+html:not(.pa-theme-dark) .x-panel-header .x-tool:hover .x-tool-plus,
+html:not(.pa-theme-dark) .x-toolbar .x-tool:hover .x-tool-img {
+  color: var(--pa-accent-strong, #0958a8) !important;
+}
+html.pa-theme-dark .x-panel-header .x-tool-img,
+html.pa-theme-dark .x-panel-header .x-tool-plus,
+html.pa-theme-dark .x-panel-header .x-tool-minus,
+html.pa-theme-dark .x-panel-header .x-tool-close,
+html.pa-theme-dark .x-panel-header .x-tool-refresh,
+html.pa-theme-dark .x-panel-header .x-tool-tool-el,
+html.pa-theme-dark .x-window-header .x-tool-img,
+html.pa-theme-dark .x-window-header .x-tool-tool-el,
+html.pa-theme-dark .x-toolbar .x-tool-img,
+html.pa-theme-dark .x-toolbar .x-tool-plus {
+  color: #f5f5f7 !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+html.pa-theme-dark .x-panel-header .x-tool:hover .x-tool-img,
+html.pa-theme-dark .x-panel-header .x-tool-over .x-tool-img {
+  color: var(--pa-accent-strong, #409cff) !important;
+}
+
 /* Library header: real "Add Project" button (replaces invisible Ext plus tool) */
 #ProjectsGridPanel .x-tool-plus,
 #ProjectsGridPanel .x-tool:has(.x-tool-plus) {
