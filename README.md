@@ -113,7 +113,7 @@ PA_CONVERTER_RUNTIME=native npx @tufayl/pa-converter start   # Homebrew / apt (l
 
 **End users only need the MSI** — no Docker Desktop, Node.js, or npm account.
 
-1. Download **`PA-Converter-5.46.46.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
+1. Download **`PA-Converter-5.46.47.msi`** (or the portable ZIP) from [Releases](https://github.com/TufaylAhmed/PA-Converter/releases).
 2. Run the MSI (allow UAC). Leave **Finish setup** checked.
 3. If Windows asks to reboot to enable WSL, reboot once — setup continues automatically.
 4. Wait for first-time provisioning (apt packages + Spark inside WSL — **no Docker Engine**).
@@ -127,7 +127,7 @@ Build the MSI (CI/Windows):
 
 ```powershell
 cd installer\windows
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.46
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -Version 5.46.47
 ```
 
 ---
@@ -224,7 +224,7 @@ npm login   # account sequr3
 npm publish --access public
 ```
 
-Windows MSI: `installer\windows\build.ps1 -Version 5.46.46`
+Windows MSI: `installer\windows\build.ps1 -Version 5.46.47`
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "name": "@tufayl/pa-converter",
-  "version": "5.46.46",
+  "version": "5.46.47",
   "description": "PA-Converter — Palo Alto Expedition via Podman (macOS/Linux) or WSL native (Windows); no Docker Desktop",
   "license": "MIT",
   "bin": {
