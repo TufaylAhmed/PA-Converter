@@ -13,10 +13,10 @@
 **Convert · Import · Optimize · ML-assist** firewall configurations with Expedition — **no Docker Desktop**.
 
 ```
-╔══════════════════════════════════════════════════════════════╗
-║   Vendor configs  ──►  PA-Converter  ──►  PAN-OS XML         ║
-║       Fortinet · Cisco · Checkpoint · Palo Alto · more       ║
-╚══════════════════════════════════════════════════════════════╝
+                  ╔══════════════════════════════════════════════════════════════╗
+                  ║   Vendor configs  ──►  PA-Converter  ──►  PAN-OS XML         ║
+                  ║       Fortinet · Cisco · Checkpoint · Palo Alto · more       ║
+                  ╚══════════════════════════════════════════════════════════════╝
 ```
 
 [Quick Start](#quick-start) · [Architecture](#architecture) · [CLI](#cli-commands)
