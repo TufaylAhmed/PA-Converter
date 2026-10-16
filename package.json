@@ -2,7 +2,7 @@
   "name": "@tufayl/pa-converter",
   "version": "5.46.46",
   "description": "PA-Converter — Palo Alto Expedition via Podman (macOS/Linux) or WSL native (Windows); no Docker Desktop",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bin": {
     "pa-converter": "bin/expedition.js",
     "expedition": "bin/expedition.js"
@@ -11,6 +11,7 @@
     "bin",
     "databases",
     "app",
+    "LICENSE",
     "README.md",
     "scripts",
     "native",

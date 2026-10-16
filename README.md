@@ -237,9 +237,13 @@ Windows MSI: `installer\windows\build.ps1 -Version 5.46.46`
 
 ---
 
+## License
+
+[MIT](LICENSE) — open source for PA-Converter packaging and orchestration. Bundled Expedition application assets remain under their original copyrights (see `LICENSE`).
+
 ## Maintainer
 
-**Tufail Ahmed Sheikh** ([@TufaylAhmed](https://github.com/TufaylAhmed)) · npm **[@sequr3](https://www.npmjs.com/~sequr3)**
+**Tufail Ahmed Sheikh** ([@TufaylAhmed](https://github.com/TufaylAhmed)) · npm **[@tufayl](https://www.npmjs.com/~tufayl)** / **[@sequr3](https://www.npmjs.com/~sequr3)**
 
 ---
 
